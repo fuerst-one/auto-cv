@@ -31,9 +31,9 @@ function Glow() {
   const id = useId();
 
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden bg-gray-950 lg:right-[calc(max(2rem,50%-38rem)+40rem)] lg:min-w-[32rem]">
+    <div className="absolute inset-0 -z-10 overflow-hidden bg-gray-950 lg:right-[calc(max(2rem,50%-38rem)+40rem)] lg:min-w-[32rem] print:hidden">
       <svg
-        className="absolute -bottom-48 left-[-40%] h-[80rem] w-[180%] lg:-right-40 lg:bottom-auto lg:left-auto lg:top-[-40%] lg:h-[180%] lg:w-[80rem]"
+        className="absolute -bottom-48 left-[-40%] h-[80rem] w-[180%] lg:-right-40 lg:bottom-auto lg:left-auto lg:top-[-40%] lg:h-[180%] lg:w-[80rem] print:w-auto"
         aria-hidden="true"
       >
         <defs>
@@ -78,7 +78,7 @@ function FixedSidebar({
       <Glow />
       <div className="relative flex w-full lg:pointer-events-auto lg:mr-[calc(max(2rem,50%-38rem)+40rem)] lg:min-w-[32rem] lg:overflow-y-auto lg:overflow-x-hidden lg:pl-[max(4rem,calc(50%-38rem))]">
         <div className="mx-auto max-w-lg lg:mx-0 lg:flex lg:w-96 lg:max-w-none lg:flex-col lg:before:flex-1 lg:before:pt-6">
-          <div className="pb-16 pt-20 sm:pb-20 sm:pt-32 lg:py-20">
+          <div className="pb-16 pt-20 sm:pb-20 sm:pt-32 lg:py-20 print:py-0">
             <div className="relative">
               <StarField className="-right-44 top-14" />
               {main}

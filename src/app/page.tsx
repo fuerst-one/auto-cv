@@ -72,18 +72,18 @@ export default async function Home({
               compact={!hasFiltersApplied}
             />
           ))}
+          {hasOtherProjects && (
+            <ProjectCollapse>
+              {otherProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  compact={!hasFiltersApplied}
+                />
+              ))}
+            </ProjectCollapse>
+          )}
         </div>
-        {hasOtherProjects && (
-          <ProjectCollapse>
-            {otherProjects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                compact={!hasFiltersApplied}
-              />
-            ))}
-          </ProjectCollapse>
-        )}
       </div>
     </Layout>
   );
