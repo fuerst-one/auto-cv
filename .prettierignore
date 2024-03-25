@@ -1,0 +1,8 @@
+# Ignore artifacts:
+.husky
+.next
+.vscode
+out
+public
+styles/all.css
+node_modules
