@@ -50,18 +50,20 @@ export const ProjectCard = ({
             )}
           </div>
         </div>
-        {logo ? (
-          <div className="h-6 w-auto">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={logo?.[0]}
-              alt={name}
-              className="h-full w-full object-cover"
-            />
-          </div>
-        ) : (
-          <FaImage className="text-xl text-gray-400" />
-        )}
+        <div className="hidden sm:block lg:hidden 2xl:block print:hidden">
+          {logo ? (
+            <div className="h-6 w-auto">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={logo?.[0]}
+                alt={name}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <FaImage className="text-xl text-gray-400" />
+          )}
+        </div>
       </HeaderWrapper>
       {description && (
         <div className="mb-4 px-2 text-xs">
