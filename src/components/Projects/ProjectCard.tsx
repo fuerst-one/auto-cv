@@ -10,6 +10,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
 import { FaImage } from "@react-icons/all-files/fa/FaImage";
 import { FaExternalLinkAlt } from "@react-icons/all-files/fa/FaExternalLinkAlt";
+import { FaChartLine } from "@react-icons/all-files/fa/FaChartLine";
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -21,22 +22,22 @@ export const ProjectCard = ({
   project: CvProject;
   compact?: boolean;
 }) => {
-  const { name, url, projectType, description, startDate, endDate, logo } =
-    project;
+  const { name, url, projectType, startDate, endDate, logo } = project;
+
+  const description = getJsxFormattedTextFromTextBlock(project.description);
+  const kpis = getJsxFormattedTextFromTextBlock(project.kpis);
 
   const { border, text } =
     projectTypeColors[projectType as keyof typeof projectTypeColors] ?? {};
 
   return (
-    <div className={clsx("border-l-2 px-2 py-1", border)}>
+    <div className={clsx("space-y-2 border-l-2 px-6 py-3", border)}>
       <HeaderWrapper
         url={url}
-        className={clsx(
-          "mb-2 flex items-center justify-between px-2 py-1 hover:text-blue-500",
-        )}
+        className={clsx("flex items-center justify-between")}
       >
         <div>
-          <h2 className="text-md font-bold">
+          <h2 className="text-md font-bold leading-tight">
             {name}{" "}
             <span className={clsx("font-medium", text)}>({projectType})</span>
           </h2>
@@ -44,7 +45,7 @@ export const ProjectCard = ({
             <DateRange startDate={startDate} endDate={endDate} />
             {url && (
               <>
-                <FaExternalLinkAlt className="ml-1.5 inline-block text-gray-400 print:hidden" />
+                <FaExternalLinkAlt className="mb-0.5 ml-1.5 inline-block text-xs text-gray-400 print:hidden" />
                 <span className="hidden print:block">{url}</span>
               </>
             )}
@@ -65,16 +66,13 @@ export const ProjectCard = ({
           )}
         </div>
       </HeaderWrapper>
-      {description && (
-        <div className="mb-4 px-2 text-xs">
-          {getJsxFormattedTextFromTextBlock(description)}
+      {kpis && (
+        <div className="text-xs text-green-700">
+          <FaChartLine className="inline" /> {kpis}
         </div>
       )}
-      {!compact && (
-        <div className="">
-          <MetaTable project={project} />
-        </div>
-      )}
+      {description && <div className="text-xs">{description}</div>}
+      {!compact && <MetaTable project={project} />}
     </div>
   );
 };
@@ -95,7 +93,10 @@ const HeaderWrapper = ({
     <Link
       href={url}
       target="_blank"
-      className={clsx(className, "cursor-pointer")}
+      className={clsx(
+        className,
+        "cursor-pointer hover:text-blue-500 [&_div]:hover:text-blue-500 [&_span]:hover:text-blue-500 [&_svg]:hover:text-blue-500",
+      )}
     >
       {children}
     </Link>
@@ -151,7 +152,7 @@ const MetaTable = ({ project }: { project: CvProject }) => {
       {filteredFields.map(({ label, projectKey, value }) => (
         <div
           key={projectKey}
-          className="flex items-center justify-start gap-1 rounded-sm px-2 py-1 text-xs leading-tight odd:bg-gray-100"
+          className="flex items-center justify-start gap-1 rounded-sm py-1 text-xs leading-tight odd:bg-gray-100"
         >
           <h3 className="w-[150px] shrink-0">{label}</h3>
           <Property projectKey={projectKey} value={value} />

@@ -12,20 +12,21 @@ import { RichTextField } from "./types";
 export type CvProject = {
   id: string;
   name: string;
-  logo: string[] | null;
-  description: RichTextField | null;
+  logo: string[];
+  description: RichTextField;
+  kpis: RichTextField;
   status: string;
   featured: boolean;
   projectType: string;
   startDate: string;
-  endDate: string | null;
-  url: string | null;
+  endDate: string;
+  url: string;
   industries: string[];
   experiences: string[];
   tools: string[];
   languages: string[];
-  workplace: string | null;
-  clients: CvClient[] | null;
+  workplace: string;
+  clients: CvClient[];
   // references: CvContact[];
 };
 
@@ -114,19 +115,20 @@ const mergeProjectData = (
     return {
       id: project.id,
       name: project.Name,
-      logo: project.Logo ?? null,
+      logo: project.Logo,
       description: project["Project Description"],
+      kpis: project.KPIs,
       status: project.Status,
       featured: project.Featured,
       projectType: project["Project Type"],
       startDate: project["Start Date"],
       endDate: project["End Date"],
-      url: project.URL || null,
-      industries: project.Industries ?? [],
-      experiences: project.Experiences ?? [],
-      tools: project.Tools ?? [],
-      languages: project.Languages ?? [],
-      workplace: project.Workplace || null,
+      url: project.URL,
+      industries: project.Industries,
+      experiences: project.Experiences,
+      tools: project.Tools,
+      languages: project.Languages,
+      workplace: project.Workplace,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       clients: mappedClients.map(({ contacts, ...client }) => client),
       // references: mappedClients.map(({ contacts }) => contacts).flat(),

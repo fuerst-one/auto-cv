@@ -1,6 +1,6 @@
 import { CvProject } from "@/server/notion/getCvProjects";
 
-type FilterKey = keyof Omit<CvProject, "description" | "clients">;
+type FilterKey = keyof Omit<CvProject, "description" | "kpis" | "clients">;
 
 export const getProjectFilter =
   (searchParams: Record<FilterKey, string | string[]>) =>

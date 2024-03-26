@@ -31,6 +31,7 @@ export type NotionProjectPropertiesRaw = {
   Name: TitleField;
   Logo: FilesField;
   Description: RichTextField;
+  KPIs: RichTextField;
   "Project Type": SelectField;
   "Start Date": DateField;
   "End Date": DateField;
@@ -51,6 +52,7 @@ export type NotionProject = {
   Name: string;
   Logo: string[];
   "Project Description": RichTextField;
+  KPIs: RichTextField;
   Status: string;
   Featured: boolean;
   "Project Type": string;
@@ -80,8 +82,11 @@ export const fetchNotionProjectsDatabase = async () => {
 
   const projects = projectsRaw.results.map((projectRaw) => {
     // We keep the Description field separate from the other properties to keep the rich text annotations
-    const { "Project Description": projectDescription, ...propertiesRaw } =
-      projectRaw.properties;
+    const {
+      "Project Description": projectDescription,
+      KPIs,
+      ...propertiesRaw
+    } = projectRaw.properties;
 
     // Flatten the other properties to get the actual values
     const properties = Object.fromEntries(
@@ -94,6 +99,7 @@ export const fetchNotionProjectsDatabase = async () => {
     return {
       id: projectRaw.id,
       ...properties,
+      KPIs,
       "Project Description": projectDescription,
     } as unknown as NotionProject;
   });

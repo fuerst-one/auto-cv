@@ -9,27 +9,30 @@ import reactStringReplace from "react-string-replace";
 
 export const getJsxFormattedTextFromTextBlock = (
   textBlock: RichTextField | TitleField,
-): JSX.Element => {
+): JSX.Element | null => {
   switch (textBlock.type) {
     case "title":
       return getJsxFormattedTextFromTextBlockContents(textBlock.title);
     case "rich_text":
       return getJsxFormattedTextFromTextBlockContents(textBlock.rich_text);
     default:
-      return <></>;
+      return null;
   }
 };
 
 export const getJsxFormattedTextFromTextBlockContents = (
   textBlockContents: RichTextContent[],
-): JSX.Element => {
+): JSX.Element | null => {
+  if (!textBlockContents?.length) {
+    return null;
+  }
   return <>{textBlockContents.map(getFormattedTextBlock)}</>;
 };
 
 const getFormattedTextBlock = (
   content: RichTextContent,
   idx: number,
-): JSX.Element => {
+): JSX.Element | null => {
   const classNames: string[] = [];
   const style: CSSProperties = {};
 
