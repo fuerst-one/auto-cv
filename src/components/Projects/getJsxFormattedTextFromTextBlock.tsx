@@ -4,7 +4,7 @@ import {
   RichTextField,
   TitleField,
 } from "../../server/notion/types";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import reactStringReplace from "react-string-replace";
 
 export const getJsxFormattedTextFromTextBlock = (
@@ -64,7 +64,7 @@ const getFormattedTextBlock = (
       <a
         key={idx}
         href={content.href}
-        className={clsx(classNames)}
+        className={cn(classNames)}
         style={style}
         target="_blank"
       >
@@ -74,7 +74,7 @@ const getFormattedTextBlock = (
   }
 
   return (
-    <span key={idx} className={clsx(classNames)} style={style}>
+    <span key={idx} className={cn(classNames)} style={style}>
       {text}
     </span>
   );

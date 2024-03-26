@@ -1,5 +1,5 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
-import clsx from "clsx";
 
 function ButtonInner({
   arrow = false,
@@ -26,7 +26,7 @@ export function Button({
   | React.ComponentPropsWithoutRef<typeof Link>
   | ({ href?: undefined } & React.ComponentPropsWithoutRef<"button">)
 )) {
-  className = clsx(
+  className = cn(
     className,
     "group relative isolate flex-none rounded-md py-1.5 text-[0.8125rem]/6 font-semibold text-white",
     arrow ? "pl-2.5 pr-[calc(9/16*1rem)]" : "px-2.5",

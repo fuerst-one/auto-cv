@@ -9,10 +9,10 @@ export const ProjectCollapse = ({ children }: { children: ReactNode }) => {
     return (
       <div>
         <button
-          className="mt-16 w-full rounded border px-2 py-1 text-center print:hidden"
+          className="w-full rounded border px-2 py-1 text-center hover:bg-gray-100 print:hidden"
           onClick={() => setIsCollapsed(false)}
         >
-          Show More
+          Show more projects
         </button>
       </div>
     );

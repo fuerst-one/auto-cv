@@ -1,5 +1,5 @@
 export const projectTypeColors = {
-  "Pro-Bono": {
+  "Pro-Bono / Open Source": {
     background: "bg-green-500/5",
     border: "border-green-500",
     text: "text-green-500",

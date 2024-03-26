@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import "./globals.css";
 
 const openSans = Open_Sans({ subsets: ["latin"] });
@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={clsx(
+        className={cn(
           "flex min-h-full flex-col bg-white dark:bg-gray-950",
           openSans.className,
         )}

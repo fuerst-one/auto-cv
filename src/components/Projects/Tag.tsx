@@ -1,6 +1,6 @@
 "use client";
 
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ReactNode } from "react";
 
@@ -36,7 +36,7 @@ export const Tag = ({
 
   return (
     <span
-      className={clsx(
+      className={cn(
         "rounded-sm border border-gray-300 px-1 py-0.5",
         { "cursor-pointer hover:bg-gray-200": canChangeSearchParams },
         className,

@@ -1,4 +1,4 @@
-import { Suspense, useId } from "react";
+import { ReactNode, Suspense, useId } from "react";
 
 import { Intro, IntroFooter } from "./Intro";
 import { StarField } from "./StarField";
@@ -70,8 +70,8 @@ function FixedSidebar({
   main,
   footer,
 }: {
-  main: React.ReactNode;
-  footer: React.ReactNode;
+  main: ReactNode;
+  footer: ReactNode;
 }) {
   return (
     <div className="relative flex-none overflow-hidden px-6 lg:pointer-events-none lg:fixed lg:inset-0 lg:z-40 lg:flex lg:px-0">
@@ -93,10 +93,16 @@ function FixedSidebar({
   );
 }
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout({
+  claim,
+  children,
+}: {
+  claim: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <>
-      <FixedSidebar main={<Intro />} footer={<IntroFooter />} />
+      <FixedSidebar main={<Intro claim={claim} />} footer={<IntroFooter />} />
       <div className="relative flex-auto">
         <Timeline />
         <main className="space-y-20 py-20 sm:space-y-32">

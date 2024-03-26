@@ -3,7 +3,6 @@ import { getJsxFormattedTextFromTextBlock } from "./getJsxFormattedTextFromTextB
 import { projectTypeColors } from "./projectTypeColors";
 import { CvProject } from "@/server/notion/getCvProjects";
 import { Tag } from "./Tag";
-import clsx from "clsx";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -11,6 +10,7 @@ import Link from "next/link";
 import { FaImage } from "@react-icons/all-files/fa/FaImage";
 import { FaExternalLinkAlt } from "@react-icons/all-files/fa/FaExternalLinkAlt";
 import { FaChartLine } from "@react-icons/all-files/fa/FaChartLine";
+import { cn } from "@/lib/utils";
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -31,15 +31,15 @@ export const ProjectCard = ({
     projectTypeColors[projectType as keyof typeof projectTypeColors] ?? {};
 
   return (
-    <div className={clsx("space-y-2 border-l-2 px-6 py-3", border)}>
+    <div className={cn("space-y-2 border-l-2 px-6 py-3", border)}>
       <HeaderWrapper
         url={url}
-        className={clsx("flex items-center justify-between")}
+        className={cn("flex items-center justify-between")}
       >
         <div>
           <h2 className="text-md font-bold leading-tight">
             {name}{" "}
-            <span className={clsx("font-medium", text)}>({projectType})</span>
+            <span className={cn("font-medium", text)}>({projectType})</span>
           </h2>
           <div className="text-sm text-gray-600">
             <DateRange startDate={startDate} endDate={endDate} />
@@ -93,7 +93,7 @@ const HeaderWrapper = ({
     <Link
       href={url}
       target="_blank"
-      className={clsx(
+      className={cn(
         className,
         "cursor-pointer hover:text-blue-500 [&_div]:hover:text-blue-500 [&_span]:hover:text-blue-500 [&_svg]:hover:text-blue-500",
       )}
@@ -148,17 +148,17 @@ const MetaTable = ({ project }: { project: CvProject }) => {
     }));
 
   return (
-    <>
+    <div className="flex flex-col">
       {filteredFields.map(({ label, projectKey, value }) => (
         <div
           key={projectKey}
-          className="flex items-center justify-start gap-1 rounded-sm py-1 text-xs leading-tight odd:bg-gray-100"
+          className="-mx-1 flex items-center justify-start gap-1 rounded-sm px-2 py-1 text-xs leading-tight odd:bg-gray-100"
         >
           <h3 className="w-[150px] shrink-0">{label}</h3>
           <Property projectKey={projectKey} value={value} />
         </div>
       ))}
-    </>
+    </div>
   );
 };
 

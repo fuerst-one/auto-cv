@@ -2,145 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-:root,
-*::before,
-*::after {
-  --screen-xs: "360px";
-  --screen-sm: "480px";
-  --screen-md: "768px";
-  --screen-lg: "1024px";
-  --screen-xl: "1280px";
-  --screen-xxl: "1440px";
-  --screen-hd: "1920px";
-  --screen-retina: "2560px";
-  --screen-uhd: "3840px";
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
 
-  --font-size: 16px;
-  --font-size-2xs: 10px;
-  --font-size-xs: 12px;
-  --font-size-sm: 14px;
-  --font-size-h5: 20px;
-  --font-size-h4: 23px;
-  --font-size-h3: 28px;
-  --font-size-h2: 32px;
-  --font-size-h1: 45px;
-  --font-size-display: 60px;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
 
-  --spacing-2xs: 0.25rem;
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 0.75rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
-  --spacing-3xl: 6rem;
-  --spacing-4xl: 12rem;
-  --spacing-5xl: 24rem;
-  --spacing-6xl: 48rem;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
 
-  --color-white: #fdfcfc;
-  --color-black: #151211;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
 
-  --color-primary-light: #e3fe97;
-  --color-primary: #bbe93f;
-  --color-primary-hover: #cbf55c;
-  --color-primary-dark: #738a36;
-  --color-primary-text: #414f19;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
 
-  --color-secondary-light: #b98bdc;
-  --color-secondary: #a959e7;
-  --color-secondary-hover: #8c20df;
-  --color-secondary-dark: #3c0068;
-  --color-secondary-text: #1b0834;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
 
-  --color-green-light: #97f1d3;
-  --color-green: #13f7ab;
-  --color-green-hover: #00e79b;
-  --color-green-dark: #1dbf89;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
 
-  --color-yellow-light: #ffeb91;
-  --color-yellow: #ffe354;
-  --color-yellow-hover: #f8d525;
-  --color-yellow-dark: #c69f00;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-  --color-red-light: #ecb8a5;
-  --color-red: #ff8e6a;
-  --color-red-hover: #f16e45;
-  --color-red-dark: #b54928;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
 
-  --color-purple-light: #cd99ef;
-  --color-purple: #c175ff;
-  --color-purple-hover: #b35bf6;
-  --color-purple-dark: #8f43ce;
+    --radius: 0.5rem;
+  }
 
-  --color-blue-light: #9dd6f1;
-  --color-blue: #69cdff;
-  --color-blue-hover: #2fa3de;
-  --color-blue-dark: #2084b8;
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
 
-  --color-gray-50: #f9f8f7;
-  --color-gray-100: #f7f6f5;
-  --color-gray-200: #dad9d8;
-  --color-gray-300: #bcbbba;
-  --color-gray-400: #9e9d9c;
-  --color-gray-500: #807e7d;
-  --color-gray-600: #62605f;
-  --color-gray-700: #444241;
-  --color-gray-800: #262423;
-  --color-gray-900: #1b1918;
-  --color-gray-950: #110f0f;
-  --color-gray-transparent: rgba(0, 0, 0, 0.15);
-  --color-gray-transparent-light: rgba(0, 0, 0, 0.05);
-  --color-gray-transparent-dark: rgba(255, 255, 255, 0.15);
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-  --border-radius: .25rem;
-  --border-radius-tag: 0.1rem;
-  --border-radius-btn: 0.2rem;
-  --border-radius-xs: 0.1rem;
-  --border-radius-sm: 0.2rem;
-  --border-radius-lg: .5rem;
-  --border-radius-full: 9999px;
-  --border-radius-none: 0;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-  --border-width: 1px;
-  --border-width-sm: 0.5px;
-  --border-width-lg: 5px;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
 
-  --border-color: rgba(0, 0, 0, 0.3);
-  --border-color-light: rgba(0, 0, 0, 0.1);
-  --border-color-dark: rgba(0, 0, 0, 0.3);
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
 
-  --box-shadow: 0 0.05rem 0.1rem rgba(0, 0, 0, 0.07);
-  --box-shadow-sm: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.05);
-  --box-shadow-lg: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.15);
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
 
-  --box-shadow-card-inset: inset 0 0.2rem 0.5rem rgba(255, 255, 255, 1);
-  --box-shadow-card-sm-inset: inset 0 0 0.33rem rgb(122 122 122 / 2%);
-  --box-shadow-card-lg-inset: inset 0 0 1.5rem rgb(122 122 122 / 7%);
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
 
-  --box-shadow-card-outset: 0 0 2rem 0 rgba(212, 212, 212, 0.4);
-  --box-shadow-card-sm-outset: 0 0 1rem rgb(122 122 122 / 12%);
-  --box-shadow-card-lg-outset: 0 0 5rem rgb(122 122 122 / 25%);
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
-  --box-shadow-card: var(--box-shadow-card-inset), var(--box-shadow-card-outset);
-  --box-shadow-card-sm: var(--box-shadow-card-sm-inset),
-    var(--box-shadow-card-sm-outset);
-  --box-shadow-card-lg: var(--box-shadow-card-lg-inset),
-    var(--box-shadow-card-lg-outset);
-
-  --font-mono: "Source Code Pro", Consolas, "Andale Mono WT", "Andale Mono",
-    "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono",
-    "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco,
-    "Courier New", Courier, monospace;
-
-  --font-sans: "Open Sans", Frutiger, "Frutiger Linotype", Univers, Calibri,
-    "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans",
-    "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial,
-    sans serif;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+  }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
