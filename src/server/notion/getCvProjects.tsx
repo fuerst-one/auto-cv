@@ -20,7 +20,8 @@ export type CvProject = {
   projectType: string;
   startDate: string;
   endDate: string;
-  url: string;
+  websiteUrl: string;
+  githubUrl: string;
   industries: string[];
   experiences: string[];
   tools: string[];
@@ -47,16 +48,21 @@ export type CvContact = {
 };
 
 export const getCvProjects = async () => {
-  const projects = await fetchNotionProjectsDatabase();
-  const clients = await getClientsFromNotionProjects(projects);
-  const contacts = await getContactsFromNotionClients(clients);
-  const projectsMerged = mergeProjectData(projects, clients, contacts);
-  const projectsSorted = projectsMerged.sort((a, b) => {
-    if (a.endDate === null) return -1;
-    if (b.endDate === null) return 1;
-    return a.endDate < b.endDate ? 1 : -1;
-  });
-  return projectsSorted;
+  try {
+    const projects = await fetchNotionProjectsDatabase();
+    const clients = await getClientsFromNotionProjects(projects);
+    const contacts = await getContactsFromNotionClients(clients);
+    const projectsMerged = mergeProjectData(projects, clients, contacts);
+    const projectsSorted = projectsMerged.sort((a, b) => {
+      if (a.endDate === null) return -1;
+      if (b.endDate === null) return 1;
+      return a.endDate < b.endDate ? 1 : -1;
+    });
+    return projectsSorted;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 };
 
 const getClientsFromNotionProjects = async (projects: NotionProject[]) => {
@@ -123,7 +129,8 @@ const mergeProjectData = (
       projectType: project["Project Type"],
       startDate: project["Start Date"],
       endDate: project["End Date"],
-      url: project.URL,
+      websiteUrl: project["Website-URL"],
+      githubUrl: project["Github-URL"],
       industries: uniq(project.Industries),
       experiences: uniq(project.Experiences),
       tools: uniq(project.Tools),

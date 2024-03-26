@@ -37,7 +37,8 @@ export type NotionProjectPropertiesRaw = {
   "End Date": DateField;
   Duration: FormulaField;
   Status: SelectField;
-  URL: UrlField;
+  "Website-URL": UrlField;
+  "Github-URL": UrlField;
   Industries: RollupField;
   Experiences: MultiSelectField;
   Tools: MultiSelectField;
@@ -59,7 +60,8 @@ export type NotionProject = {
   "Start Date": string;
   "End Date": string;
   Duration: string;
-  URL: string;
+  "Website-URL": string;
+  "Github-URL": string;
   Industries: string[];
   Experiences: string[];
   Tools: string[];

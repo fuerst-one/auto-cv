@@ -10,7 +10,7 @@ export const fetchNotionPage = async (pageId: string) => {
       fetch(url, {
         ...options,
         next: {
-          revalidate: isDev() ? 0 : 3600,
+          revalidate: isDev() ? 120 : 3600,
         },
       }),
   });

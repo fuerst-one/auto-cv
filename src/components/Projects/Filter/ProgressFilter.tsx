@@ -1,40 +1,14 @@
 "use client";
 
-import React, { Fragment, useState } from "react";
-import { Tag } from "./Tag";
-import { CvProject } from "@/server/notion/getCvProjects";
-import { Progress } from "../ui/progress";
+import { useState, Fragment } from "react";
+import { Progress } from "@/components/ui/progress";
+import { Tag } from "../Tag";
+import { ItemCount } from "./types";
 import maxBy from "lodash/maxBy";
 
 const SLICE_DEFAULT = 6;
 
-export type FilterOption = {
-  label: string;
-  projectKey: keyof CvProject;
-  itemCounts: ItemCount[];
-};
-
-type ItemCount = {
-  itemKey: string;
-  count: number;
-};
-
-export const ProjectFilter = ({
-  filterOption,
-}: {
-  filterOption: FilterOption;
-}) => {
-  const { label, projectKey, itemCounts } = filterOption;
-
-  return (
-    <div className="px-2 py-1">
-      <h2 className="text-md mb-2 font-bold">{label}</h2>
-      <ProgressFilter projectKey={projectKey} itemCounts={itemCounts} />
-    </div>
-  );
-};
-
-const ProgressFilter = ({
+export const ProgressFilter = ({
   projectKey,
   itemCounts,
 }: {

@@ -1,4 +1,3 @@
-import { ReactNode } from "react";
 import { getJsxFormattedTextFromTextBlock } from "./getJsxFormattedTextFromTextBlock";
 import { projectTypeColors } from "./projectTypeColors";
 import { CvProject } from "@/server/notion/getCvProjects";
@@ -10,6 +9,7 @@ import Link from "next/link";
 import { FaImage } from "@react-icons/all-files/fa/FaImage";
 import { FaExternalLinkAlt } from "@react-icons/all-files/fa/FaExternalLinkAlt";
 import { FaChartLine } from "@react-icons/all-files/fa/FaChartLine";
+import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
 import { cn } from "@/lib/utils";
 
 dayjs.extend(duration);
@@ -22,7 +22,8 @@ export const ProjectCard = ({
   project: CvProject;
   compact?: boolean;
 }) => {
-  const { name, url, projectType, startDate, endDate, logo } = project;
+  const { name, projectType, websiteUrl, githubUrl, startDate, endDate, logo } =
+    project;
 
   const description = getJsxFormattedTextFromTextBlock(project.description);
   const kpis = getJsxFormattedTextFromTextBlock(project.kpis);
@@ -32,10 +33,7 @@ export const ProjectCard = ({
 
   return (
     <div className={cn("space-y-2 border-l-2 px-6 py-3", border)}>
-      <HeaderWrapper
-        url={url}
-        className={cn("flex items-center justify-between")}
-      >
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="text-md font-bold leading-tight">
             {name}{" "}
@@ -43,11 +41,27 @@ export const ProjectCard = ({
           </h2>
           <div className="text-sm text-gray-600">
             <DateRange startDate={startDate} endDate={endDate} />
-            {url && (
-              <>
-                <FaExternalLinkAlt className="mb-0.5 ml-1.5 inline-block text-xs text-gray-400 print:hidden" />
-                <span className="hidden print:block">{url}</span>
-              </>
+            {websiteUrl && (
+              <Link
+                href={websiteUrl}
+                target="_blank"
+                className="ml-1 inline-flex items-center gap-1 rounded-sm bg-gray-100 px-1 text-xs font-medium print:ml-0 print:block print:px-0"
+              >
+                Website<span className="hidden print:inline">: </span>
+                <FaExternalLinkAlt className="print:hidden" />
+                <span className="hidden print:inline">{websiteUrl}</span>
+              </Link>
+            )}
+            {githubUrl && (
+              <Link
+                href={websiteUrl}
+                target="_blank"
+                className="ml-1 inline-flex items-center gap-1 rounded-sm bg-gray-100 px-1 text-xs font-medium print:ml-0 print:block print:px-0"
+              >
+                Github<span className="hidden print:inline">: </span>
+                <FaGithub className="print:hidden" />
+                <span className="hidden print:inline">{githubUrl}</span>
+              </Link>
             )}
           </div>
         </div>
@@ -65,7 +79,7 @@ export const ProjectCard = ({
             <FaImage className="text-xl text-gray-400" />
           )}
         </div>
-      </HeaderWrapper>
+      </div>
       {kpis && (
         <div className="text-xs text-green-700">
           <FaChartLine className="inline" /> {kpis}
@@ -74,32 +88,6 @@ export const ProjectCard = ({
       {description && <div className="text-xs">{description}</div>}
       {!compact && <MetaTable project={project} />}
     </div>
-  );
-};
-
-const HeaderWrapper = ({
-  url,
-  className,
-  children,
-}: {
-  url?: string | null;
-  className?: string;
-  children: ReactNode;
-}) => {
-  if (!url) {
-    return <div className={className}>{children}</div>;
-  }
-  return (
-    <Link
-      href={url}
-      target="_blank"
-      className={cn(
-        className,
-        "cursor-pointer hover:text-blue-500 [&_div]:hover:text-blue-500 [&_span]:hover:text-blue-500 [&_svg]:hover:text-blue-500",
-      )}
-    >
-      {children}
-    </Link>
   );
 };
 
@@ -116,10 +104,20 @@ const DateRange = ({
     endDateObj = dayjs();
   }
   const duration = dayjs.duration(endDateObj.diff(startDateObj)).humanize();
+  const startDateFormatted = startDateObj.format("YYYY/MM");
+  const endDateFormatted = endDateObj.format("YYYY/MM");
+
+  if (startDateFormatted === endDateFormatted) {
+    return (
+      <span>
+        {startDateFormatted} ({duration})
+      </span>
+    );
+  }
+
   return (
     <span>
-      {startDateObj.format("YYYY/MM")} - {endDateObj.format("YYYY/MM")} (
-      {duration})
+      {startDateFormatted} - {endDateFormatted} ({duration})
     </span>
   );
 };

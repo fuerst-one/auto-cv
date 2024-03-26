@@ -7,7 +7,7 @@ function Timeline() {
   const id = useId();
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden lg:right-[calc(max(2rem,50%-38rem)+40rem)] lg:min-w-[32rem] lg:overflow-visible print:hidden">
+    <div className="pointer-events-none absolute inset-0 z-50 hidden overflow-hidden lg:right-[calc(max(2rem,50%-38rem)+40rem)] lg:block lg:min-w-[32rem] lg:overflow-visible print:hidden">
       <svg
         className="absolute left-[max(0px,calc(50%-18.125rem))] top-0 h-full w-1.5 lg:left-full lg:ml-1 xl:left-auto xl:right-1 xl:ml-0"
         aria-hidden="true"

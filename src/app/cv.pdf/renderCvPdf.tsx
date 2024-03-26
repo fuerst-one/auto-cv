@@ -60,7 +60,7 @@ const ProjectCard = ({ project }: { project: CvProject }) => {
 
 const MetaTable = ({ project }: { project: CvProject }) => {
   const rows: (keyof CvProject)[] = [
-    "url",
+    "websiteUrl",
     "clients",
     "industries",
     "experiences",
@@ -114,7 +114,7 @@ const Property = <TKey extends keyof CvProject>({
           ))}
         </Text>
       );
-    case "url":
+    case "websiteUrl":
       if (!value) {
         return null;
       }
