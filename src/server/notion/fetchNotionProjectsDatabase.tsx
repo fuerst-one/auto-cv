@@ -27,6 +27,7 @@ export type NotionProjectRaw = PageObjectResponse & {
 };
 
 export type NotionProjectPropertiesRaw = {
+  Hidden: CheckBoxField;
   Featured: CheckBoxField;
   Name: TitleField;
   Logo: FilesField;
@@ -55,6 +56,7 @@ export type NotionProject = {
   "Project Description": RichTextField;
   KPIs: RichTextField;
   Status: string;
+  Hidden: boolean;
   Featured: boolean;
   "Project Type": string;
   "Start Date": string;

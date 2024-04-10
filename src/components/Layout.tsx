@@ -1,6 +1,6 @@
 import { ReactNode, Suspense, useId } from "react";
 
-import { Intro, IntroFooter } from "./Intro";
+import { IntroFooter } from "./Intro";
 import { StarField } from "./StarField";
 
 function Timeline() {
@@ -66,13 +66,7 @@ function Glow() {
   );
 }
 
-function FixedSidebar({
-  main,
-  footer,
-}: {
-  main: ReactNode;
-  footer: ReactNode;
-}) {
+function FixedSidebar({ children }: { children: ReactNode }) {
   return (
     <div className="relative flex-none overflow-hidden px-6 lg:pointer-events-none lg:fixed lg:inset-0 lg:z-40 lg:flex lg:px-0">
       <Glow />
@@ -81,11 +75,11 @@ function FixedSidebar({
           <div className="pb-16 pt-20 sm:pb-20 sm:pt-32 lg:py-20 print:py-0">
             <div className="relative">
               <StarField className="-right-44 top-14" />
-              {main}
+              {children}
             </div>
           </div>
           <div className="flex flex-1 items-end justify-center pb-4 lg:justify-start lg:pb-6">
-            {footer}
+            <IntroFooter />
           </div>
         </div>
       </div>
@@ -94,19 +88,23 @@ function FixedSidebar({
 }
 
 export function Layout({
-  claim,
+  sidebarContent,
   children,
 }: {
-  claim: ReactNode;
+  sidebarContent: ReactNode;
   children: ReactNode;
 }) {
   return (
     <>
-      <FixedSidebar main={<Intro claim={claim} />} footer={<IntroFooter />} />
+      <FixedSidebar>{sidebarContent}</FixedSidebar>
       <div className="relative flex-auto">
         <Timeline />
-        <main className="space-y-20 py-20 sm:space-y-32">
-          <Suspense>{children}</Suspense>
+        <main className="mx-auto max-w-7xl space-y-20 px-6 py-20 sm:space-y-32 lg:flex lg:px-8">
+          <div className="lg:ml-96 lg:flex lg:w-full lg:justify-end lg:pl-32">
+            <div className="mx-auto max-w-lg lg:mx-0 lg:w-0 lg:max-w-xl lg:flex-auto">
+              <Suspense>{children}</Suspense>
+            </div>
+          </div>
         </main>
       </div>
     </>

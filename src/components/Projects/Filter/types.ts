@@ -1,6 +1,6 @@
 import { CvProject } from "@/server/notion/getCvProjects";
 
-export type DisplayType = "progress" | "pie";
+export type DisplayType = "bar" | "pie" | "treemap";
 
 export type FilterConfig = {
   projectKey: keyof CvProject;
@@ -18,4 +18,5 @@ export type FilterOption = {
 export type ItemCount = {
   itemKey: string;
   count: number;
+  color?: string;
 };

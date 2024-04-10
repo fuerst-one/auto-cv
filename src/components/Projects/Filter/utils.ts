@@ -1,7 +1,22 @@
 import { CvProject } from "@/server/notion/getCvProjects";
+import countBy from "lodash/countBy";
+import { colors } from "../colors";
 
 type FilterKey = keyof Omit<CvProject, "description" | "kpis" | "clients">;
 export type FilterParams = Partial<Record<FilterKey, string[]>>;
+
+export const getFilterOptionCounts = (
+  projects: CvProject[],
+  key: keyof CvProject,
+) => {
+  const countsByKey = countBy(projects.map((project) => project[key]).flat());
+  const countsSorted = Object.entries(countsByKey).sort((a, b) => b[1] - a[1]);
+  return countsSorted.map(([itemKey, count]) => ({
+    itemKey,
+    count,
+    color: colors[key]?.[itemKey]?.hex,
+  }));
+};
 
 export const filterProjects = (
   projects: CvProject[],

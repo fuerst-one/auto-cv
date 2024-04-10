@@ -1,5 +1,5 @@
 import { getJsxFormattedTextFromTextBlock } from "./getJsxFormattedTextFromTextBlock";
-import { projectTypeColors } from "./projectTypeColors";
+import { colors } from "./colors";
 import { CvProject } from "@/server/notion/getCvProjects";
 import { Tag } from "./Tag";
 import dayjs from "dayjs";
@@ -28,17 +28,16 @@ export const ProjectCard = ({
   const description = getJsxFormattedTextFromTextBlock(project.description);
   const kpis = getJsxFormattedTextFromTextBlock(project.kpis);
 
-  const { border, text } =
-    projectTypeColors[projectType as keyof typeof projectTypeColors] ?? {};
+  const { border, text } = colors.projectType![projectType] ?? {};
 
   return (
-    <div className={cn("space-y-2 border-l-2 px-6 py-3", border)}>
+    <article className={cn("space-y-2 border-l-2 px-6 py-3", border)}>
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-md font-bold leading-tight">
+        <header>
+          <h3 className="text-md font-bold leading-tight">
             {name}{" "}
             <span className={cn("font-medium", text)}>({projectType})</span>
-          </h2>
+          </h3>
           <div className="text-sm text-gray-600">
             <DateRange startDate={startDate} endDate={endDate} />
             {websiteUrl && (
@@ -64,7 +63,7 @@ export const ProjectCard = ({
               </Link>
             )}
           </div>
-        </div>
+        </header>
         <div className="hidden sm:block lg:hidden 2xl:block print:hidden">
           {logo ? (
             <div className="h-6 w-auto">
@@ -87,7 +86,7 @@ export const ProjectCard = ({
       )}
       {description && <div className="text-xs">{description}</div>}
       {!compact && <MetaTable project={project} />}
-    </div>
+    </article>
   );
 };
 

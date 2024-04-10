@@ -1,4 +1,4 @@
-import { FilterParams } from "./Filter/filterProjects";
+import { FilterParams } from "./Filter/utils";
 
 export const getClaim = (filterParams: FilterParams) => {
   const { projectType, experiences } = filterParams;

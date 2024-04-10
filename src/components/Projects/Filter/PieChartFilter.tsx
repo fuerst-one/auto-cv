@@ -1,36 +1,60 @@
-"use client";
-
-import { PieChart } from "@/components/ui/pie-chart";
-import { projectTypeColors } from "../projectTypeColors";
-import { ItemCount } from "./types";
-import { useToggleSearchParam } from "../useToggleSearchParam";
+import { ClientChartWrapper } from "./ClientChartWrapper";
+import { FilterConfig } from "./types";
+import { getFilterOptionCounts } from "./utils";
+import { CvProject } from "@/server/notion/getCvProjects";
 
 export const PieChartFilter = ({
-  projectKey,
-  itemCounts,
+  filterConfig,
+  projects,
 }: {
-  projectKey: string;
-  itemCounts: ItemCount[];
+  filterConfig: FilterConfig;
+  projects: CvProject[];
 }) => {
-  const toggleSearchParam = useToggleSearchParam();
+  const { projectKey } = filterConfig;
+  const itemCounts = getFilterOptionCounts(projects, projectKey);
+
+  const data = itemCounts.map(({ itemKey, count, color }) => ({
+    name: itemKey,
+    value: count,
+    itemStyle: {
+      color,
+    },
+  }));
+
   return (
     <div className="flex h-[210px] w-full items-start justify-center">
-      <PieChart
-        data={itemCounts.map(({ itemKey, count }) => ({
-          id: itemKey.slice(0, 9),
-          value: count,
-        }))}
-        colors={itemCounts.map(
-          ({ itemKey }) =>
-            projectTypeColors[itemKey as keyof typeof projectTypeColors].hex +
-            "cc",
-        )}
-        enableArcLabels={true}
-        enableArcLinkLabels={false}
-        onClick={(e) => {
-          toggleSearchParam(projectKey, e.id as string);
+      <ClientChartWrapper
+        projectKey={projectKey}
+        chartProps={{
+          option: {
+            tooltip: {
+              trigger: "item",
+              formatter: "{b}: {c} ({d}%)",
+            },
+            series: [
+              {
+                name: "Project Types",
+                type: "pie",
+                radius: "95%",
+                center: ["50%", "50%"],
+                data: data,
+                label: {
+                  position: "inside",
+                  color: "white",
+                },
+              },
+            ],
+          },
         }}
       />
+      <dl className="hidden">
+        {itemCounts.map(({ itemKey, count }) => (
+          <div key={itemKey}>
+            <dt>{itemKey}</dt>
+            <dd>{count}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 };

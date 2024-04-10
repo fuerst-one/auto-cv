@@ -113,7 +113,9 @@ const mergeProjectData = (
       };
     });
 
-  return projects.map((project) => {
+  const filteredProjects = projects.filter((project) => !project.Hidden);
+
+  return filteredProjects.map((project) => {
     const mappedClients = project.Clients.map(
       (relation) =>
         clientsWithContacts.find((client) => client.id === relation.id)!,

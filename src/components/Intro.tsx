@@ -1,11 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { IconLink } from "./IconLink";
-import { SignUpForm } from "./SignUpForm";
 import { FaMap } from "@react-icons/all-files/fa/FaMap";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
 import { FaLinkedin } from "@react-icons/all-files/fa/FaLinkedin";
 import { ReactNode } from "react";
+import { SignUpForm } from "./SignUpForm";
 
 export function Intro({ claim }: { claim: ReactNode }) {
   return (
@@ -21,7 +21,7 @@ export function Intro({ claim }: { claim: ReactNode }) {
         <span className="font-black">Alexander Fuerst</span>
         <br />
         <span className="text-2xl font-light text-sky-300 print:text-black">
-          Curriculum Vitae & Portfolio
+          UI Engineer – CV & Portfolio
         </span>
       </h1>
       <p className="mt-4 text-sm/6 text-gray-300 print:text-black">{claim}</p>

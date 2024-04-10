@@ -3,7 +3,7 @@ import { Open_Sans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 
-const openSans = Open_Sans({ subsets: ["latin"] });
+const font = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Alexander Fuerst - Fuerst.one Auto-CV",
@@ -20,7 +20,7 @@ export default function RootLayout({
       <body
         className={cn(
           "flex min-h-full flex-col bg-white dark:bg-gray-950",
-          openSans.className,
+          font.className,
         )}
       >
         {children}
