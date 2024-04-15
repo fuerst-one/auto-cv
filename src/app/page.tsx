@@ -11,6 +11,7 @@ import { ProjectCollapse } from "@/components/Projects/ProjectCollapse";
 import { FilterConfig } from "@/components/Projects/Filter/types";
 import { Intro } from "@/components/Intro";
 import { getClaim } from "@/components/Projects/getClaim";
+import { FloatingObjects } from "@/components/3D/FloatingObjects";
 
 const SLICE_DEFAULT = 8;
 
@@ -60,7 +61,16 @@ export default async function Home({
   const hasOtherProjects = otherProjects.length > 0;
 
   return (
-    <Layout sidebarContent={<Intro claim={getClaim(filterParams)} />}>
+    <Layout
+      sidebarBackground={
+        <div className="absolute inset-0">
+          <FloatingObjects />
+        </div>
+      }
+      sidebarContent={<Intro claim={getClaim(filterParams)} />}
+    >
+      {/* <FuerstOneKeyboard /> */}
+
       <div className="pl-2 pr-2 lg:pl-4 lg:pr-4">
         {!hasFiltersApplied && (
           <div className="mb-8">
@@ -71,22 +81,22 @@ export default async function Home({
             <hr className="my-8" />
           </div>
         )}
-        <div className="mb-4 text-2xl font-bold">
-          <h2 className="inline">
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold">
             {filteredProjects.length} carefully curated
             {firstFilterApplied ? ` "${firstFilterApplied}"` : ""} projects{" "}
           </h2>
-          <p className="inline">
+          <p className="text-sm">
             {hasFiltersApplied ? (
               <Link
                 href="/"
-                className="text-sm text-blue-500 hover:underline print:hidden"
+                className="text-blue-500 hover:underline print:hidden"
               >
-                (see all)
+                See all projects
               </Link>
             ) : (
-              <span className="text-sm text-gray-500">
-                - try clicking on something above to filter
+              <span className="text-gray-500">
+                Try clicking on something above to filter
               </span>
             )}
           </p>

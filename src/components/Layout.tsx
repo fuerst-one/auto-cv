@@ -66,12 +66,19 @@ function Glow() {
   );
 }
 
-function FixedSidebar({ children }: { children: ReactNode }) {
+function FixedSidebar({
+  background,
+  children,
+}: {
+  background: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <div className="relative flex-none overflow-hidden px-6 lg:pointer-events-none lg:fixed lg:inset-0 lg:z-40 lg:flex lg:px-0">
       <Glow />
       <div className="relative flex w-full lg:pointer-events-auto lg:mr-[calc(max(2rem,50%-38rem)+40rem)] lg:min-w-[32rem] lg:overflow-y-auto lg:overflow-x-hidden lg:pl-[max(4rem,calc(50%-38rem))]">
-        <div className="mx-auto max-w-lg lg:mx-0 lg:flex lg:w-96 lg:max-w-none lg:flex-col lg:before:flex-1 lg:before:pt-6">
+        {background}
+        <div className="z-10 mx-auto max-w-lg lg:mx-0 lg:flex lg:w-96 lg:max-w-none lg:flex-col lg:before:flex-1 lg:before:pt-6">
           <div className="pb-16 pt-20 sm:pb-20 sm:pt-32 lg:py-20 print:py-0">
             <div className="relative">
               <StarField className="-right-44 top-14" />
@@ -89,14 +96,18 @@ function FixedSidebar({ children }: { children: ReactNode }) {
 
 export function Layout({
   sidebarContent,
+  sidebarBackground,
   children,
 }: {
   sidebarContent: ReactNode;
+  sidebarBackground?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <>
-      <FixedSidebar>{sidebarContent}</FixedSidebar>
+      <FixedSidebar background={sidebarBackground}>
+        {sidebarContent}
+      </FixedSidebar>
       <div className="relative flex-auto">
         <Timeline />
         <main className="mx-auto max-w-7xl space-y-20 px-6 py-20 sm:space-y-32 lg:flex lg:px-8">
