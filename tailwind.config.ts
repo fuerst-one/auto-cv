@@ -18,20 +18,20 @@ const config = {
       },
     },
     extend: {
+      boxShadow: {
+        skeuomorphic:
+          "inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff",
+        "skeuomorphic-sm":
+          "inset 3px 3px 6px #bebebe, inset -3px -3px 6px #ffffff",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
+        primary: "#007bff",
+        secondary: "#6c757d",
+        background: "#f8f9fa",
+        foreground: "#ffffff",
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",

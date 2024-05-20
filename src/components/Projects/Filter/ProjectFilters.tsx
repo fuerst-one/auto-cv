@@ -4,14 +4,9 @@ import { FilterConfig } from "./types";
 import { PieChartFilter } from "./PieChartFilter";
 import { BarChartFilter } from "./BarChartFilter";
 import { TreemapFilter } from "./TreemapFilter";
+import { filterConfigs } from "../filterConfigs";
 
-export const ProjectFilters = ({
-  projects,
-  filterConfigs,
-}: {
-  projects: CvProject[];
-  filterConfigs: FilterConfig[];
-}) => {
+export const ProjectFilters = ({ projects }: { projects: CvProject[] }) => {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {filterConfigs.map((filterConfig) => (
