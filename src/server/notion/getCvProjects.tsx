@@ -12,16 +12,17 @@ import { RichTextField } from "./types";
 export type CvProject = {
   id: string;
   name: string;
-  logo: string[];
+  logo: string[] | null;
+  images: string[] | null;
   description: RichTextField;
   kpis: RichTextField;
   status: string;
   featured: boolean;
   projectType: string;
   startDate: string;
-  endDate: string;
-  websiteUrl: string;
-  githubUrl: string;
+  endDate: string | null;
+  websiteUrl: string | null;
+  githubUrl: string | null;
   industries: string[];
   experiences: string[];
   tools: string[];
@@ -58,6 +59,7 @@ export const getCvProjects = async () => {
       if (b.endDate === null) return 1;
       return a.endDate < b.endDate ? 1 : -1;
     });
+
     return projectsSorted;
   } catch (error) {
     console.error(error);
@@ -124,6 +126,7 @@ const mergeProjectData = (
       id: project.id,
       name: project.Name,
       logo: project.Logo,
+      images: [],
       description: project["Project Description"],
       kpis: project.KPIs,
       status: project.Status,

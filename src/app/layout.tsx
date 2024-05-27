@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "flex min-h-full flex-col bg-white dark:bg-gray-950",
+          "flex min-h-full flex-col bg-white text-black dark:bg-gray-950",
           font.className,
         )}
       >

@@ -53,7 +53,7 @@ export const ProjectCard = ({
             )}
             {githubUrl && (
               <Link
-                href={websiteUrl}
+                href={githubUrl}
                 target="_blank"
                 className="ml-1 inline-flex items-center gap-1 rounded-sm bg-gray-100 px-1 text-xs font-medium print:ml-0 print:block print:px-0"
               >

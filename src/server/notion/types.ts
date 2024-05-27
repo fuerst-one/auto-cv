@@ -29,7 +29,7 @@ export type RichTextContent = {
   type: "text";
   text: {
     content: string;
-    link: string | null;
+    link: { url: string } | null;
   };
   annotations: {
     bold: boolean;
