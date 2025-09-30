@@ -31,6 +31,7 @@ export type NotionProjectPropertiesRaw = {
   Featured: CheckBoxField;
   Name: TitleField;
   Logo: FilesField;
+  Screenshots: FilesField;
   Description: RichTextField;
   KPIs: RichTextField;
   "Project Type": SelectField;
@@ -53,6 +54,7 @@ export type NotionProject = {
   id: string;
   Name: string;
   Logo: string[];
+  Screenshots: string[];
   "Project Description": RichTextField;
   KPIs: RichTextField;
   Status: string;
