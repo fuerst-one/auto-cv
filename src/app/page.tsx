@@ -22,10 +22,6 @@ export default async function Home({
 }) {
   const projects = await getCvProjects();
 
-  if (!projects?.length) {
-    throw new Error("No projects found");
-  }
-
   const filterParams = parseProjectSearchParams(searchParams);
   const firstFilterApplied = Object.entries(searchParams).find(
     ([key, value]) =>
