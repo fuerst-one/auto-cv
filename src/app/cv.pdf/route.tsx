@@ -2,6 +2,9 @@ import { getCvProjects } from "@/server/notion/getCvProjects";
 import { renderCvPdf } from "./renderCvPdf";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 // This route will create a PDF from the CV projects
 export const GET = async () => {
   const projects = await getCvProjects();
