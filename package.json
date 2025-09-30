@@ -11,7 +11,7 @@
     "prettier:fix": "prettier --write .",
     "eslint": "eslint . --ext .ts",
     "eslint:fix": "eslint . --ext .ts --fix",
-    "pre-commit": "yarn eslint:fix && yarn prettier:fix",
+    "pre-commit": "pnpm eslint:fix && pnpm prettier:fix",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -63,5 +63,6 @@
     "tailwindcss": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "pnpm@10.13.1"
 }
