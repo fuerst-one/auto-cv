@@ -2,11 +2,12 @@ import Link from "next/link";
 import { Layout } from "@/components/Layout";
 import { ProjectCard } from "@/components/Projects/ProjectCard";
 import { getCvProjects } from "@/server/notion/getCvProjects";
-import { filterProjects } from "@/components/Projects/Filter/utils";
+import { filterProjects, FilterParams } from "@/components/Projects/Filter/utils";
 import { ProjectCollapse } from "@/components/Projects/ProjectCollapse";
 import { Intro } from "@/components/Intro";
 import { getClaim } from "@/components/Projects/getClaim";
 import { FiltersCollapse } from "@/components/Projects/Filter/FiltersCollapse";
+import { FilterSqlConsole } from "@/components/Projects/Filter/FilterSqlConsole";
 import {
   ProjectSearchParams,
   parseProjectSearchParams,
@@ -28,10 +29,11 @@ export default async function Home({
       filterConfigs.find(({ projectKey }) => projectKey === key) && value,
   )?.[1];
   const hasFiltersApplied = !!firstFilterApplied;
-  const filteredProjects = filterProjects(projects, {
-    ...filterParams,
-    ...(!Object.keys(filterParams).length && { featured: ["true"] }),
-  });
+  const hasUserFilters = Object.keys(filterParams).length > 0;
+  const effectiveFilterParams: FilterParams = hasUserFilters
+    ? filterParams
+    : { ...filterParams, featured: ["true"] };
+  const filteredProjects = filterProjects(projects, effectiveFilterParams);
   const featuredProjects = filteredProjects.slice(0, SLICE_DEFAULT);
   const otherProjects = filteredProjects.slice(SLICE_DEFAULT);
   const hasOtherProjects = otherProjects.length > 0;
@@ -55,11 +57,17 @@ export default async function Home({
             surfaced by recency. Use the analysis tools to remix the view and dive
             deeper into the collaborations, stacks, and outcomes that matter to you.
           </p>
-          {!hasFiltersApplied && (
-            <div className="pt-2">
-              <FiltersCollapse projects={projects} />
+          <div className="pt-2">
+            <div className="space-y-4">
+              <FilterSqlConsole
+                filterParams={effectiveFilterParams}
+                projects={projects}
+              />
+              {!hasFiltersApplied && (
+                <FiltersCollapse projects={projects} />
+              )}
             </div>
-          )}
+          </div>
           {hasFiltersApplied && (
             <Link
               href="/"
