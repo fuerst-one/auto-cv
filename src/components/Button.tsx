@@ -10,7 +10,7 @@ function ButtonInner({
 }) {
   return (
     <span className="relative flex items-center gap-3 px-5 py-2">
-      <span className="text-[0.7rem] font-semibold uppercase tracking-[0.45em]">
+      <span className="text-[0.7rem] font-semibold uppercase tracking-wide">
         {children}
       </span>
       {arrow ? <span aria-hidden="true">↗</span> : null}
