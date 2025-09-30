@@ -22,17 +22,17 @@ export function Layout({
         <header className="flex flex-col gap-6 text-sm text-slate-400">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <div className="flex flex-col gap-2">
-              <span className="font-[var(--font-plex)] text-[0.65rem] uppercase tracking-[0.42em] text-emerald-300/80">
+              <span className="font-[var(--font-plex)] text-[0.65rem] uppercase tracking-wide text-emerald-300/80">
                 fuerst.one
               </span>
               <div className="flex flex-col gap-1 text-slate-200">
                 <span className="text-2xl font-semibold text-white">Alexander Fuerst</span>
-                <span className="font-[var(--font-plex)] text-xs uppercase tracking-[0.35em] text-slate-400">
+                <span className="font-[var(--font-plex)] text-xs uppercase tracking-wide text-slate-400">
                   UI engineer · generative aesthetics · product craftsmanship
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-4 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[0.7rem] font-[var(--font-plex)] uppercase tracking-[0.32em] text-slate-300">
+            <div className="flex items-center gap-4 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[0.7rem] font-[var(--font-plex)] uppercase tracking-wide text-slate-300">
               <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
               Creative Technologist
             </div>

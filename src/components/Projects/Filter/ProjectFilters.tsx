@@ -14,7 +14,7 @@ export const ProjectFilters = ({ projects }: { projects: CvProject[] }) => {
           key={filterConfig.projectKey}
           className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"
         >
-          <h2 className="text-md mb-4 font-[var(--font-plex)] text-xs uppercase tracking-[0.3em] text-slate-300">
+          <h2 className="text-md mb-4 font-[var(--font-plex)] text-xs uppercase tracking-wide text-slate-300">
             {filterConfig.label}
           </h2>
           <Filter filterConfig={filterConfig} projects={projects} />
