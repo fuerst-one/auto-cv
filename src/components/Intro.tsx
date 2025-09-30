@@ -3,8 +3,8 @@ import Image from "next/image";
 import { ReactNode } from "react";
 import { SignUpForm } from "./SignUpForm";
 import { Contact } from "./Contact";
-import { ProjectFilters } from "./Projects/Filter/ProjectFilters";
 import { CvProject } from "@/server/notion/getCvProjects";
+import { ProjectAnalysisPanel } from "./Projects/Filter/ProjectAnalysisPanel";
 
 export function Intro({
   claim,
@@ -47,18 +47,7 @@ export function Intro({
         </p>
       </div>
       <SignUpForm />
-      <div className="space-y-3 print:hidden">
-        <div className="space-y-1">
-          <span className="text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-emerald-300/80">
-            Project Analysis
-          </span>
-          <p className="text-xs text-slate-400">
-            Explore the collaborations, stacks, and outcomes fueling my recent
-            work.
-          </p>
-        </div>
-        <ProjectFilters projects={projects} />
-      </div>
+      <ProjectAnalysisPanel projects={projects} />
       <Contact />
     </div>
   );

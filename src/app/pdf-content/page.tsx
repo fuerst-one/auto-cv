@@ -5,6 +5,7 @@ import {
   ProjectSearchParams,
   parseProjectSearchParams,
 } from "@/components/Projects/parseSearchParams";
+import { Suspense } from "react";
 import { ProjectFilters } from "@/components/Projects/Filter/ProjectFilters";
 import { ProjectCard } from "@/components/PDF/ProjectCard";
 import Image from "next/image";
@@ -57,7 +58,9 @@ export default async function PDFContent({
           <h2 className="mb-4 text-2xl font-semibold text-gray-800 dark:text-gray-200">
             The aggregate of my 9 years work experience
           </h2>
-          <ProjectFilters projects={projects} />
+          <Suspense fallback={null}>
+            <ProjectFilters projects={projects} />
+          </Suspense>
         </section>
         <section className="mb-24">
           <h2 className="mb-4 text-2xl font-semibold text-gray-800 dark:text-gray-200">
