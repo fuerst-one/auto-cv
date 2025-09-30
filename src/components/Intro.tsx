@@ -19,21 +19,21 @@ export function Intro({ claim }: { claim: ReactNode }) {
           <div className="absolute inset-0 rounded-[1.1rem] border border-white/10 opacity-0 transition group-hover:opacity-100" />
         </div>
         <div className="flex-1 space-y-3">
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-[0.45em] text-emerald-200">
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-emerald-200">
             <span className="h-1 w-1 rounded-full bg-emerald-400 animate-[pulse-glow_4s_ease-in-out_infinite]" />
             Creative Technologist
           </span>
           <h1 className="text-4xl font-semibold leading-tight text-white">
             Alexander Fuerst
           </h1>
-          <p className="font-[var(--font-plex)] text-xs uppercase tracking-[0.35em] text-slate-400">
+          <p className="font-[var(--font-plex)] text-xs uppercase tracking-wide text-slate-400">
             UI engineer · generative aesthetics · product craftsmanship
           </p>
         </div>
       </div>
       <div className="space-y-4 text-sm text-slate-300">
         <p className="text-base leading-relaxed text-slate-200">{claim}</p>
-        <p className="font-[var(--font-plex)] text-xs uppercase tracking-[0.3em] text-slate-400">
+        <p className="font-[var(--font-plex)] text-xs uppercase tracking-wide text-slate-400">
           Building immersive interfaces that fuse rigorous systems with playful art.
         </p>
       </div>

@@ -44,7 +44,7 @@ export default async function Home({
     <Layout sidebarContent={<Intro claim={getClaim(filterParams)} />}>
       <div className="pl-1 pr-1 lg:pl-4 lg:pr-4">
         <div className="mb-12 space-y-5">
-          <span className="font-[var(--font-plex)] text-[0.65rem] uppercase tracking-[0.4em] text-emerald-300/80">
+          <span className="font-[var(--font-plex)] text-[0.65rem] uppercase tracking-wide text-emerald-300/80">
             Project Index
           </span>
           <h2 className="text-3xl font-semibold text-white">
@@ -63,7 +63,7 @@ export default async function Home({
           {hasFiltersApplied && (
             <Link
               href="/"
-              className="inline-flex items-center gap-3 text-sm font-[var(--font-plex)] uppercase tracking-[0.3em] text-emerald-300 transition hover:text-white print:hidden"
+              className="inline-flex items-center gap-3 text-sm font-[var(--font-plex)] uppercase tracking-wide text-emerald-300 transition hover:text-white print:hidden"
             >
               Reset filters
             </Link>
