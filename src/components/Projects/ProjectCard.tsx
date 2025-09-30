@@ -28,63 +28,78 @@ export const ProjectCard = ({
   const description = getJsxFormattedTextFromTextBlock(project.description);
   const kpis = getJsxFormattedTextFromTextBlock(project.kpis);
 
-  const { border, text } = colors.projectType![projectType] ?? {};
+  const { text } = colors.projectType![projectType] ?? {};
 
   return (
-    <article className={cn("space-y-2 border-l-2 px-6 py-3", border)}>
-      <div className="flex items-center justify-between">
-        <header>
-          <h3 className="text-md font-bold leading-tight">
-            {name}{" "}
-            <span className={cn("font-medium", text)}>({projectType})</span>
-          </h3>
-          <div className="text-sm text-gray-600">
-            <DateRange startDate={startDate} endDate={endDate} />
+    <article
+      className={cn(
+        "group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_18px_40px_rgba(8,11,19,0.45)] backdrop-blur transition",
+        "hover:border-emerald-400/50 hover:bg-white/10",
+      )}
+    >
+      <div className="relative flex items-start justify-between gap-4">
+        <header className="space-y-3">
+          <div className="space-y-1">
+            <span className={cn("inline-flex items-center gap-2 font-[var(--font-plex)] text-[0.65rem] uppercase tracking-[0.2em] text-slate-400", text)}>
+              <span className="h-1 w-1 rounded-full bg-emerald-400" />
+              {projectType}
+            </span>
+            <h3 className="text-2xl font-semibold text-white">{name}</h3>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+            <span className="font-[var(--font-plex)] tracking-[0.12em]">
+              <DateRange startDate={startDate} endDate={endDate} />
+            </span>
             {websiteUrl && (
               <Link
                 href={websiteUrl}
                 target="_blank"
-                className="ml-1 inline-flex items-center gap-1 rounded-sm bg-gray-100 px-1 text-xs font-medium print:ml-0 print:block print:px-0"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-[0.18em] text-slate-200 transition hover:border-emerald-400/50 hover:text-white print:ml-0 print:block"
               >
-                Website<span className="hidden print:inline">: </span>
-                <FaExternalLinkAlt className="print:hidden" />
-                <span className="hidden print:inline">{websiteUrl}</span>
+                Website
+                <FaExternalLinkAlt className="text-xs print:hidden" />
+                <span className="hidden print:inline">: {websiteUrl}</span>
               </Link>
             )}
             {githubUrl && (
               <Link
                 href={githubUrl}
                 target="_blank"
-                className="ml-1 inline-flex items-center gap-1 rounded-sm bg-gray-100 px-1 text-xs font-medium print:ml-0 print:block print:px-0"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-[0.18em] text-slate-200 transition hover:border-emerald-400/50 hover:text-white print:ml-0 print:block"
               >
-                Github<span className="hidden print:inline">: </span>
-                <FaGithub className="print:hidden" />
-                <span className="hidden print:inline">{githubUrl}</span>
+                GitHub
+                <FaGithub className="text-xs print:hidden" />
+                <span className="hidden print:inline">: {githubUrl}</span>
               </Link>
             )}
           </div>
         </header>
-        <div className="hidden sm:block lg:hidden 2xl:block print:hidden">
+        <div className="hidden shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-slate-200 shadow-inner sm:flex lg:hidden 2xl:flex print:hidden">
           {logo ? (
-            <div className="h-6 w-auto">
+            <div className="h-8 w-20">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={logo?.[0]}
                 alt={name}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain"
               />
             </div>
           ) : (
-            <FaImage className="text-xl text-gray-400" />
+            <FaImage className="text-xl" />
           )}
         </div>
       </div>
       {kpis && (
-        <div className="text-xs text-green-700">
-          <FaChartLine className="inline" /> {kpis}
+        <div className="relative mt-4 flex items-center gap-2 text-sm text-emerald-300">
+          <FaChartLine className="text-base" />
+          <span>{kpis}</span>
         </div>
       )}
-      {description && <div className="text-xs">{description}</div>}
+      {description && (
+        <div className="mt-4 space-y-2 text-sm leading-relaxed text-slate-200">
+          {description}
+        </div>
+      )}
       {!compact && <MetaTable project={project} />}
     </article>
   );
@@ -109,14 +124,14 @@ const DateRange = ({
   if (startDateFormatted === endDateFormatted) {
     return (
       <span>
-        {startDateFormatted} ({duration})
+        {startDateFormatted} · {duration}
       </span>
     );
   }
 
   return (
     <span>
-      {startDateFormatted} - {endDateFormatted} ({duration})
+      {startDateFormatted} – {endDateFormatted} · {duration}
     </span>
   );
 };
@@ -145,13 +160,15 @@ const MetaTable = ({ project }: { project: CvProject }) => {
     }));
 
   return (
-    <div className="flex flex-col">
+    <div className="mt-6 space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
       {filteredFields.map(({ label, projectKey, value }) => (
         <div
           key={projectKey}
-          className="-mx-1 flex items-center justify-start gap-1 rounded-sm px-2 py-1 text-xs leading-tight odd:bg-gray-100"
+          className="flex flex-col gap-1 rounded-xl border border-white/10 bg-slate-900/40 p-3 sm:flex-row sm:items-baseline sm:gap-4"
         >
-          <h3 className="w-[150px] shrink-0">{label}</h3>
+          <h3 className="w-36 shrink-0 font-[var(--font-plex)] text-[0.7rem] uppercase tracking-[0.2em] text-slate-400">
+            {label}
+          </h3>
           <Property projectKey={projectKey} value={value} />
         </div>
       ))}
@@ -168,7 +185,7 @@ const Property = <TKey extends keyof CvProject>({
 }) => {
   if (projectKey === "clients") {
     return (
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-2">
         {(value as { id: string; name: string }[]).map((item) => (
           <Tag key={item.id} className="flex gap-0.5">
             <div>{item.name}</div>
@@ -179,7 +196,7 @@ const Property = <TKey extends keyof CvProject>({
   }
   if (Array.isArray(value)) {
     return (
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-2">
         {(value as string[]).map((i, idx) => (
           <Tag key={idx} searchParamKey={projectKey} value={i}>
             {i}
@@ -188,5 +205,5 @@ const Property = <TKey extends keyof CvProject>({
       </div>
     );
   }
-  return value as string;
+  return <span className="text-slate-200">{value as string}</span>;
 };

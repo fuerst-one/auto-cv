@@ -8,10 +8,15 @@ import { filterConfigs } from "../filterConfigs";
 
 export const ProjectFilters = ({ projects }: { projects: CvProject[] }) => {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
       {filterConfigs.map((filterConfig) => (
-        <div key={filterConfig.projectKey} className="rounded-lg border p-2">
-          <h2 className="text-md mb-2 font-bold">{filterConfig.label}</h2>
+        <div
+          key={filterConfig.projectKey}
+          className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"
+        >
+          <h2 className="text-md mb-4 font-[var(--font-plex)] text-xs uppercase tracking-[0.18em] text-slate-300">
+            {filterConfig.label}
+          </h2>
           <Filter filterConfig={filterConfig} projects={projects} />
         </div>
       ))}

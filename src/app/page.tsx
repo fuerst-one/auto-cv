@@ -35,31 +35,39 @@ export default async function Home({
   const featuredProjects = filteredProjects.slice(0, SLICE_DEFAULT);
   const otherProjects = filteredProjects.slice(SLICE_DEFAULT);
   const hasOtherProjects = otherProjects.length > 0;
+  const descriptor =
+    firstFilterApplied && firstFilterApplied !== "true"
+      ? firstFilterApplied
+      : "signature";
 
   return (
     <Layout sidebarContent={<Intro claim={getClaim(filterParams)} />}>
-      <div className="pl-2 pr-2 lg:pl-4 lg:pr-4">
-        <div className="mb-4">
-          <h2 className="text-2xl font-bold">
-            My {filteredProjects.length} most interesting
-            {firstFilterApplied ? ` "${firstFilterApplied}"` : ""} projects{" "}
-            sorted by most recent
+      <div className="pl-1 pr-1 lg:pl-4 lg:pr-4">
+        <div className="mb-12 space-y-5">
+          <span className="font-[var(--font-plex)] text-[0.65rem] uppercase tracking-[0.22em] text-emerald-300/80">
+            Project Index
+          </span>
+          <h2 className="text-3xl font-semibold text-white">
+            {filteredProjects.length} {descriptor} projects, handcrafted for momentum
           </h2>
+          <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
+            Every entry is a blend of systems thinking and generative aesthetics,
+            surfaced by recency. Use the analysis tools to remix the view and dive
+            deeper into the collaborations, stacks, and outcomes that matter to you.
+          </p>
           {!hasFiltersApplied && (
-            <div className="my-4">
+            <div className="pt-2">
               <FiltersCollapse projects={projects} />
             </div>
           )}
-          <p className="text-sm">
-            {hasFiltersApplied && (
-              <Link
-                href="/"
-                className="text-blue-500 hover:underline print:hidden"
-              >
-                See all projects
-              </Link>
-            )}
-          </p>
+          {hasFiltersApplied && (
+            <Link
+              href="/"
+              className="inline-flex items-center gap-3 text-sm font-[var(--font-plex)] uppercase tracking-[0.18em] text-emerald-300 transition hover:text-white print:hidden"
+            >
+              Reset filters
+            </Link>
+          )}
         </div>
         <div className="space-y-8">
           {featuredProjects.map((project) => (

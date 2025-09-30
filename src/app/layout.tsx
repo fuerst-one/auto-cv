@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
+import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 
-const font = Open_Sans({ subsets: ["latin"] });
+const grotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-grotesk",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex",
+});
 
 export const metadata: Metadata = {
   title: "Alexander Fuerst - Fuerst.one Auto-CV",
@@ -19,8 +28,10 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "flex min-h-full flex-col bg-white text-black dark:bg-gray-950",
-          font.className,
+          "relative flex min-h-full flex-col bg-background text-foreground antialiased",
+          grotesk.className,
+          grotesk.variable,
+          plexMono.variable,
         )}
       >
         {children}

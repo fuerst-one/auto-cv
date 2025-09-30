@@ -16,13 +16,13 @@ export function IconLink({
       {...props}
       className={cn(
         className,
-        "hover:text-sky-30 group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-black/30 transition-colors dark:text-white/30 dark:hover:text-sky-700",
-        compact ? "gap-x-2" : "gap-x-3",
+        "group relative isolate flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[0.75rem] font-medium text-slate-200 transition hover:border-emerald-400/50 hover:text-white",
+        compact ? "px-3" : "px-4",
       )}
     >
-      <span className="absolute inset-0 -z-10 scale-75 rounded-lg bg-black/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100 dark:bg-white/5" />
-      {Icon && <Icon className="h-4 w-4 flex-none" />}
-      <span className="self-baseline text-black dark:text-white">
+      <span className="absolute inset-0 -z-10 scale-95 rounded-full border border-white/10 bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100" />
+      {Icon && <Icon className="h-4 w-4 flex-none text-emerald-300" />}
+      <span className="self-baseline text-slate-100">
         {children}
       </span>
     </Link>

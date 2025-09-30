@@ -1,123 +1,62 @@
-import { ReactNode, Suspense, useId } from "react";
+import { ReactNode, Suspense } from "react";
 
 import { IntroFooter } from "./Intro";
-import { StarField } from "./StarField";
-
-function Timeline() {
-  const id = useId();
-
-  return (
-    <div className="pointer-events-none absolute inset-0 z-50 hidden overflow-hidden lg:right-[calc(max(2rem,50%-38rem)+40rem)] lg:block lg:min-w-[32rem] lg:overflow-visible print:hidden">
-      <svg
-        className="absolute left-[max(0px,calc(50%-18.125rem))] top-0 h-full w-1.5 lg:left-full lg:ml-1 xl:left-auto xl:right-1 xl:ml-0"
-        aria-hidden="true"
-      >
-        <defs>
-          <pattern id={id} width="6" height="8" patternUnits="userSpaceOnUse">
-            <path
-              d="M0 0H6M0 8H6"
-              className="stroke-sky-900/10 dark:stroke-white/10 xl:stroke-white/10"
-              fill="none"
-            />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill={`url(#${id})`} />
-      </svg>
-    </div>
-  );
-}
-
-function Glow() {
-  const id = useId();
-
-  return (
-    <div className="absolute inset-0 -z-10 overflow-hidden bg-gray-950 lg:right-[calc(max(2rem,50%-38rem)+40rem)] lg:min-w-[32rem] print:hidden">
-      <svg
-        className="absolute -bottom-48 left-[-40%] h-[80rem] w-[180%] lg:-right-40 lg:bottom-auto lg:left-auto lg:top-[-40%] lg:h-[180%] lg:w-[80rem] print:w-auto"
-        aria-hidden="true"
-      >
-        <defs>
-          <radialGradient id={`${id}-desktop`} cx="100%">
-            <stop offset="0%" stopColor="rgba(56, 189, 248, 0.3)" />
-            <stop offset="53.95%" stopColor="rgba(0, 71, 255, 0.09)" />
-            <stop offset="100%" stopColor="rgba(10, 14, 23, 0)" />
-          </radialGradient>
-          <radialGradient id={`${id}-mobile`} cy="100%">
-            <stop offset="0%" stopColor="rgba(56, 189, 248, 0.3)" />
-            <stop offset="53.95%" stopColor="rgba(0, 71, 255, 0.09)" />
-            <stop offset="100%" stopColor="rgba(10, 14, 23, 0)" />
-          </radialGradient>
-        </defs>
-        <rect
-          width="100%"
-          height="100%"
-          fill={`url(#${id}-desktop)`}
-          className="hidden lg:block"
-        />
-        <rect
-          width="100%"
-          height="100%"
-          fill={`url(#${id}-mobile)`}
-          className="lg:hidden"
-        />
-      </svg>
-      <div className="absolute inset-x-0 bottom-0 right-0 h-px bg-white mix-blend-overlay lg:left-auto lg:top-0 lg:h-auto lg:w-px" />
-    </div>
-  );
-}
-
-function FixedSidebar({
-  background,
-  children,
-}: {
-  background: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <div className="dark relative flex-none overflow-hidden px-6 lg:pointer-events-none lg:fixed lg:inset-0 lg:z-40 lg:flex lg:px-0">
-      <Glow />
-      <div className="relative flex w-full lg:pointer-events-auto lg:mr-[calc(max(2rem,50%-38rem)+40rem)] lg:min-w-[32rem] lg:overflow-y-auto lg:overflow-x-hidden lg:pl-[max(4rem,calc(50%-38rem))]">
-        {background}
-        <div className="z-10 mx-auto max-w-lg lg:mx-0 lg:flex lg:w-96 lg:max-w-none lg:flex-col lg:before:flex-1 lg:before:pt-6">
-          <div className="pb-16 pt-20 sm:pb-20 sm:pt-32 lg:py-20 print:py-0">
-            <div className="relative">
-              <StarField className="-right-44 top-14" />
-              {children}
-            </div>
-          </div>
-          <div className="flex flex-1 items-end justify-center pb-4 lg:justify-start lg:pb-6">
-            <IntroFooter />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function Layout({
   sidebarContent,
-  sidebarBackground,
   children,
 }: {
   sidebarContent: ReactNode;
-  sidebarBackground?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <>
-      <FixedSidebar background={sidebarBackground}>
-        {sidebarContent}
-      </FixedSidebar>
-      <div className="relative flex-auto">
-        <Timeline />
-        <main className="mx-auto max-w-7xl space-y-20 px-6 py-20 sm:space-y-32 lg:flex lg:px-8">
-          <div className="lg:ml-96 lg:flex lg:w-full lg:justify-end lg:pl-32">
-            <div className="mx-auto max-w-lg lg:mx-0 lg:w-0 lg:max-w-xl lg:flex-auto">
-              <Suspense>{children}</Suspense>
+    <div className="relative min-h-screen overflow-hidden">
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-32 top-[-20%] h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.16),transparent_65%)] blur-3xl" />
+        <div className="absolute right-[-12%] top-1/3 h-[34rem] w-[34rem] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.18),transparent_60%)] blur-3xl" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,11,19,0.65),rgba(7,11,19,0.92))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.12),transparent_75%)]" />
+      </div>
+
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 py-12 sm:px-8 lg:px-12">
+        <header className="flex flex-col gap-6 text-sm text-slate-400">
+          <div className="flex flex-wrap items-center justify-between gap-6">
+            <div className="flex flex-col gap-2">
+              <span className="font-[var(--font-plex)] text-[0.65rem] uppercase tracking-[0.22em] text-emerald-300/80">
+                fuerst.one
+              </span>
+              <div className="flex flex-col gap-1 text-slate-200">
+                <span className="text-2xl font-semibold text-white">Alexander Fuerst</span>
+                <span className="font-[var(--font-plex)] text-xs uppercase tracking-[0.2em] text-slate-400">
+                  UI engineer · generative aesthetics · product craftsmanship
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[0.7rem] font-[var(--font-plex)] uppercase tracking-[0.18em] text-slate-300">
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              Creative Technologist
             </div>
           </div>
-        </main>
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+        </header>
+
+        <div className="grid items-start gap-12 lg:grid-cols-[360px,1fr] lg:gap-16">
+          <aside className="lg:sticky lg:top-24">
+            <div className="relative space-y-10 overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-[0_25px_60px_rgba(8,11,19,0.55)] backdrop-blur-xl">
+              <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+              {sidebarContent}
+              <div className="border-t border-white/10 pt-6 text-xs text-slate-500">
+                <IntroFooter />
+              </div>
+            </div>
+          </aside>
+          <main className="flex-1 pb-24">
+            <div className="mx-auto w-full max-w-3xl space-y-12">
+              <Suspense>{children}</Suspense>
+            </div>
+          </main>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -21,8 +21,11 @@ export const Tag = ({
   return (
     <span
       className={cn(
-        "rounded-sm border border-gray-300 px-1 py-0.5",
-        { "cursor-pointer hover:bg-gray-200": hasSearchParam },
+        "inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-[0.18em] text-slate-200 transition",
+        {
+          "cursor-pointer border-emerald-400/40 text-emerald-200 hover:border-emerald-300/60 hover:text-white":
+            hasSearchParam,
+        },
         className,
       )}
       onClick={() => toggleSearchParam(searchParamKey, value)}

@@ -6,35 +6,59 @@ import { Contact } from "./Contact";
 
 export function Intro({ claim }: { claim: ReactNode }) {
   return (
-    <>
-      <Image
-        src="/avatar.png"
-        alt="Alexander Fuerst"
-        width={80}
-        height={80}
-        className="h-20 w-20 print:mt-8"
-      />
-      <h1 className="font-display mt-6 text-4xl/tight text-black dark:text-white print:text-black">
-        <span className="font-black">Alexander Fuerst</span>
-        <br />
-        <span className="text-2xl font-light text-sky-300 dark:text-sky-300 print:text-black">
-          UI Engineer – CV & Portfolio
-        </span>
-      </h1>
-      <p className="mt-4 text-sm/6 text-gray-700 dark:text-gray-300 print:text-black">
-        {claim}
-      </p>
+    <div className="space-y-6">
+      <div className="flex items-start gap-4">
+        <div className="group relative h-20 w-20 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-1">
+          <Image
+            src="/avatar.png"
+            alt="Alexander Fuerst"
+            width={80}
+            height={80}
+            className="h-full w-full rounded-[1.1rem] object-cover"
+          />
+          <div className="absolute inset-0 rounded-[1.1rem] border border-white/10 opacity-0 transition group-hover:opacity-100" />
+        </div>
+        <div className="flex-1 space-y-3">
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-[0.24em] text-emerald-200">
+            <span className="h-1 w-1 rounded-full bg-emerald-400 animate-[pulse-glow_4s_ease-in-out_infinite]" />
+            Creative Technologist
+          </span>
+          <h1 className="text-4xl font-semibold leading-tight text-white">
+            Alexander Fuerst
+          </h1>
+          <p className="font-[var(--font-plex)] text-xs uppercase tracking-[0.2em] text-slate-400">
+            UI engineer · generative aesthetics · product craftsmanship
+          </p>
+        </div>
+      </div>
+      <div className="space-y-4 text-sm text-slate-300">
+        <p className="text-base leading-relaxed text-slate-200">{claim}</p>
+        <p className="font-[var(--font-plex)] text-xs uppercase tracking-[0.16em] text-slate-400">
+          Building immersive interfaces that fuse rigorous systems with playful art.
+        </p>
+      </div>
       <SignUpForm />
       <Contact />
-    </>
+    </div>
   );
 }
 
 export function IntroFooter() {
   return (
-    <p className="flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500 print:hidden">
-      <Link href="https://fuerst.one/imprint">Imprint</Link>|
-      <Link href="https://fuerst.one/privacy-policy">Privacy Policy</Link>
+    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.75rem] text-slate-500 print:hidden">
+      <Link
+        className="transition hover:text-emerald-300"
+        href="https://fuerst.one/imprint"
+      >
+        Imprint
+      </Link>
+      <span className="opacity-40">/</span>
+      <Link
+        className="transition hover:text-emerald-300"
+        href="https://fuerst.one/privacy-policy"
+      >
+        Privacy Policy
+      </Link>
     </p>
   );
 }

@@ -9,11 +9,12 @@ function ButtonInner({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <span className="absolute inset-0 rounded-md bg-gradient-to-b from-white/80 to-white opacity-10 transition-opacity group-hover:opacity-15" />
-      <span className="opacity-7.5 absolute inset-0 rounded-md transition-opacity group-hover:opacity-10" />
-      {children} {arrow ? <span aria-hidden="true">&rarr;</span> : null}
-    </>
+    <span className="relative flex items-center gap-3 px-5 py-2">
+      <span className="text-[0.7rem] font-semibold uppercase tracking-[0.24em]">
+        {children}
+      </span>
+      {arrow ? <span aria-hidden="true">↗</span> : null}
+    </span>
   );
 }
 
@@ -27,9 +28,8 @@ export function Button({
   | ({ href?: undefined } & React.ComponentPropsWithoutRef<"button">)
 )) {
   className = cn(
+    "inline-flex flex-none items-center justify-center overflow-hidden rounded-full bg-emerald-400/90 text-slate-950 shadow-[0_10px_30px_rgba(16,185,129,0.25)] transition hover:bg-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950",
     className,
-    "group relative isolate flex-none rounded-md py-1.5 text-[0.8125rem]/6 font-semibold text-white",
-    arrow ? "pl-2.5 pr-[calc(9/16*1rem)]" : "px-2.5",
   );
 
   return typeof props.href === "undefined" ? (
