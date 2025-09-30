@@ -13,7 +13,7 @@ export type CvProject = {
   id: string;
   name: string;
   logo: string[] | null;
-  images: string[] | null;
+  screenshots: string[] | null;
   description: RichTextField;
   kpis: RichTextField;
   status: string;
@@ -126,7 +126,7 @@ const mergeProjectData = (
       id: project.id,
       name: project.Name,
       logo: project.Logo,
-      images: [],
+      screenshots: project.Screenshots,
       description: project["Project Description"],
       kpis: project.KPIs,
       status: project.Status,

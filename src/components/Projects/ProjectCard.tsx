@@ -40,7 +40,12 @@ export const ProjectCard = ({
       <div className="relative flex items-start justify-between gap-4">
         <header className="space-y-3">
           <div className="space-y-1">
-            <span className={cn("inline-flex items-center gap-2 font-[var(--font-plex)] text-[0.65rem] uppercase tracking-wide text-slate-400", text)}>
+            <span
+              className={cn(
+                "inline-flex items-center gap-2 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-slate-400",
+                text,
+              )}
+            >
               <span className="h-1 w-1 rounded-full bg-emerald-400" />
               {projectType}
             </span>
@@ -166,7 +171,7 @@ const MetaTable = ({ project }: { project: CvProject }) => {
           key={projectKey}
           className="flex flex-col gap-1 rounded-xl border border-white/10 bg-slate-900/40 p-3 sm:flex-row sm:items-baseline sm:gap-4"
         >
-          <h3 className="w-36 shrink-0 font-[var(--font-plex)] text-[0.7rem] uppercase tracking-wide text-slate-400">
+          <h3 className="w-36 shrink-0 text-[0.7rem] font-[var(--font-plex)] uppercase tracking-wide text-slate-400">
             {label}
           </h3>
           <Property projectKey={projectKey} value={value} />
