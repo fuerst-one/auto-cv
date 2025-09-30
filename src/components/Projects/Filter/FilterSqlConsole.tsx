@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { CvProject } from "@/server/notion/getCvProjects";
@@ -67,10 +67,13 @@ export const FilterSqlConsole = ({
 }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isExpanded, setIsExpanded] = useState(false);
+  const panelId = useId();
 
-  const normalizedFilters = useMemo(() => normalizeFilters(filterParams), [
-    filterParams,
-  ]);
+  const normalizedFilters = useMemo(
+    () => normalizeFilters(filterParams),
+    [filterParams],
+  );
 
   const sqlStatement = useMemo(
     () => buildSqlStatement(normalizedFilters),
@@ -139,13 +142,33 @@ export const FilterSqlConsole = ({
 
   return (
     <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-5 shadow-lg shadow-emerald-500/5">
-      <div className="flex items-center justify-between">
-        <h3 className="font-mono text-xs uppercase tracking-[0.3em] text-emerald-300/80">
-          Project query console
-        </h3>
-        <span className="font-mono text-[0.65rem] text-emerald-500/60">
-          SELECT mode
-        </span>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="font-mono text-xs uppercase tracking-[0.3em] text-emerald-300/80">
+            Project query console
+          </h3>
+          <span className="font-mono text-[0.65rem] text-emerald-500/60">
+            SELECT mode
+          </span>
+        </div>
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-black/50 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-[0.3em] text-emerald-300 transition hover:border-emerald-400/40 hover:text-emerald-100"
+          onClick={() => setIsExpanded((prev) => !prev)}
+          aria-expanded={isExpanded}
+          aria-controls={panelId}
+        >
+          {isExpanded ? "Collapse" : "Expand"}
+          <span
+            className={clsx(
+              "text-emerald-400 transition-transform",
+              isExpanded ? "rotate-180" : "rotate-0",
+            )}
+            aria-hidden="true"
+          >
+            ▾
+          </span>
+        </button>
       </div>
       <div className="mt-4 rounded-xl border border-emerald-400/20 bg-black/60 p-4 font-mono text-[0.8rem] leading-relaxed text-emerald-100">
         <span className="mr-2 text-emerald-500">&gt;</span>
@@ -153,101 +176,112 @@ export const FilterSqlConsole = ({
           {sqlStatement}
         </pre>
       </div>
-      <div className="mt-5">
-        <div className="mb-3 flex flex-wrap items-center gap-2 text-[0.7rem] font-mono uppercase tracking-[0.2em] text-emerald-400/70">
-          <span>Active filters</span>
-          <div className="flex flex-wrap gap-2">
-            {activeFilters.length ? (
-              activeFilters.map(({ key, label, value }) => (
-                <span
-                  key={`${key}-${value}`}
-                  className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-[0.65rem] text-emerald-200"
-                >
-                  {label}:{" "}
-                  <span className="text-emerald-100">{value}</span>
-                </span>
-              ))
-            ) : (
-              <span className="text-emerald-500/60">None</span>
-            )}
-          </div>
-        </div>
-        <label className="block font-mono text-[0.65rem] uppercase tracking-[0.3em] text-emerald-400/70">
-          Search dataset
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Filter values..."
-            className="mt-2 w-full rounded-lg border border-emerald-500/20 bg-black/60 px-3 py-2 font-sans text-sm text-emerald-100 outline-none transition focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-500/20"
-          />
-        </label>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {cliFilterGroups.map(({ key, label, options }) => {
-            const activeValues = new Set(normalizedFilters[key] ?? []);
-            const filteredOptions = options.filter((option) => {
-              if (!loweredQuery) {
-                return true;
-              }
-              if (activeValues.has(option.value)) {
-                return true;
-              }
-              return option.value.toLowerCase().includes(loweredQuery);
-            });
-
-            return (
-              <div
-                key={key}
-                className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3"
-              >
-                <div className="mb-2 flex items-center justify-between font-mono text-[0.7rem] uppercase tracking-[0.25em] text-emerald-300">
-                  <span>{label}</span>
-                  <span className="text-emerald-500/60">
-                    {activeValues.size > 0 ? `${activeValues.size} selected` : "--"}
-                  </span>
-                </div>
-                {filteredOptions.length ? (
-                  <ul className="flex max-h-48 flex-col gap-2 overflow-y-auto pr-1">
-                    {filteredOptions.map((option) => {
-                      const isSelected = activeValues.has(option.value);
-                      return (
-                        <li key={`${key}-${option.value}`}>
-                          <button
-                            type="button"
-                            onClick={() => handleToggleValue(key, option.value)}
-                            className={clsx(
-                              "flex w-full items-center justify-between rounded-lg border px-3 py-2 font-mono text-sm transition",
-                              "border-emerald-500/20 bg-black/60 text-emerald-100 hover:border-emerald-400/60 hover:bg-emerald-400/10",
-                              isSelected &&
-                                "border-emerald-400/80 bg-emerald-400/20 text-emerald-50",
-                            )}
-                            aria-pressed={isSelected}
-                          >
-                            <span className="flex items-center gap-2">
-                              <span className="text-emerald-400">
-                                {isSelected ? "▣" : "▢"}
-                              </span>
-                              <span className="whitespace-normal break-words text-left">
-                                {option.value}
-                              </span>
-                            </span>
-                            <span className="text-[0.65rem] text-emerald-500/70">
-                              {option.count}
-                            </span>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
+      <div
+        id={panelId}
+        className={clsx("mt-5", !isExpanded && "hidden")}
+        aria-hidden={!isExpanded}
+      >
+        {isExpanded && (
+          <>
+            <div className="mb-3 flex flex-wrap items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-emerald-400/70">
+              <span>Active filters</span>
+              <div className="flex flex-wrap gap-2">
+                {activeFilters.length ? (
+                  activeFilters.map(({ key, label, value }) => (
+                    <span
+                      key={`${key}-${value}`}
+                      className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-[0.65rem] text-emerald-200"
+                    >
+                      {label}: <span className="text-emerald-100">{value}</span>
+                    </span>
+                  ))
                 ) : (
-                  <p className="text-[0.7rem] font-mono text-emerald-500/60">
-                    No matches
-                  </p>
+                  <span className="text-emerald-500/60">None</span>
                 )}
               </div>
-            );
-          })}
-        </div>
+            </div>
+            <label className="block font-mono text-[0.65rem] uppercase tracking-[0.3em] text-emerald-400/70">
+              Search dataset
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Filter values..."
+                className="mt-2 w-full rounded-lg border border-emerald-500/20 bg-black/60 px-3 py-2 font-sans text-sm text-emerald-100 outline-none transition focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-500/20"
+              />
+            </label>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {cliFilterGroups.map(({ key, label, options }) => {
+                const activeValues = new Set(normalizedFilters[key] ?? []);
+                const filteredOptions = options.filter((option) => {
+                  if (!loweredQuery) {
+                    return true;
+                  }
+                  if (activeValues.has(option.value)) {
+                    return true;
+                  }
+                  return option.value.toLowerCase().includes(loweredQuery);
+                });
+
+                return (
+                  <div
+                    key={key}
+                    className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3"
+                  >
+                    <div className="mb-2 flex items-center justify-between font-mono text-[0.7rem] uppercase tracking-[0.25em] text-emerald-300">
+                      <span>{label}</span>
+                      <span className="text-emerald-500/60">
+                        {activeValues.size > 0
+                          ? `${activeValues.size} selected`
+                          : "--"}
+                      </span>
+                    </div>
+                    {filteredOptions.length ? (
+                      <ul className="flex max-h-48 flex-col gap-2 overflow-y-auto pr-1">
+                        {filteredOptions.map((option) => {
+                          const isSelected = activeValues.has(option.value);
+                          return (
+                            <li key={`${key}-${option.value}`}>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleToggleValue(key, option.value)
+                                }
+                                className={clsx(
+                                  "flex w-full items-center justify-between rounded-lg border px-3 py-2 font-mono text-sm transition",
+                                  "border-emerald-500/20 bg-black/60 text-emerald-100 hover:border-emerald-400/60 hover:bg-emerald-400/10",
+                                  isSelected &&
+                                    "border-emerald-400/80 bg-emerald-400/20 text-emerald-50",
+                                )}
+                                aria-pressed={isSelected}
+                              >
+                                <span className="flex items-center gap-2">
+                                  <span className="text-emerald-400">
+                                    {isSelected ? "▣" : "▢"}
+                                  </span>
+                                  <span className="whitespace-normal break-words text-left">
+                                    {option.value}
+                                  </span>
+                                </span>
+                                <span className="text-[0.65rem] text-emerald-500/70">
+                                  {option.count}
+                                </span>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <p className="font-mono text-[0.7rem] text-emerald-500/60">
+                        No matches
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -297,15 +331,13 @@ const buildOptionsForKey = (
     const value = project[key];
 
     if (Array.isArray(value)) {
-      value
-        .filter(Boolean)
-        .forEach((item) => {
-          const normalized = item.trim();
-          if (!normalized) {
-            return;
-          }
-          counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
-        });
+      value.filter(Boolean).forEach((item) => {
+        const normalized = item.trim();
+        if (!normalized) {
+          return;
+        }
+        counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
+      });
       return;
     }
 

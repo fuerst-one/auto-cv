@@ -2,7 +2,10 @@ import Link from "next/link";
 import { Layout } from "@/components/Layout";
 import { ProjectCard } from "@/components/Projects/ProjectCard";
 import { getCvProjects } from "@/server/notion/getCvProjects";
-import { filterProjects, FilterParams } from "@/components/Projects/Filter/utils";
+import {
+  filterProjects,
+  FilterParams,
+} from "@/components/Projects/Filter/utils";
 import { ProjectCollapse } from "@/components/Projects/ProjectCollapse";
 import { Intro } from "@/components/Intro";
 import { getClaim } from "@/components/Projects/getClaim";
@@ -46,16 +49,18 @@ export default async function Home({
     <Layout sidebarContent={<Intro claim={getClaim(filterParams)} />}>
       <div className="pl-1 pr-1 lg:pl-4 lg:pr-4">
         <div className="mb-12 space-y-5">
-          <span className="font-[var(--font-plex)] text-[0.65rem] uppercase tracking-wide text-emerald-300/80">
+          <span className="text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-emerald-300/80">
             Project Index
           </span>
           <h2 className="text-3xl font-semibold text-white">
-            {filteredProjects.length} {descriptor} projects, handcrafted for momentum
+            {filteredProjects.length} {descriptor} projects, handcrafted for
+            momentum
           </h2>
           <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
-            Every entry is a blend of systems thinking and generative aesthetics,
-            surfaced by recency. Use the analysis tools to remix the view and dive
-            deeper into the collaborations, stacks, and outcomes that matter to you.
+            Every entry is a blend of systems thinking and generative
+            aesthetics, surfaced by recency. Use the analysis tools to remix the
+            view and dive deeper into the collaborations, stacks, and outcomes
+            that matter to you.
           </p>
           <div className="pt-2">
             <div className="space-y-4">
@@ -63,9 +68,7 @@ export default async function Home({
                 filterParams={effectiveFilterParams}
                 projects={projects}
               />
-              {!hasFiltersApplied && (
-                <FiltersCollapse projects={projects} />
-              )}
+              {!hasFiltersApplied && <FiltersCollapse projects={projects} />}
             </div>
           </div>
           {hasFiltersApplied && (
@@ -79,20 +82,12 @@ export default async function Home({
         </div>
         <div className="space-y-8">
           {featuredProjects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              compact={!hasFiltersApplied}
-            />
+            <ProjectCard key={project.id} project={project} />
           ))}
           {hasOtherProjects && (
             <ProjectCollapse>
               {otherProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  compact={!hasFiltersApplied}
-                />
+                <ProjectCard key={project.id} project={project} />
               ))}
             </ProjectCollapse>
           )}
