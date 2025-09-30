@@ -79,20 +79,12 @@ export default async function Home({
         </div>
         <div className="space-y-8">
           {featuredProjects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              compact={!hasFiltersApplied}
-            />
+            <ProjectCard key={project.id} project={project} />
           ))}
           {hasOtherProjects && (
             <ProjectCollapse>
               {otherProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  compact={!hasFiltersApplied}
-                />
+                <ProjectCard key={project.id} project={project} />
               ))}
             </ProjectCollapse>
           )}
