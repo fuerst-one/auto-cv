@@ -11,8 +11,11 @@ export const GET = async () => {
 
   const pdfBuffer = await renderCvPdf(projects);
 
+  // Convert Node Buffer (from @react-pdf/renderer) to Uint8Array for Web Response
+  const pdfUint8Array = new Uint8Array(pdfBuffer);
+
   // Streaming our resulting pdf back to the user
-  return new NextResponse(pdfBuffer, {
+  return new NextResponse(pdfUint8Array, {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": "attachment; filename=cv.pdf",

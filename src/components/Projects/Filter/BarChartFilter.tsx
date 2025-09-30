@@ -15,7 +15,15 @@ export const BarChartFilter = ({
 }) => {
   const { projectKey } = filterConfig;
   const itemCounts = getFilterOptionCounts(projects, projectKey);
-  const maxCount = maxBy(itemCounts, "count")!.count;
+  const maxCount = maxBy(itemCounts, "count")?.count ?? 0;
+
+  if (!itemCounts.length || maxCount === 0) {
+    return (
+      <div className="flex h-[215px] w-full items-center justify-center text-xs text-slate-500">
+        No data available yet
+      </div>
+    );
+  }
 
   return (
     <div className="h-[215px] w-full overflow-y-scroll pr-1">
