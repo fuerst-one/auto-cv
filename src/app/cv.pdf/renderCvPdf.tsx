@@ -43,12 +43,15 @@ const ProjectCard = ({ project }: { project: CvProject }) => {
           </Text>
         </View>
         <View style={styles.columnEnd}>
-          {project.logo?.length && (
-            <Image
-              src={project.logo[0]}
-              style={{ width: "auto", height: 48 }}
-            />
-          )}
+          {(() => {
+            const src = project.logo?.[0];
+            if (!src) return null;
+            const isValidExt = /\.(png|jpg|jpeg|webp)$/i.test(
+              src.split("?")[0],
+            );
+            if (!isValidExt) return null;
+            return <Image src={src} style={{ width: "auto", height: 48 }} />;
+          })()}
         </View>
       </View>
       <View style={styles.paragraph}>

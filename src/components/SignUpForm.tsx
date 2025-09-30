@@ -19,7 +19,7 @@ export function SignUpForm() {
     await addEmailToNotion(email);
 
     // Download PDF
-    const response = await fetch(`/api/generate-pdf${window.location.search}`);
+    const response = await fetch(`/cv.pdf${window.location.search}`);
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
