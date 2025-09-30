@@ -14,7 +14,7 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
     startDate,
     endDate,
     clients,
-    images,
+    screenshots,
   } = project;
 
   return (
@@ -68,7 +68,7 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
           </div>
         )}
       </div>
-      {!!images?.length && <Slideshow images={images} />}
+      {!!screenshots?.length && <Slideshow images={screenshots} />}
       <p className="mb-4 mt-4 text-green-700 dark:text-green-300">
         {getJsxFormattedTextFromTextBlock(project.kpis)}
       </p>

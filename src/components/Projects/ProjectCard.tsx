@@ -16,13 +16,7 @@ import { ProjectScreenshots } from "./ProjectScreenshots";
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
-export const ProjectCard = ({
-  project,
-  compact,
-}: {
-  project: CvProject;
-  compact?: boolean;
-}) => {
+export const ProjectCard = ({ project }: { project: CvProject }) => {
   const {
     name,
     projectType,
@@ -104,10 +98,7 @@ export const ProjectCard = ({
         </div>
       </div>
       {screenshots && screenshots.length > 0 && (
-        <ProjectScreenshots
-          screenshots={screenshots}
-          projectName={name}
-        />
+        <ProjectScreenshots screenshots={screenshots} projectName={name} />
       )}
       {kpis && (
         <div className="relative mt-4 flex items-center gap-2 text-sm text-emerald-300">
@@ -120,7 +111,7 @@ export const ProjectCard = ({
           {description}
         </div>
       )}
-      {!compact && <MetaTable project={project} />}
+      <MetaTable project={project} />
     </article>
   );
 };
@@ -181,17 +172,34 @@ const MetaTable = ({ project }: { project: CvProject }) => {
 
   return (
     <div className="mt-6 space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
-      {filteredFields.map(({ label, projectKey, value }) => (
-        <div
-          key={projectKey}
-          className="flex flex-col gap-1 rounded-xl border border-white/10 bg-slate-900/40 p-3 sm:flex-row sm:items-baseline sm:gap-4"
-        >
-          <h3 className="w-36 shrink-0 text-[0.7rem] font-[var(--font-plex)] uppercase tracking-wide text-slate-400">
-            {label}
-          </h3>
-          <Property projectKey={projectKey} value={value} />
-        </div>
-      ))}
+      {filteredFields.map(({ label, projectKey, value }) => {
+        const preview = formatPreviewValue(value);
+
+        return (
+          <details
+            key={projectKey}
+            className="group rounded-xl border border-white/10 bg-slate-900/40 p-3"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-left text-[0.7rem] font-[var(--font-plex)] uppercase tracking-[0.3em] text-slate-300 [&::-webkit-details-marker]:hidden">
+              <span>{label}</span>
+              <span className="flex items-center gap-2 text-[0.6rem] tracking-[0.25em] text-slate-500">
+                <span className="truncate text-slate-300/80" title={preview}>
+                  {preview}
+                </span>
+                <span
+                  className="text-slate-400 transition-transform group-open:rotate-180"
+                  aria-hidden="true"
+                >
+                  ▾
+                </span>
+              </span>
+            </summary>
+            <div className="mt-3 border-t border-white/5 pt-3 text-[0.75rem] tracking-normal text-slate-200">
+              <Property projectKey={projectKey} value={value} />
+            </div>
+          </details>
+        );
+      })}
     </div>
   );
 };
@@ -226,4 +234,52 @@ const Property = <TKey extends keyof CvProject>({
     );
   }
   return <span className="text-slate-200">{value as string}</span>;
+};
+
+const formatPreviewValue = (value: CvProject[keyof CvProject]) => {
+  if (Array.isArray(value)) {
+    const names = value
+      .map((item) => {
+        if (!item) {
+          return null;
+        }
+        if (typeof item === "string") {
+          return item;
+        }
+        if (typeof item === "object" && "name" in item) {
+          return String(item.name);
+        }
+        return null;
+      })
+      .filter((item): item is string => !!item);
+
+    if (!names.length) {
+      return "None";
+    }
+
+    if (names.length <= 2) {
+      return names.join(", ");
+    }
+
+    return `${names.slice(0, 2).join(", ")} +${names.length - 2} more`;
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    return value;
+  }
+
+  if (!value) {
+    return "None";
+  }
+
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "name" in value &&
+    typeof (value as { name?: unknown }).name === "string"
+  ) {
+    return String((value as { name: string }).name);
+  }
+
+  return String(value);
 };
