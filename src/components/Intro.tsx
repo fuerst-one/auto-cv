@@ -3,8 +3,16 @@ import Image from "next/image";
 import { ReactNode } from "react";
 import { SignUpForm } from "./SignUpForm";
 import { Contact } from "./Contact";
+import { ProjectFilters } from "./Projects/Filter/ProjectFilters";
+import { CvProject } from "@/server/notion/getCvProjects";
 
-export function Intro({ claim }: { claim: ReactNode }) {
+export function Intro({
+  claim,
+  projects,
+}: {
+  claim: ReactNode;
+  projects: CvProject[];
+}) {
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-4">
@@ -20,24 +28,37 @@ export function Intro({ claim }: { claim: ReactNode }) {
         </div>
         <div className="flex-1 space-y-3">
           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-emerald-200">
-            <span className="h-1 w-1 rounded-full bg-emerald-400 animate-[pulse-glow_4s_ease-in-out_infinite]" />
+            <span className="h-1 w-1 animate-[pulse-glow_4s_ease-in-out_infinite] rounded-full bg-emerald-400" />
             Creative Technologist
           </span>
           <h1 className="text-4xl font-semibold leading-tight text-white">
             Alexander Fuerst
           </h1>
-          <p className="font-[var(--font-plex)] text-xs uppercase tracking-wide text-slate-400">
+          <p className="text-xs font-[var(--font-plex)] uppercase tracking-wide text-slate-400">
             UI engineer · generative aesthetics · product craftsmanship
           </p>
         </div>
       </div>
       <div className="space-y-4 text-sm text-slate-300">
         <p className="text-base leading-relaxed text-slate-200">{claim}</p>
-        <p className="font-[var(--font-plex)] text-xs uppercase tracking-wide text-slate-400">
-          Building immersive interfaces that fuse rigorous systems with playful art.
+        <p className="text-xs font-[var(--font-plex)] uppercase tracking-wide text-slate-400">
+          Building immersive interfaces that fuse rigorous systems with playful
+          art.
         </p>
       </div>
       <SignUpForm />
+      <div className="space-y-3 print:hidden">
+        <div className="space-y-1">
+          <span className="text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-emerald-300/80">
+            Project Analysis
+          </span>
+          <p className="text-xs text-slate-400">
+            Explore the collaborations, stacks, and outcomes fueling my recent
+            work.
+          </p>
+        </div>
+        <ProjectFilters projects={projects} />
+      </div>
       <Contact />
     </div>
   );

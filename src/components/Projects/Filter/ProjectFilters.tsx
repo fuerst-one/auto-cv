@@ -8,13 +8,13 @@ import { filterConfigs } from "../filterConfigs";
 
 export const ProjectFilters = ({ projects }: { projects: CvProject[] }) => {
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <div className="flex flex-col gap-5">
       {filterConfigs.map((filterConfig) => (
         <div
           key={filterConfig.projectKey}
-          className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"
+          className="rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_top,rgba(45,212,191,0.08),transparent_65%)] p-5 backdrop-blur"
         >
-          <h2 className="text-md mb-4 font-[var(--font-plex)] text-xs uppercase tracking-wide text-slate-300">
+          <h2 className="text-md mb-3 text-xs font-[var(--font-plex)] uppercase tracking-wide text-emerald-200/80">
             {filterConfig.label}
           </h2>
           <Filter filterConfig={filterConfig} projects={projects} />

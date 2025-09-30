@@ -13,12 +13,25 @@ export const PieChartFilter = ({
   const { projectKey } = filterConfig;
   const itemCounts = getFilterOptionCounts(projects, projectKey);
 
-  const data = itemCounts.map(({ itemKey, count, color }) => ({
+  const palette = [
+    "#34d399",
+    "#22d3ee",
+    "#38bdf8",
+    "#818cf8",
+    "#a855f7",
+    "#f59e0b",
+  ];
+
+  const data = itemCounts.map(({ itemKey, count, color }, index) => ({
     name: itemKey,
     value: count,
-    itemStyle: {
-      color,
-    },
+    itemStyle: color
+      ? {
+          color,
+        }
+      : {
+          color: palette[index % palette.length],
+        },
   }));
 
   return (
@@ -27,6 +40,7 @@ export const PieChartFilter = ({
         projectKey={projectKey}
         chartProps={{
           option: {
+            color: palette,
             tooltip: {
               trigger: "item",
               formatter: "{b}: {c} ({d}%)",
@@ -40,7 +54,9 @@ export const PieChartFilter = ({
                 data: data,
                 label: {
                   position: "inside",
-                  color: "white",
+                  color: "#e2e8f0",
+                  fontFamily: "var(--font-plex)",
+                  fontSize: 11,
                 },
               },
             ],

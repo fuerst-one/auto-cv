@@ -9,7 +9,6 @@ import {
 import { ProjectCollapse } from "@/components/Projects/ProjectCollapse";
 import { Intro } from "@/components/Intro";
 import { getClaim } from "@/components/Projects/getClaim";
-import { FiltersCollapse } from "@/components/Projects/Filter/FiltersCollapse";
 import { FilterSqlConsole } from "@/components/Projects/Filter/FilterSqlConsole";
 import {
   ProjectSearchParams,
@@ -46,7 +45,11 @@ export default async function Home({
       : "signature";
 
   return (
-    <Layout sidebarContent={<Intro claim={getClaim(filterParams)} />}>
+    <Layout
+      sidebarContent={
+        <Intro claim={getClaim(filterParams)} projects={projects} />
+      }
+    >
       <div className="pl-1 pr-1 lg:pl-4 lg:pr-4">
         <div className="mb-12 space-y-5">
           <span className="text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-emerald-300/80">
@@ -68,7 +71,6 @@ export default async function Home({
                 filterParams={effectiveFilterParams}
                 projects={projects}
               />
-              {!hasFiltersApplied && <FiltersCollapse projects={projects} />}
             </div>
           </div>
           {hasFiltersApplied && (

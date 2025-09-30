@@ -17,6 +17,20 @@ export const TreemapFilter = ({
   const { projectKey } = filterConfig;
   const itemCounts = getFilterOptionCounts(projects, projectKey);
   const itemsLength = Math.min(itemCounts.length, TREEMAP_ITEMS_MAX);
+  const palette = [
+    "#0f766e",
+    "#14b8a6",
+    "#22d3ee",
+    "#38bdf8",
+    "#6366f1",
+    "#a855f7",
+    "#34d399",
+    "#10b981",
+    "#0ea5e9",
+    "#22c55e",
+    "#8b5cf6",
+    "#f59e0b",
+  ];
   const data = useMemo(() => {
     return [
       ...itemCounts.slice(0, itemsLength).map(({ itemKey, count }) => ({
@@ -38,8 +52,9 @@ export const TreemapFilter = ({
                 formatter: "{b}: {c}",
               },
               color: Array.from({ length: itemsLength }, (_, i) =>
-                Color("#0a1e3f")
-                  .mix(Color("#acdef8"), i / itemsLength)
+                Color(palette[i % palette.length])
+                  .desaturate(0.1)
+                  .lighten(0.05)
                   .hex(),
               ),
               series: [
@@ -53,6 +68,7 @@ export const TreemapFilter = ({
                   label: {
                     show: true,
                     fontSize: 10,
+                    color: "#f8fafc",
                   },
                   breadcrumb: {
                     show: false,
