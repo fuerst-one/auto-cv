@@ -4,65 +4,35 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --background: 222 40% 6%;
+    --foreground: 214 45% 94%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card: 221 32% 10%;
+    --card-foreground: 214 45% 94%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
+    --popover: 221 32% 10%;
+    --popover-foreground: 214 45% 94%;
 
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 160 84% 58%;
+    --primary-foreground: 222 47% 7%;
 
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
+    --secondary: 224 28% 16%;
+    --secondary-foreground: 214 45% 94%;
 
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
+    --muted: 222 24% 20%;
+    --muted-foreground: 215 16% 72%;
 
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 201 94% 68%;
+    --accent-foreground: 214 45% 94%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --border: 222 28% 22%;
+    --input: 222 28% 20%;
+    --ring: 161 82% 60%;
 
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --radius: 1rem;
   }
 }
 
@@ -72,5 +42,20 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: radial-gradient(160% 120% at 10% 0%, rgba(34, 211, 238, 0.08), transparent 60%),
+      radial-gradient(120% 140% at 100% 10%, rgba(16, 185, 129, 0.18), transparent 55%),
+      radial-gradient(120% 120% at 40% 120%, rgba(59, 130, 246, 0.12), transparent 65%),
+      linear-gradient(180deg, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.96));
+    background-color: hsl(var(--background));
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.85;
   }
 }

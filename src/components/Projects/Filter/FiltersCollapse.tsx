@@ -14,7 +14,7 @@ export const FiltersCollapse = ({ projects }: { projects: CvProject[] }) => {
   return (
     <div>
       <button
-        className="mb-4 w-full rounded border px-2 py-1 text-center hover:bg-gray-100 print:hidden"
+        className="mb-6 w-full rounded-full border border-white/10 bg-white/5 px-4 py-3 text-center text-sm font-[var(--font-plex)] uppercase tracking-[0.35em] text-slate-200 transition hover:border-emerald-400/50 hover:text-white print:hidden"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         {isCollapsed ? "Show" : "Hide"} analysis and filters
@@ -22,11 +22,11 @@ export const FiltersCollapse = ({ projects }: { projects: CvProject[] }) => {
       {!isCollapsed ? (
         <>
           <h2 className="hidden">Overview of my work experience</h2>
-          <p className="mb-2 text-gray-500">
+          <p className="mb-4 font-[var(--font-plex)] text-xs uppercase tracking-[0.3em] text-slate-400">
             Try clicking on something below to filter
           </p>
           <ProjectFilters projects={projects} />
-          <hr className="my-8" />
+          <hr className="my-10 border-white/10" />
         </>
       ) : null}
     </div>
