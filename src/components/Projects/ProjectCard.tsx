@@ -11,6 +11,7 @@ import { FaExternalLinkAlt } from "@react-icons/all-files/fa/FaExternalLinkAlt";
 import { FaChartLine } from "@react-icons/all-files/fa/FaChartLine";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
 import { cn } from "@/lib/utils";
+import { ProjectScreenshots } from "./ProjectScreenshots";
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -22,8 +23,16 @@ export const ProjectCard = ({
   project: CvProject;
   compact?: boolean;
 }) => {
-  const { name, projectType, websiteUrl, githubUrl, startDate, endDate, logo } =
-    project;
+  const {
+    name,
+    projectType,
+    websiteUrl,
+    githubUrl,
+    startDate,
+    endDate,
+    logo,
+    screenshots,
+  } = project;
 
   const description = getJsxFormattedTextFromTextBlock(project.description);
   const kpis = getJsxFormattedTextFromTextBlock(project.kpis);
@@ -94,6 +103,12 @@ export const ProjectCard = ({
           )}
         </div>
       </div>
+      {screenshots && screenshots.length > 0 && (
+        <ProjectScreenshots
+          screenshots={screenshots}
+          projectName={name}
+        />
+      )}
       {kpis && (
         <div className="relative mt-4 flex items-center gap-2 text-sm text-emerald-300">
           <FaChartLine className="text-base" />
