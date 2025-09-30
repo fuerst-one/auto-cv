@@ -15,6 +15,7 @@ import {
   parseProjectSearchParams,
 } from "@/components/Projects/parseSearchParams";
 import { filterConfigs } from "@/components/Projects/filterConfigs";
+import { ProjectAnalysisPanel } from "@/components/Projects/Filter/ProjectAnalysisPanel";
 
 const SLICE_DEFAULT = 8;
 
@@ -47,7 +48,10 @@ export default async function Home({
   return (
     <Layout
       sidebarContent={
-        <Intro claim={getClaim(filterParams)} projects={projects} />
+        <>
+          <Intro claim={getClaim(filterParams)} />
+          <ProjectAnalysisPanel projects={projects} />
+        </>
       }
     >
       <div className="pl-1 pr-1 lg:pl-4 lg:pr-4">

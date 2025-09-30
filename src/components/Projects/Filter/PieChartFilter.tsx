@@ -25,22 +25,18 @@ export const PieChartFilter = ({
   const data = itemCounts.map(({ itemKey, count, color }, index) => ({
     name: itemKey,
     value: count,
-    itemStyle: color
-      ? {
-          color,
-        }
-      : {
-          color: palette[index % palette.length],
-        },
+    itemStyle: color ? { color } : { color: palette[index % palette.length] },
   }));
+
+  const seriesColors = data.map((d) => d.itemStyle?.color as string);
 
   return (
     <div className="flex h-[210px] w-full items-start justify-center">
       <ClientChartWrapper
         projectKey={projectKey}
         chartProps={{
+          notMerge: true,
           option: {
-            color: palette,
             tooltip: {
               trigger: "item",
               formatter: "{b}: {c} ({d}%)",
@@ -49,6 +45,8 @@ export const PieChartFilter = ({
               {
                 name: "Project Types",
                 type: "pie",
+                colorBy: "data",
+                color: seriesColors,
                 radius: "95%",
                 center: ["50%", "50%"],
                 data: data,

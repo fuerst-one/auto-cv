@@ -144,7 +144,7 @@ export const FilterSqlConsole = ({
     <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-5 shadow-lg shadow-emerald-500/5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="font-mono text-xs uppercase tracking-[0.3em] text-emerald-300/80">
+          <h3 className="font-mono text-xs uppercase tracking-wide text-emerald-300/80">
             Project query console
           </h3>
           <span className="font-mono text-[0.65rem] text-emerald-500/60">
@@ -153,7 +153,7 @@ export const FilterSqlConsole = ({
         </div>
         <button
           type="button"
-          className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-black/50 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-[0.3em] text-emerald-300 transition hover:border-emerald-400/40 hover:text-emerald-100"
+          className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-black/50 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-wide text-emerald-300 transition hover:border-emerald-400/40 hover:text-emerald-100"
           onClick={() => setIsExpanded((prev) => !prev)}
           aria-expanded={isExpanded}
           aria-controls={panelId}
@@ -200,7 +200,7 @@ export const FilterSqlConsole = ({
                 )}
               </div>
             </div>
-            <label className="block font-mono text-[0.65rem] uppercase tracking-[0.3em] text-emerald-400/70">
+            <label className="block font-mono text-[0.65rem] uppercase tracking-wide text-emerald-400/70">
               Search dataset
               <input
                 type="text"
