@@ -12,7 +12,7 @@ export function Layout({
   children: ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen max-w-full overflow-hidden">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 overflow-hidden"
@@ -62,7 +62,7 @@ export function Layout({
 
         {topContent && <div className="relative mb-12 mt-6">{topContent}</div>}
 
-        <div className="grid items-start gap-12 lg:grid-cols-[360px,1fr] lg:gap-16">
+        <div className="grid grid-cols-1 items-start lg:grid-cols-[360px,1fr] lg:gap-8 xl:gap-16">
           <aside className="lg:sticky lg:top-24">
             <div className="relative space-y-6 overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-[0_25px_60px_rgba(8,11,19,0.55)] backdrop-blur-xl">
               {sidebarContent}
