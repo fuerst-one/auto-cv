@@ -1,10 +1,32 @@
 import { CvProject } from "@/server/notion/getCvProjects";
 import { FilterParams } from "./Filter/utils";
 
-export type ProjectSearchParams = Partial<Record<keyof CvProject, string>>;
+export type ProjectSearchParams = Partial<
+  Record<keyof CvProject, string | string[]>
+>;
 
 export const parseProjectSearchParams = (searchParams: ProjectSearchParams) => {
-  return Object.fromEntries(
-    Object.entries(searchParams).map(([key, value]) => [key, value.split(",")]),
-  ) as FilterParams;
+  const entries = Object.entries(searchParams).flatMap(([key, rawValue]) => {
+    if (rawValue == null) {
+      return [] as [string, string[]][];
+    }
+
+    const rawValues = Array.isArray(rawValue) ? rawValue : [rawValue];
+    const normalizedValues = Array.from(
+      new Set(
+        rawValues
+          .flatMap((v) => v.split(","))
+          .map((v) => v.trim())
+          .filter(Boolean),
+      ),
+    );
+
+    if (!normalizedValues.length) {
+      return [] as [string, string[]][];
+    }
+
+    return [[key, normalizedValues]] as [string, string[]][];
+  });
+
+  return Object.fromEntries(entries) as FilterParams;
 };

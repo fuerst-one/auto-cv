@@ -2,6 +2,7 @@
 
 import { useId, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useFiltersStore } from "../../Projects/filtersStore";
 import clsx from "clsx";
 import { CvProject } from "@/server/notion/getCvProjects";
 import { FilterParams } from "./utils";
@@ -66,6 +67,7 @@ export const FilterSqlConsole = ({
   projects: CvProject[];
 }) => {
   const router = useRouter();
+  const setFilters = useFiltersStore((s) => s.setFilters);
   const [searchQuery, setSearchQuery] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const panelId = useId();
@@ -121,7 +123,8 @@ export const FilterSqlConsole = ({
     });
 
     const search = params.toString();
-    router.push(search ? `?${search}` : "/", { scroll: false });
+    setFilters(nextFilters as unknown as FilterParams);
+    router.replace(search ? `?${search}` : "/", { scroll: false });
   };
 
   const activeFilters = useMemo(() => {
