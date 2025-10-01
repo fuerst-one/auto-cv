@@ -8,14 +8,37 @@ export const useToggleSearchParam = () => {
     if (!key || !value) {
       return;
     }
-    const currentSearchParams = Object.fromEntries(searchParams.entries());
-    const currentValues = searchParams.getAll(key);
-    const newValues = [...currentValues, value];
-    const newSearchParams = new URLSearchParams({
-      ...currentSearchParams,
-      [key]: newValues.join(","),
-    });
-    const newPath = "?" + newSearchParams.toString();
-    router.push(newPath);
+
+    // Clone current params so we preserve unrelated keys
+    const nextParams = new URLSearchParams(searchParams.toString());
+
+    // Toggle the target value (CSV within a single key)
+    const existingCsv = nextParams.get(key) ?? "";
+    const existingValues = existingCsv
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+
+    const hasValue = existingValues.includes(value);
+    const toggledValues = hasValue
+      ? existingValues.filter((v) => v !== value)
+      : Array.from(new Set([...existingValues, value])).sort((a, b) =>
+          a.localeCompare(b),
+        );
+
+    if (toggledValues.length > 0) {
+      nextParams.set(key, toggledValues.join(","));
+    } else {
+      nextParams.delete(key);
+    }
+
+    // If user is setting any filter other than the default "featured",
+    // drop the default flag so results expand as expected
+    if (key !== "featured") {
+      nextParams.delete("featured");
+    }
+
+    const search = nextParams.toString();
+    router.push(search ? `?${search}` : "/", { scroll: false });
   };
 };

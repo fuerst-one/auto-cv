@@ -19,11 +19,11 @@ export function Layout({
       >
         <div className="absolute -left-32 top-[-20%] h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.16),transparent_65%)] blur-3xl" />
         <div className="absolute right-[-12%] top-1/3 h-[34rem] w-[34rem] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.18),transparent_60%)] blur-3xl" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,11,19,0.65),rgba(7,11,19,0.92))]" />
+        <div className="bg-[linear-gradient(180deg,rgba(7, 11, 19, 0.65),rgba(7,11,19,0.92))] absolute inset-0" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.12),transparent_75%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 py-12 sm:px-8 lg:px-12">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col px-2 py-12 sm:px-4 lg:px-6">
         <header className="flex flex-col gap-6 text-sm text-slate-400">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <div className="flex items-center gap-4">
@@ -60,7 +60,7 @@ export function Layout({
           <div className="h-px w-full bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
         </header>
 
-        {topContent}
+        {topContent && <div className="relative mb-12 mt-6">{topContent}</div>}
 
         <div className="grid items-start gap-12 lg:grid-cols-[360px,1fr] lg:gap-16">
           <aside className="lg:sticky lg:top-24">
@@ -72,7 +72,7 @@ export function Layout({
             </div>
             <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
           </aside>
-          <main className="flex-1 pb-24">
+          <main className="min-w-0 flex-1 pb-24">
             <div className="mx-auto w-full max-w-3xl space-y-12">
               <Suspense>{children}</Suspense>
             </div>

@@ -121,7 +121,7 @@ export const FilterSqlConsole = ({
     });
 
     const search = params.toString();
-    router.push(search ? `?${search}` : "/");
+    router.push(search ? `?${search}` : "/", { scroll: false });
   };
 
   const activeFilters = useMemo(() => {
