@@ -4,9 +4,11 @@ import { IntroFooter } from "./Intro";
 
 export function Layout({
   sidebarContent,
+  topContent,
   children,
 }: {
   sidebarContent: ReactNode;
+  topContent?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -57,6 +59,8 @@ export function Layout({
           </div>
           <div className="h-px w-full bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
         </header>
+
+        {topContent}
 
         <div className="grid items-start gap-12 lg:grid-cols-[360px,1fr] lg:gap-16">
           <aside className="lg:sticky lg:top-24">

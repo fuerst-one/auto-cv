@@ -12,6 +12,7 @@ import { FaChartLine } from "@react-icons/all-files/fa/FaChartLine";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
 import { cn } from "@/lib/utils";
 import { ProjectScreenshots } from "./ProjectScreenshots";
+import { getProjectLogoSources } from "./getProjectLogoSources";
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -24,7 +25,6 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
     githubUrl,
     startDate,
     endDate,
-    logo,
     screenshots,
   } = project;
 
@@ -32,6 +32,8 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
   const kpis = getJsxFormattedTextFromTextBlock(project.kpis);
 
   const { text } = colors.projectType![projectType] ?? {};
+  const logos = getProjectLogoSources(project);
+  const primaryLogo = logos[0];
 
   return (
     <article
@@ -82,14 +84,15 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
             )}
           </div>
         </header>
-        <div className="hidden shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-slate-200 shadow-inner sm:flex lg:hidden 2xl:flex print:hidden">
-          {logo ? (
-            <div className="h-8 w-20">
+        <div className="flex shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-slate-200 shadow-inner print:hidden">
+          {primaryLogo ? (
+            <div className="h-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={logo?.[0]}
-                alt={name}
-                className="h-full w-full object-contain"
+                src={primaryLogo}
+                alt={`${name} logo`}
+                className="h-full w-auto object-contain"
+                loading="lazy"
               />
             </div>
           ) : (

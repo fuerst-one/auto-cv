@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Layout } from "@/components/Layout";
 import { ProjectCard } from "@/components/Projects/ProjectCard";
+import { LogoMarquee } from "@/components/Projects/LogoMarquee";
+import { getProjectLogoSources } from "@/components/Projects/getProjectLogoSources";
 import { getCvProjects } from "@/server/notion/getCvProjects";
 import {
   filterProjects,
@@ -45,6 +47,18 @@ export default async function Home({
       ? firstFilterApplied
       : "signature";
 
+  const marqueeLogos = projects
+    .flatMap((project) =>
+      getProjectLogoSources(project).map((src) => ({
+        src,
+        alt: `${project.name} logo`,
+      })),
+    )
+    .filter(
+      (logo, index, array) =>
+        array.findIndex((candidate) => candidate.src === logo.src) === index,
+    );
+
   return (
     <Layout
       sidebarContent={
@@ -52,6 +66,9 @@ export default async function Home({
           <Intro claim={getClaim(filterParams)} />
           <ProjectAnalysisPanel projects={projects} />
         </>
+      }
+      topContent={
+        marqueeLogos.length > 0 ? <LogoMarquee logos={marqueeLogos} /> : null
       }
     >
       <div className="pl-1 pr-1 lg:pl-4 lg:pr-4">

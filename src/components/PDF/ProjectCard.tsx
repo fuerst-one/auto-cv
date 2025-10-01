@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { CvProject } from "@/server/notion/getCvProjects";
+import { getProjectLogoSources } from "../Projects/getProjectLogoSources";
 import { Slideshow } from "./Slideshow";
 import { FormattedDate } from "../FormattedDate";
 import { getJsxFormattedTextFromTextBlock } from "../Projects/getJsxFormattedTextFromTextBlock";
@@ -8,7 +9,6 @@ import { Badge } from "../ui/badge";
 export const ProjectCard = ({ project }: { project: CvProject }) => {
   const {
     name,
-    logo,
     websiteUrl,
     githubUrl,
     startDate,
@@ -16,6 +16,8 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
     clients,
     screenshots,
   } = project;
+  const logos = getProjectLogoSources(project);
+  const primaryLogo = logos[0];
 
   return (
     <div key={project.id} className="rounded-lg border p-4">
@@ -23,9 +25,9 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
         <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
           {name}
         </h3>
-        {!!logo?.length && (
+        {primaryLogo && (
           <img
-            src={logo[0] || "/logo.svg"}
+            src={primaryLogo}
             alt={`${name} logo`}
             className="h-full w-auto object-contain"
           />
