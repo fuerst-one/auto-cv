@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
 import { CvProject } from "@/server/notion/getCvProjects";
 import { FilterSqlConsole } from "./Filter/FilterSqlConsole";
 import { ProjectCard } from "./ProjectCard";
@@ -55,7 +54,6 @@ export function ProjectsClientView({
   const featuredProjects = filteredProjects.slice(0, SLICE_DEFAULT);
   const otherProjects = filteredProjects.slice(SLICE_DEFAULT);
   const hasOtherProjects = otherProjects.length > 0;
-  const hasFiltersApplied = !!firstFilterApplied;
 
   return (
     <div className="pl-1 pr-1 lg:pl-4 lg:pr-4">
@@ -82,14 +80,6 @@ export function ProjectsClientView({
             />
           </div>
         </div>
-        {hasFiltersApplied && (
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 text-sm font-[var(--font-plex)] uppercase tracking-wide text-emerald-300 transition hover:text-white print:hidden"
-          >
-            Reset filters
-          </Link>
-        )}
       </div>
       <div className="space-y-8">
         {featuredProjects.map((project) => (

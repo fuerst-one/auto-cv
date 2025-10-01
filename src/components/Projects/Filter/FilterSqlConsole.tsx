@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useFiltersStore } from "../../Projects/filtersStore";
 import clsx from "clsx";
 import { CvProject } from "@/server/notion/getCvProjects";
-import { FilterParams } from "./utils";
+import { FilterParams, filterProjects } from "./utils";
 
 const ARRAY_COLUMNS: (keyof FilterParams)[] = [
   "industries",
@@ -68,6 +68,7 @@ export const FilterSqlConsole = ({
 }) => {
   const router = useRouter();
   const setFilters = useFiltersStore((s) => s.setFilters);
+  const resetFilters = useFiltersStore((s) => s.reset);
   const [searchQuery, setSearchQuery] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const panelId = useId();
@@ -85,6 +86,11 @@ export const FilterSqlConsole = ({
   const cliFilterGroups = useMemo(
     () => buildCliFilterGroups(projects),
     [projects],
+  );
+
+  const resultsCount = useMemo(
+    () => filterProjects(projects, filterParams).length,
+    [projects, filterParams],
   );
 
   const handleToggleValue = (key: CliFilterKey, optionValue: string) => {
@@ -154,24 +160,39 @@ export const FilterSqlConsole = ({
             SELECT mode
           </span>
         </div>
-        <button
-          type="button"
-          className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-black/50 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-wide text-emerald-300 transition hover:border-emerald-400/40 hover:text-emerald-100"
-          onClick={() => setIsExpanded((prev) => !prev)}
-          aria-expanded={isExpanded}
-          aria-controls={panelId}
-        >
-          {isExpanded ? "Collapse" : "Expand"}
-          <span
-            className={clsx(
-              "text-emerald-400 transition-transform",
-              isExpanded ? "rotate-180" : "rotate-0",
-            )}
-            aria-hidden="true"
-          >
-            ▾
+        <div className="flex items-center gap-2">
+          <span className="rounded-full border border-emerald-400/20 bg-black/50 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-wide text-emerald-300/80">
+            {resultsCount} results
           </span>
-        </button>
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-black/50 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-wide text-emerald-300 transition hover:border-emerald-400/40 hover:text-emerald-100"
+            onClick={() => {
+              resetFilters();
+              router.replace("/", { scroll: false });
+            }}
+          >
+            Reset filters
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-black/50 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-wide text-emerald-300 transition hover:border-emerald-400/40 hover:text-emerald-100"
+            onClick={() => setIsExpanded((prev) => !prev)}
+            aria-expanded={isExpanded}
+            aria-controls={panelId}
+          >
+            {isExpanded ? "Collapse" : "Expand"}
+            <span
+              className={clsx(
+                "text-emerald-400 transition-transform",
+                isExpanded ? "rotate-180" : "rotate-0",
+              )}
+              aria-hidden="true"
+            >
+              ▾
+            </span>
+          </button>
+        </div>
       </div>
       <div className="mt-4 rounded-xl border border-emerald-400/20 bg-black/60 p-4 font-mono text-[0.8rem] leading-relaxed text-emerald-100">
         <span className="mr-2 text-emerald-500">&gt;</span>
