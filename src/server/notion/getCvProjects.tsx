@@ -8,6 +8,7 @@ import uniq from "lodash/uniq";
 import { NotionClient, fetchNotionClient } from "./fetchNotionClient";
 import { fetchNotionContact, NotionContact } from "./fetchNotionContact";
 import { RichTextField } from "./types";
+import omit from "lodash/omit";
 
 export type CvProject = {
   id: string;
@@ -16,6 +17,7 @@ export type CvProject = {
   screenshots: string[] | null;
   description: RichTextField;
   kpis: RichTextField;
+  wowFactor: number;
   status: string;
   featured: boolean;
   projectType: string;
@@ -29,7 +31,6 @@ export type CvProject = {
   languages: string[];
   workplace: string;
   clients: CvClient[];
-  // references: CvContact[];
 };
 
 export type CvClient = {
@@ -53,14 +54,15 @@ export const getCvProjects = async () => {
     const projects = await fetchNotionProjectsDatabase();
     const clients = await getClientsFromNotionProjects(projects);
     const contacts = await getContactsFromNotionClients(clients);
-    const projectsMerged = mergeProjectData(projects, clients, contacts);
-    const projectsSorted = projectsMerged.sort((a, b) => {
-      if (a.endDate === null) return -1;
-      if (b.endDate === null) return 1;
-      return a.endDate < b.endDate ? 1 : -1;
-    });
-
-    return projectsSorted;
+    return mergeProjectData(projects, clients, contacts)
+      .sort((a, b) => {
+        if (a.endDate === null) return -1;
+        if (b.endDate === null) return 1;
+        return new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
+      })
+      .sort((a, b) => {
+        return b.wowFactor - a.wowFactor;
+      });
   } catch (error) {
     console.error(error);
     return [];
@@ -69,7 +71,7 @@ export const getCvProjects = async () => {
 
 const getClientsFromNotionProjects = async (projects: NotionProject[]) => {
   const clientRelations = projects
-    .map((project) => project.Clients)
+    .map((project) => project.clients)
     .flat()
     .filter(Boolean);
   const clientIds = uniq(clientRelations.map((relation) => relation.id));
@@ -115,35 +117,16 @@ const mergeProjectData = (
       };
     });
 
-  const filteredProjects = projects.filter((project) => !project.Hidden);
+  const filteredProjects = projects.filter((project) => !project.hidden);
 
   return filteredProjects.map((project) => {
-    const mappedClients = project.Clients.map(
+    const mappedClients = project.clients.map(
       (relation) =>
         clientsWithContacts.find((client) => client.id === relation.id)!,
     );
     return {
-      id: project.id,
-      name: project.Name,
-      logo: project.Logo,
-      screenshots: project.Screenshots,
-      description: project["Project Description"],
-      kpis: project.KPIs,
-      status: project.Status,
-      featured: project.Featured,
-      projectType: project["Project Type"],
-      startDate: project["Start Date"],
-      endDate: project["End Date"],
-      websiteUrl: project["Website-URL"],
-      githubUrl: project["Github-URL"],
-      industries: uniq(project.Industries),
-      experiences: uniq(project.Experiences),
-      tools: uniq(project.Tools),
-      languages: uniq(project.Languages),
-      workplace: project.Workplace,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      clients: mappedClients.map(({ contacts, ...client }) => client),
-      // references: mappedClients.map(({ contacts }) => contacts).flat(),
+      ...project,
+      clients: mappedClients.map((client) => omit(client, ["contacts"])),
     };
   });
 };

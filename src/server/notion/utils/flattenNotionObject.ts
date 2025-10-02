@@ -12,6 +12,7 @@ import {
   TitleField,
 } from "../types";
 import { assertUnreachable } from "@/utils/assert";
+import uniq from "lodash/uniq";
 
 export const flattenNotionObject = (object: PageObjectResponse) => {
   const result: TODO = {
@@ -31,7 +32,7 @@ export const flattenNotionObject = (object: PageObjectResponse) => {
 
 export const flattenNotionProperty = (
   property: PageObjectResponse["properties"][string] | NotionField,
-): string | string[] | null => {
+): string | string[] | number | null => {
   switch (property.type) {
     case "rich_text":
       return getPlainTextStringFromTextBlock(property as RichTextField);
@@ -61,8 +62,8 @@ export const flattenNotionProperty = (
     case "select":
       return (property as SelectField).select?.name ?? null;
     case "multi_select":
-      return (property as MultiSelectField).multi_select.map(
-        (item) => item.name,
+      return uniq(
+        (property as MultiSelectField).multi_select.map((item) => item.name),
       );
     case "date":
       return (
