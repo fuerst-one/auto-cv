@@ -6,6 +6,10 @@ export type ProjectSearchParams = Partial<
 >;
 
 export const parseProjectSearchParams = (searchParams: ProjectSearchParams) => {
+  if (Object.entries(searchParams).length === 0) {
+    return { featured: ["true"] };
+  }
+
   const entries = Object.entries(searchParams).flatMap(([key, rawValue]) => {
     if (rawValue == null) {
       return [] as [string, string[]][];

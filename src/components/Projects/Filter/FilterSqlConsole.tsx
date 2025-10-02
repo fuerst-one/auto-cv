@@ -19,7 +19,8 @@ type CliFilterKey =
   | "industries"
   | "projectType"
   | "tools"
-  | "languages";
+  | "languages"
+  | "featured";
 
 type CliFilterOption = {
   value: string;
@@ -33,6 +34,10 @@ type CliFilterGroup = {
 };
 
 const CLI_FILTER_GROUPS: Pick<CliFilterGroup, "key" | "label">[] = [
+  {
+    key: "featured",
+    label: "Featured",
+  },
   {
     key: "experiences",
     label: "Areas of expertise",
@@ -115,10 +120,6 @@ export const FilterSqlConsole = ({
       ).sort((a, b) => a.localeCompare(b));
     }
 
-    if (nextFilters.featured?.includes("true")) {
-      delete nextFilters.featured;
-    }
-
     const params = new URLSearchParams();
 
     Object.entries(nextFilters).forEach(([paramKey, values]) => {
@@ -134,17 +135,15 @@ export const FilterSqlConsole = ({
   };
 
   const activeFilters = useMemo(() => {
-    return Object.entries(normalizedFilters)
-      .filter(([key]) => key !== "featured")
-      .flatMap(([key, values]) =>
-        values.map((value) => ({
-          key,
-          label:
-            CLI_FILTER_LABEL_LOOKUP[key as CliFilterKey] ??
-            key.replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
-          value,
-        })),
-      );
+    return Object.entries(normalizedFilters).flatMap(([key, values]) =>
+      values.map((value) => ({
+        key,
+        label:
+          CLI_FILTER_LABEL_LOOKUP[key as CliFilterKey] ??
+          key.replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
+        value,
+      })),
+    );
   }, [normalizedFilters]);
 
   const loweredQuery = searchQuery.toLowerCase();
@@ -362,6 +361,12 @@ const buildOptionsForKey = (
         }
         counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
       });
+      return;
+    }
+
+    if (typeof value === "boolean") {
+      const normalized = value.toString();
+      counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
       return;
     }
 

@@ -1,25 +1,20 @@
-type LogoMarqueeProps = {
-  logos: { src: string; alt: string }[];
-};
+import { CvProject } from "@/server/notion/getCvProjects";
+import { getProjectLogoSources } from "./getProjectLogoSources";
+import uniqBy from "lodash/uniqBy";
 
-const getUniqueLogos = (logos: LogoMarqueeProps["logos"]) => {
-  const seen = new Set<string>();
-  return logos.filter(({ src }) => {
-    if (seen.has(src) || !src) {
-      return false;
-    }
-    seen.add(src);
-    return true;
-  });
-};
+export const LogoMarquee = ({ projects }: { projects: CvProject[] }) => {
+  const logos = projects.flatMap((project) =>
+    getProjectLogoSources(project).map((src) => ({
+      src,
+      alt: `${project.clients[0]?.name ?? project.name} logo`,
+    })),
+  );
 
-export const LogoMarquee = ({ logos }: LogoMarqueeProps) => {
-  const uniqueLogos = getUniqueLogos(logos);
-
-  if (uniqueLogos.length === 0) {
+  if (logos.length === 0) {
     return null;
   }
 
+  const uniqueLogos = uniqBy(logos, "alt");
   const animationDurationSeconds = Math.max(uniqueLogos.length * 4, 24);
 
   return (

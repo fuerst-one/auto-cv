@@ -1,7 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { ProjectsClientView } from "@/components/Projects/ProjectsClientView";
 import { LogoMarquee } from "@/components/Projects/LogoMarquee";
-import { getProjectLogoSources } from "@/components/Projects/getProjectLogoSources";
 import { getCvProjects } from "@/server/notion/getCvProjects";
 import { Intro } from "@/components/Intro";
 import { getClaim } from "@/components/Projects/getClaim";
@@ -23,18 +22,6 @@ export default async function Home({
   const params = await searchParams;
   const filterParams = parseProjectSearchParams(params);
 
-  const marqueeLogos = projects
-    .flatMap((project) =>
-      getProjectLogoSources(project).map((src) => ({
-        src,
-        alt: `${project.name} logo`,
-      })),
-    )
-    .filter(
-      (logo, index, array) =>
-        array.findIndex((candidate) => candidate.src === logo.src) === index,
-    );
-
   return (
     <Layout
       sidebarContent={
@@ -43,9 +30,7 @@ export default async function Home({
           <ProjectAnalysisPanel projects={projects} />
         </>
       }
-      topContent={
-        marqueeLogos.length > 0 ? <LogoMarquee logos={marqueeLogos} /> : null
-      }
+      topContent={<LogoMarquee projects={projects} />}
     >
       <ProjectsClientView projects={projects} initialSearchParams={params} />
     </Layout>

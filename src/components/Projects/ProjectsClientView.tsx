@@ -6,7 +6,7 @@ import { FilterSqlConsole } from "./Filter/FilterSqlConsole";
 import { ProjectCard } from "./ProjectCard";
 import { ProjectCollapse } from "./ProjectCollapse";
 import { ProjectSearchParams } from "./parseSearchParams";
-import { filterProjects, FilterParams } from "./Filter/utils";
+import { filterProjects } from "./Filter/utils";
 import { filterConfigs } from "./filterConfigs";
 import { FiltersUrlSync } from "./FiltersUrlSync";
 import { useFiltersStore } from "./filtersStore";
@@ -21,16 +21,9 @@ export function ProjectsClientView({
   initialSearchParams: ProjectSearchParams;
 }) {
   const filterParams = useFiltersStore((s) => s.filters);
-  const hasUserFilters = Object.keys(filterParams).length > 0;
-  const effectiveFilterParams: FilterParams = useMemo(() => {
-    return hasUserFilters
-      ? filterParams
-      : { ...filterParams, featured: ["true"] };
-  }, [filterParams, hasUserFilters]);
-
   const filteredProjects = useMemo(
-    () => filterProjects(projects, effectiveFilterParams),
-    [projects, effectiveFilterParams],
+    () => filterProjects(projects, filterParams),
+    [projects, filterParams],
   );
 
   const firstFilterApplied = useMemo(() => {
@@ -43,13 +36,13 @@ export function ProjectsClientView({
         return values[0];
       }
     }
-    return undefined as string | undefined;
+    return undefined;
   }, [filterParams]);
 
   const descriptor =
     firstFilterApplied && firstFilterApplied !== "true"
       ? firstFilterApplied
-      : "signature";
+      : "featured";
 
   const featuredProjects = filteredProjects.slice(0, SLICE_DEFAULT);
   const otherProjects = filteredProjects.slice(SLICE_DEFAULT);
@@ -63,21 +56,17 @@ export function ProjectsClientView({
           Project Index
         </span>
         <h2 className="text-3xl font-semibold text-white">
-          {filteredProjects.length} {descriptor} projects, handcrafted for
-          momentum
+          {filteredProjects.length} {descriptor} projects, curated for impact
         </h2>
         <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
-          Every entry is a blend of systems thinking and generative aesthetics,
-          surfaced by recency. Use the analysis tools to remix the view and dive
-          deeper into the collaborations, stacks, and outcomes that matter to
-          you.
+          Explore a curated collection of recent projects, each showcasing
+          thoughtful design and technical depth. Use the analysis tools to
+          filter, compare, and discover the collaborations, technologies, and
+          results that drive real impact.
         </p>
         <div className="pt-2">
           <div className="space-y-4">
-            <FilterSqlConsole
-              filterParams={effectiveFilterParams}
-              projects={projects}
-            />
+            <FilterSqlConsole filterParams={filterParams} projects={projects} />
           </div>
         </div>
       </div>

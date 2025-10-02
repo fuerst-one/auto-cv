@@ -12,7 +12,9 @@ export type FiltersState = {
 };
 
 export const useFiltersStore = create<FiltersState>((set, get) => ({
-  filters: {},
+  filters: {
+    featured: ["true"],
+  },
   setFilters: (next) => set({ filters: next }),
   toggle: (key, value) => {
     const prev = get().filters;

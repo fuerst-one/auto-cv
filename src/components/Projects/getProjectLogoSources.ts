@@ -4,14 +4,11 @@ const getFallbackLogoFromUrl = (url: string | null): string | null => {
   if (!url) {
     return null;
   }
-
   try {
     const hostname = new URL(url).hostname.replace(/^www\./, "");
-
     if (!hostname) {
       return null;
     }
-
     return `https://logo.clearbit.com/${hostname}`;
   } catch {
     return null;
