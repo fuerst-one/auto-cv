@@ -1,4 +1,4 @@
-import { CSSProperties } from "react";
+import { CSSProperties, ReactNode } from "react";
 import {
   RichTextContent,
   RichTextField,
@@ -9,7 +9,7 @@ import reactStringReplace from "react-string-replace";
 
 export const getJsxFormattedTextFromTextBlock = (
   textBlock: RichTextField | TitleField,
-): JSX.Element | null => {
+): ReactNode | null => {
   switch (textBlock.type) {
     case "title":
       return getJsxFormattedTextFromTextBlockContents(textBlock.title);
@@ -22,7 +22,7 @@ export const getJsxFormattedTextFromTextBlock = (
 
 export const getJsxFormattedTextFromTextBlockContents = (
   textBlockContents: RichTextContent[],
-): JSX.Element | null => {
+): ReactNode | null => {
   if (!textBlockContents?.length) {
     return null;
   }
@@ -32,7 +32,7 @@ export const getJsxFormattedTextFromTextBlockContents = (
 const getFormattedTextBlock = (
   content: RichTextContent,
   idx: number,
-): JSX.Element | null => {
+): ReactNode | null => {
   const classNames: string[] = [];
   const style: CSSProperties = {};
 

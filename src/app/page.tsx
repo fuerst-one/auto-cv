@@ -11,15 +11,17 @@ import {
 } from "@/components/Projects/parseSearchParams";
 import { ProjectAnalysisPanel } from "@/components/Projects/Filter/ProjectAnalysisPanel";
 
-// Client-side filtering handles slicing
+// Revalidate content every hour
+export const revalidate = 3600;
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: ProjectSearchParams;
+  searchParams: Promise<ProjectSearchParams>;
 }) {
   const projects = await getCvProjects();
-  const filterParams = parseProjectSearchParams(searchParams);
+  const params = await searchParams;
+  const filterParams = parseProjectSearchParams(params);
 
   const marqueeLogos = projects
     .flatMap((project) =>
@@ -45,10 +47,7 @@ export default async function Home({
         marqueeLogos.length > 0 ? <LogoMarquee logos={marqueeLogos} /> : null
       }
     >
-      <ProjectsClientView
-        projects={projects}
-        initialSearchParams={searchParams}
-      />
+      <ProjectsClientView projects={projects} initialSearchParams={params} />
     </Layout>
   );
 }

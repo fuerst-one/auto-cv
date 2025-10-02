@@ -18,17 +18,16 @@ import { FaEnvelope } from "@react-icons/all-files/fa/FaEnvelope";
 export default async function PDFContent({
   searchParams,
 }: {
-  searchParams: ProjectSearchParams & {
-    dark: string;
-  };
+  searchParams: Promise<ProjectSearchParams & { dark: string }>;
 }) {
   const projects = await getCvProjects();
+  const params = await searchParams;
 
   if (!projects?.length) {
     throw new Error("No projects found");
   }
 
-  const filterParams = parseProjectSearchParams(searchParams);
+  const filterParams = parseProjectSearchParams(params);
   const filteredProjects = filterProjects(projects, {
     ...filterParams,
     ...(!Object.keys(filterParams).length && { featured: ["true"] }),
@@ -36,7 +35,7 @@ export default async function PDFContent({
   const claim = getClaim(filterParams);
 
   return (
-    <div className={searchParams.dark ? "dark bg-gray-950 text-white" : ""}>
+    <div className={params.dark ? "dark bg-gray-950 text-white" : ""}>
       <div className="container mx-auto max-w-screen-lg p-8">
         <header className="mb-24 text-center">
           <Image
