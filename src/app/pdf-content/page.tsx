@@ -1,13 +1,13 @@
 import { getCvProjects } from "@/server/notion/getCvProjects";
-import { filterProjects } from "@/components/Projects/Filter/utils";
-import { getClaim } from "@/components/Projects/getClaim";
+import { filterProjects } from "@/components/Cv/Projects/Filter/utils";
+import { getClaim } from "@/components/Cv/Projects/getClaim";
 import {
   ProjectSearchParams,
   parseProjectSearchParams,
-} from "@/components/Projects/parseSearchParams";
+} from "@/components/Cv/Projects/parseSearchParams";
 import { Suspense } from "react";
-import { ProjectFilters } from "@/components/Projects/Filter/ProjectFilters";
-import { ProjectCard } from "@/components/PDF/ProjectCard";
+import { ProjectFilters } from "@/components/Cv/Projects/Filter/ProjectFilters";
+import { ProjectCard } from "@/components/Cv/PDF/ProjectCard";
 import Image from "next/image";
 import { IconLink } from "@/components/IconLink";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";

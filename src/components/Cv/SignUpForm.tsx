@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Button } from "./Button";
+import { Button } from "../Button";
 import { addEmailToNotion } from "@/server/notion/addEmailToNotion";
 import { FaHourglass } from "@react-icons/all-files/fa/FaHourglass";
 

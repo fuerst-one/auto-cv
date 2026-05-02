@@ -33,6 +33,7 @@ yarn-error.log*
 
 # editor
 .vscode
+.serena/
 
 # vercel
 .vercel

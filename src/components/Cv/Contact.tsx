@@ -1,4 +1,4 @@
-import { IconLink } from "./IconLink";
+import { IconLink } from "../IconLink";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
 import { FaLinkedin } from "@react-icons/all-files/fa/FaLinkedin";
 

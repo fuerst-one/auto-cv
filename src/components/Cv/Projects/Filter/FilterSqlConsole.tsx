@@ -2,7 +2,7 @@
 
 import { useId, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useFiltersStore } from "../../Projects/filtersStore";
+import { useFiltersStore } from "../filtersStore";
 import clsx from "clsx";
 import { CvProject } from "@/server/notion/getCvProjects";
 import { FilterParams, filterProjects } from "./utils";

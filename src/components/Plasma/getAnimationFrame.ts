@@ -18,12 +18,14 @@ export const getAnimationFrame = ({
   complexity,
   zoomFactor,
   speedFactor,
+  characters = CHARACTERS,
 }: {
   width: number;
   height: number;
   complexity: number;
   zoomFactor: number;
   speedFactor: number;
+  characters?: Glyph[];
 }) => {
   const frame: Glyph[][] = Array.from({ length: height }, () =>
     Array.from({ length: width }, () => ({ character: " " })),
@@ -44,8 +46,8 @@ export const getAnimationFrame = ({
         const index = Math.round((xs[i] * xs[i] + ys[i] * ys[i]) * zoomFactor);
         value += SINE_TABLE[(index >> 5) & 0xff];
       }
-      const index = mod(Math.floor(value), CHARACTERS.length);
-      frame[y][x] = CHARACTERS[index];
+      const index = mod(Math.floor(value), characters.length);
+      frame[y][x] = characters[index];
       for (let i = 0; i < complexity; i++) {
         xs[i] -= 1;
       }

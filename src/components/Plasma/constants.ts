@@ -36,28 +36,28 @@ export const BASE_CHARACTERS = [
   " ",
 ];
 
-const GLYPH_COLORS = BASE_CHARACTERS.reduce(
-  (acc, character, idx, arr) => {
-    const color = Color.hsl(0, 0, 12 + ((arr.length - idx) / arr.length) * 30);
-    return {
-      ...acc,
-      [character]: color.hex(),
-    };
-  },
-  {} as Record<string, string>,
-);
-
-const getGlyph = (character: string): Glyph => {
-  return {
-    character,
-    style: { color: GLYPH_COLORS[character] },
-  };
+const buildGlyphPalette = (lightnessBase: number, lightnessRange: number) => {
+  const colors = BASE_CHARACTERS.reduce(
+    (acc, character, idx, arr) => {
+      const color = Color.hsl(
+        0,
+        0,
+        lightnessBase + ((arr.length - idx) / arr.length) * lightnessRange,
+      );
+      return { ...acc, [character]: color.hex() };
+    },
+    {} as Record<string, string>,
+  );
+  return [...BASE_CHARACTERS, ...[...BASE_CHARACTERS].reverse()].map(
+    (character): Glyph => ({
+      character,
+      style: { color: colors[character] },
+    }),
+  );
 };
 
-export const CHARACTERS: Glyph[] = [
-  ...BASE_CHARACTERS,
-  ...[...BASE_CHARACTERS].reverse(),
-].map(getGlyph);
+export const CHARACTERS: Glyph[] = buildGlyphPalette(12, 30);
+export const LANDING_CHARACTERS: Glyph[] = buildGlyphPalette(20, 40);
 
 export const RADII = [65.2, 92.0, 163.2, 176.8];
 export const CENTER_XS = [64.4, 46.4, 93.6, 16.4];

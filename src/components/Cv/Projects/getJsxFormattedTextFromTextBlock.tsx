@@ -3,7 +3,7 @@ import {
   RichTextContent,
   RichTextField,
   TitleField,
-} from "../../server/notion/types";
+} from "../../../server/notion/types";
 import { cn } from "@/lib/utils";
 import reactStringReplace from "react-string-replace";
 

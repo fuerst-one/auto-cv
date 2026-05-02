@@ -2,9 +2,9 @@
 import { CvProject } from "@/server/notion/getCvProjects";
 import { getProjectLogoSources } from "../Projects/getProjectLogoSources";
 import { Slideshow } from "./Slideshow";
-import { FormattedDate } from "../FormattedDate";
+import { FormattedDate } from "../../FormattedDate";
 import { getJsxFormattedTextFromTextBlock } from "../Projects/getJsxFormattedTextFromTextBlock";
-import { Badge } from "../ui/badge";
+import { Badge } from "../../ui/badge";
 
 export const ProjectCard = ({ project }: { project: CvProject }) => {
   const {
