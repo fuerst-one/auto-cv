@@ -4,12 +4,6 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: "/:path*",
-        has: [{ type: "host", value: "auto-cv.fuerst.one" }],
-        destination: "https://fuerst.one/cv/:path*",
-        permanent: true,
-      },
-      {
         source: "/impressum",
         has: [{ type: "host", value: "portfolio.fuerst.one" }],
         destination: "https://fuerst.one/impressum",
