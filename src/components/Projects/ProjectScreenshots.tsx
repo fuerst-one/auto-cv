@@ -40,13 +40,14 @@ export const ProjectScreenshots = ({
   const showNavigation = sanitizedScreenshots.length > 1;
   const goToIndex = (index: number) => {
     if (!showNavigation) return;
-    const nextIndex = (index + sanitizedScreenshots.length) % sanitizedScreenshots.length;
+    const nextIndex =
+      (index + sanitizedScreenshots.length) % sanitizedScreenshots.length;
     setActiveIndex(nextIndex);
   };
 
   return (
     <div className="group/screenshot mt-4 select-none print:hidden">
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/40">
+      <div className="relative overflow-hidden border border-white/20 bg-black">
         <div className="relative aspect-video w-full">
           {sanitizedScreenshots.map((src, index) => (
             <Fragment key={`${src}-${index}`}>
@@ -57,7 +58,9 @@ export const ProjectScreenshots = ({
                 loading="lazy"
                 className={cn(
                   "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
-                  index === activeIndex ? "opacity-100" : "pointer-events-none opacity-0",
+                  index === activeIndex
+                    ? "opacity-100"
+                    : "pointer-events-none opacity-0",
                 )}
               />
             </Fragment>
@@ -68,7 +71,7 @@ export const ProjectScreenshots = ({
             <button
               type="button"
               onClick={() => goToIndex(activeIndex - 1)}
-              className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-slate-950/70 text-slate-100 opacity-0 transition hover:border-emerald-400/50 hover:text-white group-hover/screenshot:opacity-100"
+              className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center border border-white/30 bg-black/80 text-neutral-100 opacity-0 transition hover:border-white hover:text-white group-hover/screenshot:opacity-100"
               aria-label="Previous screenshot"
             >
               <FaChevronLeft className="text-base" />
@@ -76,7 +79,7 @@ export const ProjectScreenshots = ({
             <button
               type="button"
               onClick={() => goToIndex(activeIndex + 1)}
-              className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-slate-950/70 text-slate-100 opacity-0 transition hover:border-emerald-400/50 hover:text-white group-hover/screenshot:opacity-100"
+              className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center border border-white/30 bg-black/80 text-neutral-100 opacity-0 transition hover:border-white hover:text-white group-hover/screenshot:opacity-100"
               aria-label="Next screenshot"
             >
               <FaChevronRight className="text-base" />
@@ -93,10 +96,10 @@ export const ProjectScreenshots = ({
               onClick={() => setActiveIndex(index)}
               aria-label={`Show screenshot ${index + 1}`}
               className={cn(
-                "h-2.5 w-2.5 rounded-full border border-white/30 transition",
+                "h-2.5 w-2.5 border border-white/30 transition",
                 index === activeIndex
-                  ? "bg-emerald-400/80 border-emerald-300/80"
-                  : "bg-transparent hover:border-emerald-300/60 hover:bg-emerald-300/30",
+                  ? "border-white bg-white"
+                  : "bg-transparent hover:border-white",
               )}
             />
           ))}

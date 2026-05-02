@@ -18,20 +18,14 @@ const config = {
       },
     },
     extend: {
-      boxShadow: {
-        skeuomorphic:
-          "inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff",
-        "skeuomorphic-sm":
-          "inset 3px 3px 6px #bebebe, inset -3px -3px 6px #ffffff",
-      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        primary: "#007bff",
-        secondary: "#6c757d",
-        background: "#f8f9fa",
-        foreground: "#ffffff",
+        primary: "hsl(var(--primary))",
+        secondary: "hsl(var(--secondary))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
@@ -54,9 +48,15 @@ const config = {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        none: "0",
+        sm: "0",
+        DEFAULT: "0",
+        md: "0",
+        lg: "0",
+        xl: "0",
+        "2xl": "0",
+        "3xl": "0",
+        full: "0",
       },
       keyframes: {
         "accordion-down": {

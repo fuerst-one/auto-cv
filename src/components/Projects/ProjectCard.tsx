@@ -1,5 +1,4 @@
 import { getJsxFormattedTextFromTextBlock } from "./getJsxFormattedTextFromTextBlock";
-import { colors } from "./colors";
 import { CvProject } from "@/server/notion/getCvProjects";
 import { Tag } from "./Tag";
 import dayjs from "dayjs";
@@ -10,7 +9,6 @@ import { FaImage } from "@react-icons/all-files/fa/FaImage";
 import { FaExternalLinkAlt } from "@react-icons/all-files/fa/FaExternalLinkAlt";
 import { FaChartLine } from "@react-icons/all-files/fa/FaChartLine";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
-import { cn } from "@/lib/utils";
 import { ProjectScreenshots } from "./ProjectScreenshots";
 import { getProjectLogoSources } from "./getProjectLogoSources";
 
@@ -31,40 +29,29 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
   const description = getJsxFormattedTextFromTextBlock(project.description);
   const kpis = getJsxFormattedTextFromTextBlock(project.kpis);
 
-  const { text } = colors.projectType![projectType] ?? {};
   const logos = getProjectLogoSources(project);
   const primaryLogo = logos[0];
 
   return (
-    <article
-      className={cn(
-        "group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_18px_40px_rgba(8,11,19,0.45)] backdrop-blur transition",
-        "hover:border-emerald-400/50 hover:bg-white/10",
-      )}
-    >
+    <article className="group relative border border-white/30 bg-black/85 p-6 transition hover:border-white">
       <div className="relative flex items-start justify-between gap-4">
         <header className="space-y-3">
           <div className="space-y-1">
-            <span
-              className={cn(
-                "inline-flex items-center gap-2 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-slate-400",
-                text,
-              )}
-            >
-              <span className="h-1 w-1 rounded-full bg-emerald-400" />
+            <span className="inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-400">
+              <span className="h-1 w-1 bg-white" />
               {projectType}
             </span>
             <h3 className="text-2xl font-semibold text-white">{name}</h3>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-            <span className="font-[var(--font-plex)] tracking-normal">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-400">
+            <span className="tracking-normal">
               <DateRange startDate={startDate} endDate={endDate} />
             </span>
             {websiteUrl && (
               <Link
                 href={websiteUrl}
                 target="_blank"
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-slate-200 transition hover:border-emerald-400/50 hover:text-white print:ml-0 print:block"
+                className="inline-flex items-center gap-2 border border-white/30 px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200 transition hover:border-white hover:text-white print:ml-0 print:block"
               >
                 Website
                 <FaExternalLinkAlt className="text-xs print:hidden" />
@@ -75,7 +62,7 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
               <Link
                 href={githubUrl}
                 target="_blank"
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-slate-200 transition hover:border-emerald-400/50 hover:text-white print:ml-0 print:block"
+                className="inline-flex items-center gap-2 border border-white/30 px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200 transition hover:border-white hover:text-white print:ml-0 print:block"
               >
                 GitHub
                 <FaGithub className="text-xs print:hidden" />
@@ -84,14 +71,14 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
             )}
           </div>
         </header>
-        <div className="flex shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-slate-200 shadow-inner print:hidden">
+        <div className="flex shrink-0 items-center justify-center border border-white/30 bg-black px-3 py-2 text-neutral-200 print:hidden">
           {primaryLogo ? (
             <div className="h-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={primaryLogo}
                 alt={`${name} logo`}
-                className="h-full w-auto object-contain"
+                className="h-full w-auto object-contain grayscale [mix-blend-mode:screen]"
                 loading="lazy"
               />
             </div>
@@ -104,13 +91,13 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
         <ProjectScreenshots screenshots={screenshots} projectName={name} />
       )}
       {kpis && (
-        <div className="relative mt-4 flex items-center gap-2 text-sm text-emerald-300">
+        <div className="relative mt-4 flex items-center gap-2 text-sm text-white">
           <FaChartLine className="text-base" />
           <span>{kpis}</span>
         </div>
       )}
       {description && (
-        <div className="mt-4 space-y-2 text-sm leading-relaxed text-slate-200">
+        <div className="mt-4 space-y-2 text-sm leading-relaxed text-neutral-200">
           {description}
         </div>
       )}
@@ -174,30 +161,30 @@ const MetaTable = ({ project }: { project: CvProject }) => {
     }));
 
   return (
-    <div className="mt-6 space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
+    <div className="mt-6 space-y-3 border border-white/20 bg-black/60 p-4 text-sm text-neutral-200">
       {filteredFields.map(({ label, projectKey, value }) => {
         const preview = formatPreviewValue(value);
 
         return (
           <details
             key={projectKey}
-            className="group rounded-xl border border-white/10 bg-slate-900/40 p-3"
+            className="group border border-white/15 bg-black/60 p-3"
           >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-left text-[0.7rem] font-[var(--font-plex)] uppercase tracking-[0.3em] text-slate-300 [&::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-left text-[0.7rem] uppercase tracking-[0.3em] text-neutral-300 [&::-webkit-details-marker]:hidden">
               <span>{label}</span>
-              <span className="flex items-center gap-2 text-[0.6rem] tracking-[0.25em] text-slate-500">
-                <span className="truncate text-slate-300/80" title={preview}>
+              <span className="flex items-center gap-2 text-[0.6rem] tracking-[0.25em] text-neutral-500">
+                <span className="truncate text-neutral-300/80" title={preview}>
                   {preview}
                 </span>
                 <span
-                  className="text-slate-400 transition-transform group-open:rotate-180"
+                  className="text-neutral-400 transition-transform group-open:rotate-180"
                   aria-hidden="true"
                 >
                   ▾
                 </span>
               </span>
             </summary>
-            <div className="mt-3 border-t border-white/5 pt-3 text-[0.75rem] tracking-normal text-slate-200">
+            <div className="mt-3 border-t border-white/10 pt-3 text-[0.75rem] tracking-normal text-neutral-200">
               <Property projectKey={projectKey} value={value} />
             </div>
           </details>
@@ -236,7 +223,7 @@ const Property = <TKey extends keyof CvProject>({
       </div>
     );
   }
-  return <span className="text-slate-200">{value as string}</span>;
+  return <span className="text-neutral-200">{value as string}</span>;
 };
 
 const formatPreviewValue = (value: CvProject[keyof CvProject]) => {

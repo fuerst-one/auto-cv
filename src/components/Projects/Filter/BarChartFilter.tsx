@@ -19,7 +19,7 @@ export const BarChartFilter = ({
 
   if (!itemCounts.length || maxCount === 0) {
     return (
-      <div className="flex h-[215px] w-full items-center justify-center text-xs text-slate-500">
+      <div className="flex h-[215px] w-full items-center justify-center text-xs text-neutral-500">
         No data available yet
       </div>
     );
@@ -27,7 +27,7 @@ export const BarChartFilter = ({
 
   return (
     <div className="h-[215px] w-full overflow-y-auto pr-1">
-      <div className="flex flex-col gap-2 text-xs text-slate-200">
+      <div className="flex flex-col gap-2 text-xs text-neutral-200">
         {itemCounts.map(({ itemKey, count }) => (
           <Fragment key={itemKey}>
             <Tag
@@ -36,12 +36,12 @@ export const BarChartFilter = ({
               className="flex items-center gap-0.5 border-none py-0"
             >
               <span className="w-1/2 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                {itemKey} <span className="text-emerald-200/70">({count})</span>
+                {itemKey} <span className="text-neutral-400">({count})</span>
               </span>
               <Progress
                 value={(count / maxCount) * 100}
-                className="h-1.5 bg-emerald-500/10"
-                indicatorClassName="bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400"
+                className="h-1.5 bg-white/10"
+                indicatorClassName="bg-white"
               />
             </Tag>
           </Fragment>

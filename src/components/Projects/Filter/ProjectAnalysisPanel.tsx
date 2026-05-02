@@ -10,17 +10,17 @@ export function ProjectAnalysisPanel({ projects }: { projects: CvProject[] }) {
   return (
     <div className="space-y-3 print:hidden">
       <div className="space-y-1">
-        <span className="text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-emerald-300/80">
+        <span className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-400">
           Project Analysis
         </span>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-neutral-400">
           Explore the collaborations, stacks, and outcomes fueling my recent
           work.
         </p>
       </div>
       <Suspense
         fallback={
-          <div className="flex h-[220px] items-center justify-center text-xs text-slate-500">
+          <div className="flex h-[220px] items-center justify-center text-xs text-neutral-500">
             Loading analysis…
           </div>
         }

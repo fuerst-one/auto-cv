@@ -2,10 +2,24 @@ import { FilterConfig } from "./types";
 import { useMemo } from "react";
 import { CvProject } from "@/server/notion/getCvProjects";
 import { getFilterOptionCounts } from "./utils";
-import Color from "color";
 import { ClientChartWrapper } from "./ClientChartWrapper";
 
 const TREEMAP_ITEMS_MAX = 12;
+
+const GRAYSCALE_PALETTE = [
+  "#f5f5f5",
+  "#dcdcdc",
+  "#bdbdbd",
+  "#a0a0a0",
+  "#878787",
+  "#6e6e6e",
+  "#575757",
+  "#454545",
+  "#363636",
+  "#2a2a2a",
+  "#1f1f1f",
+  "#161616",
+];
 
 export const TreemapFilter = ({
   filterConfig,
@@ -17,20 +31,7 @@ export const TreemapFilter = ({
   const { projectKey } = filterConfig;
   const itemCounts = getFilterOptionCounts(projects, projectKey);
   const itemsLength = Math.min(itemCounts.length, TREEMAP_ITEMS_MAX);
-  const palette = [
-    "#0f766e",
-    "#14b8a6",
-    "#22d3ee",
-    "#38bdf8",
-    "#6366f1",
-    "#a855f7",
-    "#34d399",
-    "#10b981",
-    "#0ea5e9",
-    "#22c55e",
-    "#8b5cf6",
-    "#f59e0b",
-  ];
+
   const data = useMemo(() => {
     return [
       ...itemCounts.slice(0, itemsLength).map(({ itemKey, count }) => ({
@@ -42,7 +43,7 @@ export const TreemapFilter = ({
 
   return (
     <div className="flex h-[210px] w-full items-start justify-center">
-      <div className="h-full w-full overflow-hidden rounded">
+      <div className="h-full w-full overflow-hidden">
         <ClientChartWrapper
           projectKey={projectKey}
           chartProps={{
@@ -50,12 +51,13 @@ export const TreemapFilter = ({
               tooltip: {
                 trigger: "item",
                 formatter: "{b}: {c}",
+                backgroundColor: "#000",
+                borderColor: "#fff",
+                textStyle: { color: "#fff" },
               },
-              color: Array.from({ length: itemsLength }, (_, i) =>
-                Color(palette[i % palette.length])
-                  .desaturate(0.1)
-                  .lighten(0.05)
-                  .hex(),
+              color: Array.from(
+                { length: itemsLength },
+                (_, i) => GRAYSCALE_PALETTE[i % GRAYSCALE_PALETTE.length],
               ),
               series: [
                 {
@@ -65,10 +67,17 @@ export const TreemapFilter = ({
                   roam: false,
                   width: "100%",
                   height: "100%",
+                  itemStyle: {
+                    borderColor: "#000",
+                    borderWidth: 1,
+                  },
                   label: {
                     show: true,
                     fontSize: 10,
-                    color: "#f8fafc",
+                    color: "#fff",
+                    textBorderColor: "#000",
+                    textBorderWidth: 2,
+                    fontFamily: "var(--font-plex), monospace",
                   },
                   breadcrumb: {
                     show: false,

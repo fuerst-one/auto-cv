@@ -149,23 +149,21 @@ export const FilterSqlConsole = ({
   const loweredQuery = searchQuery.toLowerCase();
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-5 shadow-lg shadow-emerald-500/5">
+    <div className="border border-white/20 bg-black/85 p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="font-mono text-xs uppercase tracking-wide text-emerald-300/80">
+          <h3 className="text-xs uppercase tracking-[0.3em] text-neutral-300">
             Project query console
           </h3>
-          <span className="font-mono text-[0.65rem] text-emerald-500/60">
-            SELECT mode
-          </span>
+          <span className="text-[0.65rem] text-neutral-500">SELECT mode</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="rounded-full border border-emerald-400/20 bg-black/50 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-wide text-emerald-300/80">
+          <span className="border border-white/30 bg-black px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200">
             {resultsCount} results
           </span>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-black/50 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-wide text-emerald-300 transition hover:border-emerald-400/40 hover:text-emerald-100"
+            className="inline-flex items-center gap-2 border border-white/30 bg-black px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200 transition hover:border-white hover:text-white"
             onClick={() => {
               resetFilters();
               router.replace("/", { scroll: false });
@@ -175,7 +173,7 @@ export const FilterSqlConsole = ({
           </button>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-black/50 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-wide text-emerald-300 transition hover:border-emerald-400/40 hover:text-emerald-100"
+            className="inline-flex items-center gap-2 border border-white/30 bg-black px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200 transition hover:border-white hover:text-white"
             onClick={() => setIsExpanded((prev) => !prev)}
             aria-expanded={isExpanded}
             aria-controls={panelId}
@@ -183,7 +181,7 @@ export const FilterSqlConsole = ({
             {isExpanded ? "Collapse" : "Expand"}
             <span
               className={clsx(
-                "text-emerald-400 transition-transform",
+                "transition-transform",
                 isExpanded ? "rotate-180" : "rotate-0",
               )}
               aria-hidden="true"
@@ -193,9 +191,9 @@ export const FilterSqlConsole = ({
           </button>
         </div>
       </div>
-      <div className="mt-4 rounded-xl border border-emerald-400/20 bg-black/60 p-4 font-mono text-[0.8rem] leading-relaxed text-emerald-100">
-        <span className="mr-2 text-emerald-500">&gt;</span>
-        <pre className="inline whitespace-pre-wrap break-words text-emerald-100/90">
+      <div className="mt-4 border border-white/20 bg-black p-4 text-[0.8rem] leading-relaxed text-neutral-100">
+        <span className="mr-2 text-neutral-500">&gt;</span>
+        <pre className="inline whitespace-pre-wrap break-words text-neutral-100">
           {sqlStatement}
         </pre>
       </div>
@@ -206,31 +204,31 @@ export const FilterSqlConsole = ({
       >
         {isExpanded && (
           <>
-            <div className="mb-3 flex flex-wrap items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-emerald-400/70">
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-[0.7rem] uppercase tracking-[0.25em] text-neutral-400">
               <span>Active filters</span>
               <div className="flex flex-wrap gap-2">
                 {activeFilters.length ? (
                   activeFilters.map(({ key, label, value }) => (
                     <span
                       key={`${key}-${value}`}
-                      className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-[0.65rem] text-emerald-200"
+                      className="border border-white/40 bg-white/10 px-2 py-1 text-[0.65rem] text-neutral-100"
                     >
-                      {label}: <span className="text-emerald-100">{value}</span>
+                      {label}: <span className="text-white">{value}</span>
                     </span>
                   ))
                 ) : (
-                  <span className="text-emerald-500/60">None</span>
+                  <span className="text-neutral-500">None</span>
                 )}
               </div>
             </div>
-            <label className="block font-mono text-[0.65rem] uppercase tracking-wide text-emerald-400/70">
+            <label className="block text-[0.65rem] uppercase tracking-[0.2em] text-neutral-400">
               Search dataset
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Filter values..."
-                className="mt-2 w-full rounded-lg border border-emerald-500/20 bg-black/60 px-3 py-2 font-sans text-sm text-emerald-100 outline-none transition focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-500/20"
+                className="mt-2 w-full border border-white/20 bg-black px-3 py-2 text-sm text-neutral-100 outline-none transition focus:border-white"
               />
             </label>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -249,11 +247,11 @@ export const FilterSqlConsole = ({
                 return (
                   <div
                     key={key}
-                    className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3"
+                    className="border border-white/20 bg-black/60 p-3"
                   >
-                    <div className="mb-2 flex items-center justify-between font-mono text-[0.7rem] uppercase tracking-[0.25em] text-emerald-300">
+                    <div className="mb-2 flex items-center justify-between text-[0.7rem] uppercase tracking-[0.3em] text-neutral-300">
                       <span>{label}</span>
-                      <span className="text-emerald-500/60">
+                      <span className="text-neutral-500">
                         {activeValues.size > 0
                           ? `${activeValues.size} selected`
                           : "--"}
@@ -271,22 +269,22 @@ export const FilterSqlConsole = ({
                                   handleToggleValue(key, option.value)
                                 }
                                 className={clsx(
-                                  "flex w-full items-center justify-between rounded-lg border px-3 py-2 font-mono text-sm transition",
-                                  "border-emerald-500/20 bg-black/60 text-emerald-100 hover:border-emerald-400/60 hover:bg-emerald-400/10",
+                                  "flex w-full items-center justify-between border px-3 py-2 text-sm transition",
+                                  "border-white/20 bg-black text-neutral-100 hover:border-white",
                                   isSelected &&
-                                    "border-emerald-400/80 bg-emerald-400/20 text-emerald-50",
+                                    "border-white bg-white/10 text-white",
                                 )}
                                 aria-pressed={isSelected}
                               >
                                 <span className="flex items-center gap-2">
-                                  <span className="text-emerald-400">
+                                  <span className="text-neutral-200">
                                     {isSelected ? "▣" : "▢"}
                                   </span>
                                   <span className="whitespace-normal break-words text-left">
                                     {option.value}
                                   </span>
                                 </span>
-                                <span className="text-[0.65rem] text-emerald-500/70">
+                                <span className="text-[0.65rem] text-neutral-500">
                                   {option.count}
                                 </span>
                               </button>
@@ -295,7 +293,7 @@ export const FilterSqlConsole = ({
                         })}
                       </ul>
                     ) : (
-                      <p className="font-mono text-[0.7rem] text-emerald-500/60">
+                      <p className="text-[0.7rem] text-neutral-500">
                         No matches
                       </p>
                     )}

@@ -13,12 +13,10 @@ export function SignUpForm() {
     event.preventDefault();
     setIsLoading(true);
 
-    // Collect email and add to Notion
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
     await addEmailToNotion(email);
 
-    // Download PDF
     const response = await fetch(`/cv.pdf${window.location.search}`);
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
@@ -34,7 +32,7 @@ export function SignUpForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="relative isolate mt-8 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 print:hidden backdrop-blur"
+      className="relative mt-8 flex items-center gap-2 border border-white/30 bg-black/60 px-3 py-2 transition focus-within:border-white print:hidden"
     >
       <label htmlFor={id} className="sr-only">
         Email address
@@ -45,14 +43,12 @@ export function SignUpForm() {
         autoComplete="email"
         name="email"
         id={id}
-        placeholder="Email address"
-        className="peer w-0 flex-auto bg-transparent px-2 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
+        placeholder="email@address"
+        className="peer w-0 flex-auto bg-transparent px-2 py-2 text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none"
       />
       <Button type="submit" arrow={!isLoading}>
         {isLoading ? <FaHourglass className="inline" /> : "Get PDF CV"}
       </Button>
-      <div className="pointer-events-none absolute inset-0 -z-10 rounded-2xl border border-white/10 transition peer-focus-within:border-emerald-400/60" />
-      <div className="pointer-events-none absolute inset-0 -z-20 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-transparent to-sky-500/10 opacity-0 transition peer-focus-within:opacity-100" />
     </form>
   );
 }

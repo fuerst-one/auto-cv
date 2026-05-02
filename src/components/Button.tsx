@@ -10,7 +10,7 @@ function ButtonInner({
 }) {
   return (
     <span className="relative flex items-center gap-3 px-5 py-2">
-      <span className="text-[0.7rem] font-semibold uppercase tracking-wide">
+      <span className="text-[0.7rem] font-semibold uppercase tracking-[0.2em]">
         {children}
       </span>
       {arrow ? <span aria-hidden="true">↗</span> : null}
@@ -28,7 +28,7 @@ export function Button({
   | ({ href?: undefined } & React.ComponentPropsWithoutRef<"button">)
 )) {
   className = cn(
-    "inline-flex flex-none items-center justify-center overflow-hidden rounded-full bg-emerald-400/90 text-slate-950 shadow-[0_10px_30px_rgba(16,185,129,0.25)] transition hover:bg-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950",
+    "inline-flex flex-none items-center justify-center overflow-hidden border border-white bg-white text-black transition hover:bg-neutral-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black",
     className,
   );
 

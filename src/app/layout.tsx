@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
+import { IBM_Plex_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { PlasmaBackground } from "@/components/Plasma/PlasmaBackground";
 import "./globals.css";
-
-const grotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-grotesk",
-});
 
 const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
@@ -29,11 +25,11 @@ export default function RootLayout({
       <body
         className={cn(
           "relative flex min-h-full flex-col bg-background text-foreground antialiased",
-          grotesk.className,
-          grotesk.variable,
+          plexMono.className,
           plexMono.variable,
         )}
       >
+        <PlasmaBackground />
         {children}
       </body>
     </html>

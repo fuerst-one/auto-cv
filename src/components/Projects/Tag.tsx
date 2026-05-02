@@ -21,10 +21,9 @@ export const Tag = ({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-slate-200 transition",
+        "inline-flex items-center gap-1 border border-white/30 bg-black/60 px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200 transition",
         {
-          "cursor-pointer border-emerald-400/40 text-emerald-200 hover:border-emerald-300/60 hover:text-white":
-            hasSearchParam,
+          "cursor-pointer hover:border-white hover:text-white": hasSearchParam,
         },
         className,
       )}

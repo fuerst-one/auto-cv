@@ -52,13 +52,13 @@ export function ProjectsClientView({
     <div className="pl-1 pr-1 lg:pl-4 lg:pr-4">
       <FiltersUrlSync initialSearchParams={initialSearchParams} />
       <div className="mb-12 space-y-5">
-        <span className="text-[0.65rem] font-[var(--font-plex)] uppercase tracking-wide text-emerald-300/80">
+        <span className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-400">
           Project Index
         </span>
         <h2 className="text-3xl font-semibold text-white">
           {filteredProjects.length} {descriptor} projects, curated for impact
         </h2>
-        <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
+        <p className="max-w-2xl text-sm leading-relaxed text-neutral-400">
           Explore a curated collection of recent projects, each showcasing
           thoughtful design and technical depth. Use the analysis tools to
           filter, compare, and discover the collaborations, technologies, and

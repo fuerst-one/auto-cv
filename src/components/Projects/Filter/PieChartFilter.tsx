@@ -3,6 +3,15 @@ import { FilterConfig } from "./types";
 import { getFilterOptionCounts } from "./utils";
 import { CvProject } from "@/server/notion/getCvProjects";
 
+const GRAYSCALE_PALETTE = [
+  "#f5f5f5",
+  "#bdbdbd",
+  "#8a8a8a",
+  "#5a5a5a",
+  "#3a3a3a",
+  "#1f1f1f",
+];
+
 export const PieChartFilter = ({
   filterConfig,
   projects,
@@ -13,22 +22,17 @@ export const PieChartFilter = ({
   const { projectKey } = filterConfig;
   const itemCounts = getFilterOptionCounts(projects, projectKey);
 
-  const palette = [
-    "#34d399",
-    "#22d3ee",
-    "#38bdf8",
-    "#818cf8",
-    "#a855f7",
-    "#f59e0b",
-  ];
-
-  const data = itemCounts.map(({ itemKey, count, color }, index) => ({
+  const data = itemCounts.map(({ itemKey, count }, index) => ({
     name: itemKey,
     value: count,
-    itemStyle: color ? { color } : { color: palette[index % palette.length] },
+    itemStyle: {
+      color: GRAYSCALE_PALETTE[index % GRAYSCALE_PALETTE.length],
+      borderColor: "#000",
+      borderWidth: 1,
+    },
   }));
 
-  const seriesColors = data.map((d) => d.itemStyle?.color as string);
+  const seriesColors = data.map((d) => d.itemStyle.color);
 
   return (
     <div className="flex h-[210px] w-full items-start justify-center">
@@ -40,6 +44,9 @@ export const PieChartFilter = ({
             tooltip: {
               trigger: "item",
               formatter: "{b}: {c} ({d}%)",
+              backgroundColor: "#000",
+              borderColor: "#fff",
+              textStyle: { color: "#fff" },
             },
             series: [
               {
@@ -52,8 +59,10 @@ export const PieChartFilter = ({
                 data: data,
                 label: {
                   position: "inside",
-                  color: "#e2e8f0",
-                  fontFamily: "var(--font-plex)",
+                  color: "#fff",
+                  textBorderColor: "#000",
+                  textBorderWidth: 2,
+                  fontFamily: "var(--font-plex), monospace",
                   fontSize: 11,
                 },
               },

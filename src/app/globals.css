@@ -4,35 +4,35 @@
 
 @layer base {
   :root {
-    --background: 220 46% 5%; /* 222 40% 6%; */
-    --foreground: 214 45% 98%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 96%;
 
-    --card: 221 32% 10%;
-    --card-foreground: 214 45% 94%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 221 32% 10%;
-    --popover-foreground: 214 45% 94%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 160 84% 58%;
-    --primary-foreground: 222 47% 7%;
+    --primary: 0 0% 96%;
+    --primary-foreground: 0 0% 4%;
 
-    --secondary: 224 28% 16%;
-    --secondary-foreground: 214 45% 94%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 216 27% 19%;
-    --muted-foreground: 215 16% 72%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 201 94% 68%;
-    --accent-foreground: 214 45% 94%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 4%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 0% 80%;
+    --destructive-foreground: 0 0% 4%;
 
-    --border: 222 28% 22%;
-    --input: 222 28% 20%;
-    --ring: 161 82% 60%;
+    --border: 0 0% 22%;
+    --input: 0 0% 14%;
+    --ring: 0 0% 60%;
 
-    --radius: 1rem;
+    --radius: 0px;
   }
 }
 
@@ -40,22 +40,11 @@
   * {
     @apply border-border;
   }
+  html,
+  body {
+    background-color: #000;
+  }
   body {
     @apply bg-background text-foreground;
-    background-image: radial-gradient(160% 120% at 10% 0%, rgba(34, 211, 238, 0.08), transparent 60%),
-      radial-gradient(120% 140% at 100% 10%, rgba(16, 185, 129, 0.18), transparent 55%),
-      radial-gradient(120% 120% at 40% 120%, rgba(59, 130, 246, 0.12), transparent 65%),
-      linear-gradient(180deg, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.96));
-    background-color: hsl(var(--background));
-  }
-}
-
-@keyframes pulse-glow {
-  0%,
-  100% {
-    opacity: 0.55;
-  }
-  50% {
-    opacity: 0.85;
   }
 }
