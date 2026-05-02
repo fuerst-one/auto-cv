@@ -7,7 +7,17 @@ export const runtime = "nodejs";
 
 // This route will create a PDF from the CV projects
 export const GET = async () => {
-  const projects = await getCvProjects();
+  const TOP_N = 4;
+  const allProjects = await getCvProjects();
+  const projects = allProjects
+    .filter((p) => p.featured)
+    .sort((a, b) => {
+      if (b.wowFactor !== a.wowFactor) {
+        return b.wowFactor - a.wowFactor;
+      }
+      return (b.startDate ?? "").localeCompare(a.startDate ?? "");
+    })
+    .slice(0, TOP_N);
 
   const pdfBuffer = await renderCvPdf(projects);
 
