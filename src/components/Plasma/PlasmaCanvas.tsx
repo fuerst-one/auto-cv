@@ -6,6 +6,7 @@ import { Glyph } from "./types";
 type PlasmaCanvasProps = {
   frame: Glyph[][] | null;
   cellSize: number;
+  cellWidth?: number;
   fontPx: number;
   fontWeight?: number;
   fontFamily?: string;
@@ -22,12 +23,15 @@ const isFontsApiReady = () =>
 export const PlasmaCanvas = ({
   frame,
   cellSize,
+  cellWidth,
   fontPx,
   fontWeight = DEFAULT_FONT_WEIGHT,
   fontFamily = DEFAULT_FONT_FAMILY,
   className,
   style,
 }: PlasmaCanvasProps) => {
+  const cw = cellWidth ?? cellSize;
+  const ch = cellSize;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fontReady, setFontReady] = useState(isFontsApiReady);
 
@@ -48,8 +52,8 @@ export const PlasmaCanvas = ({
 
   const widthCells = frame?.[0]?.length ?? 0;
   const heightCells = frame?.length ?? 0;
-  const widthPx = widthCells * cellSize;
-  const heightPx = heightCells * cellSize;
+  const widthPx = widthCells * cw;
+  const heightPx = heightCells * ch;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -82,7 +86,7 @@ export const PlasmaCanvas = ({
     let lastWeight: string | number = fontWeight;
     for (let y = 0; y < frame.length; y++) {
       const row = frame[y];
-      const cy = y * cellSize + cellSize / 2;
+      const cy = y * ch + ch / 2;
       for (let x = 0; x < row.length; x++) {
         const glyph = row[x];
         if (glyph.character === " ") {
@@ -98,12 +102,13 @@ export const PlasmaCanvas = ({
           ctx.fillStyle = color;
           lastColor = color;
         }
-        ctx.fillText(glyph.character, x * cellSize + cellSize / 2, cy);
+        ctx.fillText(glyph.character, x * cw + cw / 2, cy);
       }
     }
   }, [
     frame,
-    cellSize,
+    cw,
+    ch,
     fontPx,
     fontFamily,
     fontWeight,

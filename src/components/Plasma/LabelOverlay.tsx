@@ -7,23 +7,27 @@ import { LabelPlacement } from "./getLabelGroupPlacements";
 type LabelOverlayProps = {
   placements: LabelPlacement[];
   cellSize: number;
+  cellWidth?: number;
   fontPx: number;
 };
 
 export const LabelOverlay = ({
   placements,
   cellSize,
+  cellWidth,
   fontPx,
 }: LabelOverlayProps) => {
+  const cw = cellWidth ?? cellSize;
+  const ch = cellSize;
   return (
     <div className="pointer-events-none absolute inset-0">
       {placements.map(({ label, row, startCol }, idx) => {
         const containerStyle: CSSProperties = {
           position: "absolute",
-          left: startCol * cellSize,
-          top: row * cellSize,
-          width: label.label.length * cellSize,
-          height: cellSize,
+          left: startCol * cw,
+          top: row * ch,
+          width: label.label.length * cw,
+          height: ch,
           display: "flex",
           fontSize: label.style?.fontSize ?? fontPx,
           fontWeight: label.style?.fontWeight,
@@ -33,8 +37,8 @@ export const LabelOverlay = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          width: cellSize,
-          height: cellSize,
+          width: cw,
+          height: ch,
           lineHeight: 1,
           transform: "translate(-0.25px, -1.5px)",
         };

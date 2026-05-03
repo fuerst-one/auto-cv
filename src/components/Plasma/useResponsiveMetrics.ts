@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-export type Metrics = { cellSize: number; fontPx: number };
+export type Metrics = {
+  cellSize: number;
+  fontPx: number;
+  cellWidth?: number;
+};
 
 const MOBILE_BREAKPOINT_PX = 640;
 const MOBILE_METRICS: Metrics = { cellSize: 20, fontPx: 14 };

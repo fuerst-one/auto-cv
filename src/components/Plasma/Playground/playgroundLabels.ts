@@ -1,23 +1,24 @@
 import { LabelGroup } from "../types";
-import { KnobId, KnobState } from "./types";
+import { KnobId } from "./types";
 
 export type PlaygroundLabelsArgs = {
-  knobs: KnobState;
   isPaused: boolean;
+  copyStatus: "idle" | "copied";
   onTogglePause: () => void;
   onKnobToggle: (id: KnobId) => void;
+  onCopy: () => void;
 };
 
 const PAUSE_ICON = "⏸";
 const PLAY_ICON = "⏵";
 
 export const getPlaygroundLabels = ({
-  knobs,
   isPaused,
+  copyStatus,
   onTogglePause,
   onKnobToggle,
+  onCopy,
 }: PlaygroundLabelsArgs): LabelGroup[] => {
-  const blendDisabled = knobs.mode !== "blend";
   return [
     {
       labels: [{ label: "FUERST.ONE", href: "/" }],
@@ -40,9 +41,8 @@ export const getPlaygroundLabels = ({
         { label: "SIZE", onClick: () => onKnobToggle("size") },
         { label: "CONTRAST", onClick: () => onKnobToggle("contrast") },
         {
-          label: "BLEND",
-          onClick: blendDisabled ? undefined : () => onKnobToggle("blend"),
-          style: blendDisabled ? { opacity: 0.4 } : undefined,
+          label: copyStatus === "copied" ? "COPIED" : "COPY",
+          onClick: onCopy,
         },
       ],
       yAlign: "bottom",

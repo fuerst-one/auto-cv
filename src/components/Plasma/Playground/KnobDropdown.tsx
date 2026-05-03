@@ -9,6 +9,7 @@ type KnobDropdownProps = {
   openKnob: KnobId | null;
   placement: LabelPlacement | null;
   cellSize: number;
+  cellWidth?: number;
   knobs: KnobState;
   webcamModesEnabled: boolean;
   onChange: <K extends keyof KnobState>(key: K, value: KnobState[K]) => void;
@@ -18,7 +19,6 @@ type KnobDropdownProps = {
 const MODES: ReadonlyArray<{ value: Mode; label: string }> = [
   { value: "plasma", label: "PLASMA" },
   { value: "ascii", label: "ASCII VIDEO" },
-  { value: "blend", label: "BLEND" },
 ];
 
 const SIZES: ReadonlyArray<{ value: SizeKey; label: string }> = [
@@ -37,11 +37,13 @@ export const KnobDropdown = ({
   openKnob,
   placement,
   cellSize,
+  cellWidth,
   knobs,
   webcamModesEnabled,
   onChange,
   onClose,
 }: KnobDropdownProps) => {
+  const cw = cellWidth ?? cellSize;
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -76,9 +78,9 @@ export const KnobDropdown = ({
 
   const panelStyle: CSSProperties = {
     position: "absolute",
-    left: placement.startCol * cellSize,
+    left: placement.startCol * cw,
     bottom: cellSize * 2,
-    minWidth: cellSize * 12,
+    minWidth: cw * 14,
   };
 
   return (
@@ -113,12 +115,6 @@ export const KnobDropdown = ({
           value={knobs.contrast}
           options={CONTRASTS}
           onChange={(value) => onChange("contrast", value)}
-        />
-      )}
-      {openKnob === "blend" && (
-        <BlendSlider
-          value={knobs.blendStrength}
-          onChange={(value) => onChange("blendStrength", value)}
         />
       )}
     </div>
@@ -168,32 +164,5 @@ const RadioList = <TValue extends string>({
         );
       })}
     </div>
-  );
-};
-
-type BlendSliderProps = {
-  value: number;
-  onChange: (value: number) => void;
-};
-
-const BlendSlider = ({ value, onChange }: BlendSliderProps) => {
-  return (
-    <label className="flex flex-col gap-2 text-sm">
-      <span className="flex items-center justify-between gap-3">
-        <span>PLASMA BLEND</span>
-        <span className="tabular-nums text-muted-foreground">
-          {Math.round(value * 100)}%
-        </span>
-      </span>
-      <input
-        type="range"
-        min={0}
-        max={100}
-        step={1}
-        value={Math.round(value * 100)}
-        onChange={(event) => onChange(Number(event.target.value) / 100)}
-        className="w-48 accent-foreground"
-      />
-    </label>
   );
 };

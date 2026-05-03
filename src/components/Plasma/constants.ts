@@ -59,6 +59,8 @@ const buildGlyphPalette = (lightnessBase: number, lightnessRange: number) => {
 export const CHARACTERS: Glyph[] = buildGlyphPalette(12, 30);
 export const LANDING_CHARACTERS: Glyph[] = buildGlyphPalette(20, 40);
 export const PLAYGROUND_CHARACTERS: Glyph[] = buildGlyphPalette(30, 60);
+export const PLAYGROUND_CHARACTERS_LOW: Glyph[] = buildGlyphPalette(20, 50);
+export const PLAYGROUND_CHARACTERS_HIGH: Glyph[] = buildGlyphPalette(45, 75);
 
 export const RADII = [65.2, 92.0, 163.2, 176.8];
 export const CENTER_XS = [64.4, 46.4, 93.6, 16.4];

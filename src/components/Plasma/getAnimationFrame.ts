@@ -19,7 +19,7 @@ export const getAnimationFrame = ({
   zoomFactor,
   speedFactor,
   characters = CHARACTERS,
-  out,
+  cellAspect = 1,
 }: {
   width: number;
   height: number;
@@ -27,12 +27,11 @@ export const getAnimationFrame = ({
   zoomFactor: number;
   speedFactor: number;
   characters?: Glyph[];
-  out?: Float32Array;
+  cellAspect?: number;
 }) => {
   const frame: Glyph[][] = Array.from({ length: height }, () =>
     Array.from({ length: width }, () => ({ character: " " })),
   );
-  const lastRampIndex = Math.max(1, characters.length - 1);
 
   const sxs: number[] = Array.from({ length: complexity });
   const ys: number[] = Array.from({ length: complexity });
@@ -41,19 +40,20 @@ export const getAnimationFrame = ({
     ys[i] = Math.sin(angles[i]) * RADII[i] + CENTER_YS[i];
   }
 
+  const xAspectSq = cellAspect * cellAspect;
+
   for (let y = 0; y < height; y++) {
     const xs = sxs.slice();
     for (let x = 0; x < width; x++) {
       let value = hueShift;
       for (let i = 0; i < complexity; i++) {
-        const index = Math.round((xs[i] * xs[i] + ys[i] * ys[i]) * zoomFactor);
+        const index = Math.round(
+          (xs[i] * xs[i] * xAspectSq + ys[i] * ys[i]) * zoomFactor,
+        );
         value += SINE_TABLE[(index >> 5) & 0xff];
       }
       const index = mod(Math.floor(value), characters.length);
       frame[y][x] = characters[index];
-      if (out) {
-        out[y * width + x] = index / lastRampIndex;
-      }
       for (let i = 0; i < complexity; i++) {
         xs[i] -= 1;
       }
