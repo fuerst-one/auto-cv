@@ -1,25 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FrameBounds } from "./types";
-import { useInterval } from "./useInterval";
-import { getIsReducedMotion } from "./getIsReducedMotion";
+import { FrameBounds } from "../Plasma/types";
+import { useInterval } from "../Plasma/useInterval";
+import { getIsReducedMotion } from "../Plasma/getIsReducedMotion";
 import { getLabelsGroups } from "./labelGroups";
-import { LabelPlacement } from "./getLabelGroupPlacements";
+import { LabelPlacement } from "../Plasma/getLabelGroupPlacements";
 import { getResponsivePlacements } from "./getResponsivePlacements";
 import {
   LANDING_CHARACTERS,
   PLASMA_FPS,
   PLASMA_REDUCED_FPS,
-} from "./constants";
-import {
-  PlasmaCanvasGL,
-  PlasmaCanvasGLHandle,
-  isWebGL2Supported,
-} from "./PlasmaCanvasGL/PlasmaCanvasGL";
-import { LabelOverlay } from "./LabelOverlay";
-import { LegalFooter } from "./LegalFooter";
-import { useResponsiveMetrics } from "./useResponsiveMetrics";
+} from "../Plasma/constants";
+import { PlasmaCanvas, PlasmaCanvasHandle } from "../Plasma/PlasmaCanvas";
+import { LabelOverlay } from "../Plasma/LabelOverlay";
+import { LegalFooter } from "../Plasma/LegalFooter";
+import { useResponsiveMetrics } from "../Plasma/useResponsiveMetrics";
 
 const FOOTER_RESERVED_PX = 40;
 
@@ -62,15 +58,10 @@ type FrameProps = {
 };
 
 const Frame = ({ bounds, cellSize, fontPx }: FrameProps) => {
-  const glRef = useRef<PlasmaCanvasGLHandle | null>(null);
+  const canvasRef = useRef<PlasmaCanvasHandle | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [useGL, setUseGL] = useState(false);
 
   const toggleIsPlaying = () => setIsPlaying((prev) => !prev);
-
-  useEffect(() => {
-    setUseGL(isWebGL2Supported());
-  }, []);
 
   const placements = useMemo<LabelPlacement[]>(() => {
     if (!bounds) {
@@ -86,21 +77,21 @@ const Frame = ({ bounds, cellSize, fontPx }: FrameProps) => {
   }, [bounds, isPlaying, fontPx]);
 
   useEffect(() => {
-    if (bounds && useGL) {
-      glRef.current?.renderPlasma();
+    if (bounds) {
+      canvasRef.current?.renderPlasma();
     }
-  }, [bounds, useGL]);
+  }, [bounds]);
 
   useInterval(
     () => {
       if (bounds && isPlaying) {
-        glRef.current?.renderPlasma();
+        canvasRef.current?.renderPlasma();
       }
     },
     1000 / (getIsReducedMotion() ? PLASMA_REDUCED_FPS : PLASMA_FPS),
   );
 
-  if (!bounds || !useGL) {
+  if (!bounds) {
     return null;
   }
 
@@ -112,8 +103,8 @@ const Frame = ({ bounds, cellSize, fontPx }: FrameProps) => {
         height: bounds.height * cellSize,
       }}
     >
-      <PlasmaCanvasGL
-        ref={glRef}
+      <PlasmaCanvas
+        ref={canvasRef}
         ramp={LANDING_CHARACTERS}
         cellSize={cellSize}
         cellWidth={cellSize}

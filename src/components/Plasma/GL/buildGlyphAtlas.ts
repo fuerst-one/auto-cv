@@ -1,8 +1,8 @@
 import TinySDF from "@mapbox/tiny-sdf";
 
-const SDF_FONT_SIZE = 32;
-const SDF_BUFFER = 4;
-const SDF_RADIUS = 8;
+const SDF_FONT_SIZE = 64;
+const SDF_BUFFER = 8;
+const SDF_RADIUS = 16;
 
 export type GlyphAtlas = {
   data: Uint8Array;

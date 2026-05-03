@@ -1,127 +1,159 @@
 "use client";
 
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import {
+  CSSProperties,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { Glyph } from "./types";
+import {
+  PlasmaCanvasGL,
+  PlasmaCanvasGLHandle,
+  isWebGL2Supported,
+} from "./GL/PlasmaCanvasGL";
+import { PlasmaCanvasJS } from "./JS/PlasmaCanvasJS";
+import { getAnimationFrame } from "./JS/getAnimationFrame";
+import { getLuminanceFrame } from "./JS/getLuminanceFrame";
+import { PLASMA_COMPLEXITY, PLASMA_SPEED, PLASMA_ZOOM } from "./constants";
 
-type PlasmaCanvasProps = {
-  frame: Glyph[][] | null;
+export type PlasmaCanvasHandle = {
+  renderPlasma: () => void;
+  renderLuminance: (
+    luminance: Uint8Array,
+    width: number,
+    height: number,
+  ) => void;
+};
+
+export type PlasmaCanvasProps = {
+  ramp: Glyph[];
+  bgColor?: [number, number, number];
   cellSize: number;
   cellWidth?: number;
   fontPx: number;
-  fontWeight?: number;
-  fontFamily?: string;
+  gridWidth: number;
+  gridHeight: number;
   className?: string;
   style?: CSSProperties;
+  /**
+   * Called from the JS fallback path with the freshly-computed glyph grid,
+   * before it is drawn. The callback may mutate the frame in place (e.g. to
+   * blank cells under DOM label overlays) and/or capture it for later use.
+   * Never fires in the WebGL2 path because that path has no glyph grid.
+   */
+  onTextFrame?: (frame: Glyph[][]) => void;
 };
 
-const DEFAULT_FONT_FAMILY = "Menlo, var(--font-plex), monospace";
-const DEFAULT_FONT_WEIGHT = 400;
+export const PlasmaCanvas = forwardRef<PlasmaCanvasHandle, PlasmaCanvasProps>(
+  function PlasmaCanvas(props, ref) {
+    const {
+      ramp,
+      bgColor,
+      cellSize,
+      cellWidth,
+      fontPx,
+      gridWidth,
+      gridHeight,
+      className,
+      style,
+      onTextFrame,
+    } = props;
+    const resolvedCellWidth = cellWidth ?? cellSize;
+    const cellAspect = resolvedCellWidth / cellSize;
 
-const isFontsApiReady = () =>
-  typeof document !== "undefined" && document.fonts?.status === "loaded";
+    const [supportsGL, setSupportsGL] = useState<boolean | null>(null);
+    const glRef = useRef<PlasmaCanvasGLHandle | null>(null);
+    const [frame, setFrame] = useState<Glyph[][] | null>(null);
 
-export const PlasmaCanvas = ({
-  frame,
-  cellSize,
-  cellWidth,
-  fontPx,
-  fontWeight = DEFAULT_FONT_WEIGHT,
-  fontFamily = DEFAULT_FONT_FAMILY,
-  className,
-  style,
-}: PlasmaCanvasProps) => {
-  const cw = cellWidth ?? cellSize;
-  const ch = cellSize;
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [fontReady, setFontReady] = useState(isFontsApiReady);
+    useEffect(() => {
+      setSupportsGL(isWebGL2Supported());
+    }, []);
 
-  useEffect(() => {
-    if (fontReady || typeof document === "undefined" || !document.fonts) {
-      return;
+    const onTextFrameRef = useRef(onTextFrame);
+    onTextFrameRef.current = onTextFrame;
+
+    const renderPlasmaJS = useCallback(() => {
+      const next = getAnimationFrame({
+        width: gridWidth,
+        height: gridHeight,
+        complexity: PLASMA_COMPLEXITY,
+        zoomFactor: 1 / PLASMA_ZOOM,
+        speedFactor: PLASMA_SPEED,
+        characters: ramp,
+        cellAspect,
+      });
+      onTextFrameRef.current?.(next);
+      setFrame(next);
+    }, [gridWidth, gridHeight, ramp, cellAspect]);
+
+    const renderLuminanceJS = useCallback(
+      (luminance: Uint8Array, width: number, height: number) => {
+        const next = getLuminanceFrame({ luminance, ramp, width, height });
+        onTextFrameRef.current?.(next);
+        setFrame(next);
+      },
+      [ramp],
+    );
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        renderPlasma: () => {
+          if (supportsGL) {
+            glRef.current?.renderPlasma();
+            return;
+          }
+          if (supportsGL === false) {
+            renderPlasmaJS();
+          }
+        },
+        renderLuminance: (luminance, width, height) => {
+          if (supportsGL) {
+            glRef.current?.renderLuminance(luminance, width, height);
+            return;
+          }
+          if (supportsGL === false) {
+            renderLuminanceJS(luminance, width, height);
+          }
+        },
+      }),
+      [supportsGL, renderPlasmaJS, renderLuminanceJS],
+    );
+
+    if (supportsGL === null) {
+      return null;
     }
-    let cancelled = false;
-    document.fonts.ready.then(() => {
-      if (!cancelled) {
-        setFontReady(true);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [fontReady]);
 
-  const widthCells = frame?.[0]?.length ?? 0;
-  const heightCells = frame?.length ?? 0;
-  const widthPx = widthCells * cw;
-  const heightPx = heightCells * ch;
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !frame || !fontReady || widthPx === 0 || heightPx === 0) {
-      return;
-    }
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      return;
+    if (supportsGL) {
+      return (
+        <PlasmaCanvasGL
+          ref={glRef}
+          ramp={ramp}
+          bgColor={bgColor}
+          cellSize={cellSize}
+          cellWidth={resolvedCellWidth}
+          fontPx={fontPx}
+          gridWidth={gridWidth}
+          gridHeight={gridHeight}
+          className={className}
+          style={style}
+        />
+      );
     }
 
-    const dpr = window.devicePixelRatio || 1;
-    if (canvas.width !== widthPx * dpr || canvas.height !== heightPx * dpr) {
-      canvas.width = widthPx * dpr;
-      canvas.height = heightPx * dpr;
-    }
-
-    const computed = window.getComputedStyle(canvas);
-    const fallbackColor = computed.color;
-    const resolvedFontFamily = computed.fontFamily || fontFamily;
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.clearRect(0, 0, widthPx, heightPx);
-
-    const baseFont = `${fontPx}px ${resolvedFontFamily}`;
-    ctx.font = `${fontWeight} ${baseFont}`;
-    let lastColor = "";
-    let lastWeight: string | number = fontWeight;
-    for (let y = 0; y < frame.length; y++) {
-      const row = frame[y];
-      const cy = y * ch + ch / 2;
-      for (let x = 0; x < row.length; x++) {
-        const glyph = row[x];
-        if (glyph.character === " ") {
-          continue;
-        }
-        const weight = glyph.style?.fontWeight ?? fontWeight;
-        if (weight !== lastWeight) {
-          ctx.font = `${weight} ${baseFont}`;
-          lastWeight = weight;
-        }
-        const color = glyph.style?.color ?? fallbackColor;
-        if (color !== lastColor) {
-          ctx.fillStyle = color;
-          lastColor = color;
-        }
-        ctx.fillText(glyph.character, x * cw + cw / 2, cy);
-      }
-    }
-  }, [
-    frame,
-    cw,
-    ch,
-    fontPx,
-    fontFamily,
-    fontWeight,
-    fontReady,
-    widthPx,
-    heightPx,
-  ]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{ width: widthPx, height: heightPx, fontFamily, ...style }}
-      className={className}
-    />
-  );
-};
+    return (
+      <PlasmaCanvasJS
+        frame={frame}
+        cellSize={cellSize}
+        cellWidth={resolvedCellWidth}
+        fontPx={fontPx}
+        className={className}
+        style={style}
+      />
+    );
+  },
+);

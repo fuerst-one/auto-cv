@@ -1,4 +1,4 @@
-import { LabelGroup } from "../types";
+import { LabelGroup } from "../Plasma/types";
 import { KnobId } from "./types";
 
 export type PlaygroundLabelsArgs = {

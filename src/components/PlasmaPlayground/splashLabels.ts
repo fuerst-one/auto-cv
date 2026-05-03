@@ -1,4 +1,4 @@
-import { LabelGroup } from "../types";
+import { LabelGroup } from "../Plasma/types";
 
 export type SplashLabelsArgs = {
   fontPx: number;

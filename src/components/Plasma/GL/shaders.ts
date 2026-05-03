@@ -101,13 +101,16 @@ void main() {
 
   vec2 cellPxOffset = (cellLocal - 0.5) * u_cellPx;
   vec2 atlasPxOffset = cellPxOffset * u_atlasScale;
-  vec2 tileCenterPx = (vec2(tileX, tileY) + 0.5) * u_tileSize;
-  vec2 atlasPosPx = tileCenterPx + atlasPxOffset;
+  vec2 tileOriginPx = vec2(tileX, tileY) * u_tileSize;
+  vec2 atlasPosPx = tileOriginPx + 0.5 * u_tileSize + atlasPxOffset;
+  vec2 tileMinPx = tileOriginPx + 0.5;
+  vec2 tileMaxPx = tileOriginPx + u_tileSize - 0.5;
+  atlasPosPx = clamp(atlasPosPx, tileMinPx, tileMaxPx);
   vec2 atlasUv = atlasPosPx / u_atlasSize;
 
   float sdf = texture(u_glyphAtlas, atlasUv).r;
   float edge = 0.75;
-  float aa = fwidth(sdf) + 0.0001;
+  float aa = 0.25 * fwidth(sdf) + 0.0001;
   float alpha = smoothstep(edge - aa, edge + aa, sdf);
 
   fragColor = vec4(mix(u_bgColor, color, alpha), 1.0);

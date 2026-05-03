@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PlasmaPlayground } from "@/components/Plasma/Playground/PlasmaPlayground";
+import { PlasmaPlayground } from "@/components/PlasmaPlayground/PlasmaPlayground";
 
 export const metadata: Metadata = {
   title: "Plasma — Fuerst.one",

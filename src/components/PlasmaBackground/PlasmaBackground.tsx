@@ -1,27 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { FrameBounds } from "./types";
-import { useInterval } from "./useInterval";
-import { getIsReducedMotion } from "./getIsReducedMotion";
+import { FrameBounds } from "../Plasma/types";
+import { useInterval } from "../Plasma/useInterval";
+import { getIsReducedMotion } from "../Plasma/getIsReducedMotion";
+import { PlasmaCanvas, PlasmaCanvasHandle } from "../Plasma/PlasmaCanvas";
 import {
-  PlasmaCanvasGL,
-  PlasmaCanvasGLHandle,
-  isWebGL2Supported,
-} from "./PlasmaCanvasGL/PlasmaCanvasGL";
-import { CHARACTERS, PLASMA_FPS, PLASMA_REDUCED_FPS } from "./constants";
+  CHARACTERS,
+  PLASMA_FPS,
+  PLASMA_REDUCED_FPS,
+} from "../Plasma/constants";
 
 const CELL_SIZE_PX = 20;
 const FONT_PX = 15;
 
 export const PlasmaBackground = () => {
   const [bounds, setBounds] = useState<FrameBounds | null>(null);
-  const [useGL, setUseGL] = useState(false);
-  const glRef = useRef<PlasmaCanvasGLHandle | null>(null);
-
-  useEffect(() => {
-    setUseGL(isWebGL2Supported());
-  }, []);
+  const canvasRef = useRef<PlasmaCanvasHandle | null>(null);
 
   useEffect(() => {
     const updateBounds = () => {
@@ -39,12 +34,12 @@ export const PlasmaBackground = () => {
       if (!bounds) {
         return;
       }
-      glRef.current?.renderPlasma();
+      canvasRef.current?.renderPlasma();
     },
     1000 / (getIsReducedMotion() ? PLASMA_REDUCED_FPS : PLASMA_FPS),
   );
 
-  if (!bounds || !useGL) {
+  if (!bounds) {
     return null;
   }
 
@@ -53,8 +48,8 @@ export const PlasmaBackground = () => {
       aria-hidden
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-40"
     >
-      <PlasmaCanvasGL
-        ref={glRef}
+      <PlasmaCanvas
+        ref={canvasRef}
         ramp={CHARACTERS}
         cellSize={CELL_SIZE_PX}
         cellWidth={CELL_SIZE_PX}

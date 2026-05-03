@@ -1,4 +1,4 @@
-import { LabelGroup } from "./types";
+import { LabelGroup } from "../Plasma/types";
 
 const PLAY_PAUSE_FULL_LABEL = "play/pause";
 const TOP_LEFT_LABEL = "tinker";

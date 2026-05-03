@@ -6,8 +6,8 @@ import {
   CHARACTERS,
   RADII,
   SINE_TABLE,
-} from "./constants";
-import { Glyph } from "./types";
+} from "../constants";
+import { Glyph } from "../types";
 
 const angles = [0.0, 0.0, 0.0, 0.0];
 let hueShift = 0;

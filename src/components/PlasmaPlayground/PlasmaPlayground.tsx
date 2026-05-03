@@ -1,39 +1,28 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FrameBounds, Glyph, LabelGroup } from "../types";
-import { PlasmaCanvas } from "../PlasmaCanvas";
-import { LabelOverlay } from "../LabelOverlay";
+import { FrameBounds, Glyph, LabelGroup } from "../Plasma/types";
+import { PlasmaCanvas, PlasmaCanvasHandle } from "../Plasma/PlasmaCanvas";
+import { LabelOverlay } from "../Plasma/LabelOverlay";
 import {
   getLabelGroupPlacements,
   LabelPlacement,
-} from "../getLabelGroupPlacements";
-import { getAnimationFrame } from "../getAnimationFrame";
-import { useInterval } from "../useInterval";
-import { getIsReducedMotion } from "../getIsReducedMotion";
+} from "../Plasma/getLabelGroupPlacements";
+import { useInterval } from "../Plasma/useInterval";
+import { getIsReducedMotion } from "../Plasma/getIsReducedMotion";
 import { KnobDropdown } from "./KnobDropdown";
-import { LegalFooter } from "../LegalFooter";
+import { LegalFooter } from "../Plasma/LegalFooter";
 import { getPlaygroundLabels } from "./playgroundLabels";
 import { getSplashLabels } from "./splashLabels";
 import { useWebcamStream } from "./useWebcamStream";
 import { useWebcamLuminance } from "./useWebcamLuminance";
 import { useUploadLuminance } from "./useUploadLuminance";
-import { getLuminanceFrame } from "./getLuminanceFrame";
-import { getRadialFrame } from "./getRadialFrame";
 import { getRadialLuminance } from "./getRadialLuminance";
 import {
-  PlasmaCanvasGL,
-  PlasmaCanvasGLHandle,
-  isWebGL2Supported,
-} from "../PlasmaCanvasGL/PlasmaCanvasGL";
-import {
-  PLASMA_COMPLEXITY,
   PLASMA_FPS,
   PLASMA_REDUCED_FPS,
-  PLASMA_SPEED,
-  PLASMA_ZOOM,
   WEBCAM_FPS,
-} from "../constants";
+} from "../Plasma/constants";
 import {
   DEFAULT_KNOBS,
   PLAYGROUND_PALETTES,
@@ -95,17 +84,15 @@ export const PlasmaPlayground = () => {
   const [openKnob, setOpenKnob] = useState<KnobId | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [bounds, setBounds] = useState<FrameBounds | null>(null);
-  const [frame, setFrame] = useState<Glyph[][] | null>(null);
   const [splashChoice, setSplashChoice] = useState<SplashChoice>(null);
   const [splashHydrated, setSplashHydrated] = useState(false);
   const [pendingSource, setPendingSource] = useState<Source | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied">("idle");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [useGL, setUseGL] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const frameRef = useRef<Glyph[][] | null>(null);
-  const glRef = useRef<PlasmaCanvasGLHandle | null>(null);
+  const canvasRef = useRef<PlasmaCanvasHandle | null>(null);
 
   const sizeMetrics = SIZE_PRESETS[knobs.size];
   const { cellSize, fontPx } = sizeMetrics;
@@ -127,7 +114,6 @@ export const PlasmaPlayground = () => {
   useEffect(() => {
     setSplashChoice(readSplashChoice());
     setSplashHydrated(true);
-    setUseGL(isWebGL2Supported());
   }, []);
 
   useEffect(() => {
@@ -420,82 +406,40 @@ export const PlasmaPlayground = () => {
     }
   }, []);
 
-  const useGLRef = useRef(useGL);
-  useGLRef.current = useGL;
+  const handleTextFrame = useCallback(
+    (next: Glyph[][]) => {
+      blankLabelsInPlace(next);
+      frameRef.current = next;
+    },
+    [blankLabelsInPlace],
+  );
 
   const renderFrame = useCallback(
     (currentBounds: FrameBounds) => {
+      const handle = canvasRef.current;
+      if (!handle) return;
       const k = knobsRef.current;
-      const palette = PLAYGROUND_PALETTES[k.contrast];
-      const ramp = WEBCAM_RAMPS[k.contrast];
       const { width, height } = currentBounds;
       const cellAspect = cellWidth / cellSize;
 
-      if (useGLRef.current) {
-        const handle = glRef.current;
-        if (!handle) return;
-        if (k.source === "camera") {
-          const sampleResult = cameraReadyRef.current
-            ? sampleCameraRef.current({
-                width,
-                height,
-                cellAspect,
-                contrast: k.contrast,
-              })
-            : null;
-          if (sampleResult) {
-            handle.renderLuminance(sampleResult.luminance, width, height);
-          } else {
-            handle.renderPlasma();
-          }
-          return;
+      if (k.source === "camera") {
+        const sampleResult = cameraReadyRef.current
+          ? sampleCameraRef.current({
+              width,
+              height,
+              cellAspect,
+              contrast: k.contrast,
+            })
+          : null;
+        if (sampleResult) {
+          handle.renderLuminance(sampleResult.luminance, width, height);
+        } else {
+          handle.renderPlasma();
         }
-        if (k.source === "upload") {
-          const sampleResult = uploadReadyRef.current
-            ? sampleUploadRef.current({
-                width,
-                height,
-                cellAspect,
-                contrast: k.contrast,
-              })
-            : null;
-          if (sampleResult) {
-            handle.renderLuminance(sampleResult.luminance, width, height);
-          } else {
-            const radial = getRadialLuminance({ width, height, cellAspect });
-            handle.renderLuminance(radial, width, height);
-          }
-          return;
-        }
-        handle.renderPlasma();
         return;
       }
 
-      let next: Glyph[][];
-      if (k.source === "camera" && cameraReadyRef.current) {
-        const sampleResult = sampleCameraRef.current({
-          width,
-          height,
-          cellAspect,
-          contrast: k.contrast,
-        });
-        next = sampleResult
-          ? getLuminanceFrame({
-              luminance: sampleResult.luminance,
-              ramp,
-              width,
-              height,
-            })
-          : getAnimationFrame({
-              width,
-              height,
-              complexity: PLASMA_COMPLEXITY,
-              zoomFactor: 1 / PLASMA_ZOOM,
-              speedFactor: PLASMA_SPEED,
-              characters: palette,
-              cellAspect,
-            });
-      } else if (k.source === "upload") {
+      if (k.source === "upload") {
         const sampleResult = uploadReadyRef.current
           ? sampleUploadRef.current({
               width,
@@ -504,30 +448,18 @@ export const PlasmaPlayground = () => {
               contrast: k.contrast,
             })
           : null;
-        next = sampleResult
-          ? getLuminanceFrame({
-              luminance: sampleResult.luminance,
-              ramp,
-              width,
-              height,
-            })
-          : getRadialFrame({ width, height, ramp, cellAspect });
-      } else {
-        next = getAnimationFrame({
-          width,
-          height,
-          complexity: PLASMA_COMPLEXITY,
-          zoomFactor: 1 / PLASMA_ZOOM,
-          speedFactor: PLASMA_SPEED,
-          characters: palette,
-          cellAspect,
-        });
+        if (sampleResult) {
+          handle.renderLuminance(sampleResult.luminance, width, height);
+        } else {
+          const radial = getRadialLuminance({ width, height, cellAspect });
+          handle.renderLuminance(radial, width, height);
+        }
+        return;
       }
-      blankLabelsInPlace(next);
-      frameRef.current = next;
-      setFrame(next);
+
+      handle.renderPlasma();
     },
-    [blankLabelsInPlace, cellWidth, cellSize],
+    [cellWidth, cellSize],
   );
 
   useEffect(() => {
@@ -563,9 +495,9 @@ export const PlasmaPlayground = () => {
         className="relative"
         style={{ width: canvasWidthPx, height: canvasHeightPx }}
       >
-        {useGL && bounds ? (
-          <PlasmaCanvasGL
-            ref={glRef}
+        {bounds && (
+          <PlasmaCanvas
+            ref={canvasRef}
             ramp={
               knobs.source === "plasma"
                 ? PLAYGROUND_PALETTES[knobs.contrast]
@@ -576,13 +508,7 @@ export const PlasmaPlayground = () => {
             fontPx={fontPx}
             gridWidth={bounds.width}
             gridHeight={bounds.height}
-          />
-        ) : (
-          <PlasmaCanvas
-            frame={frame}
-            cellSize={cellSize}
-            cellWidth={cellWidth}
-            fontPx={fontPx}
+            onTextFrame={handleTextFrame}
           />
         )}
         <LabelOverlay

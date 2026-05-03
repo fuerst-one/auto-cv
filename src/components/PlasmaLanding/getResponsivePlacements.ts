@@ -1,11 +1,11 @@
-import { FrameBounds, Label, LabelGroup } from "./types";
+import { FrameBounds, Label, LabelGroup } from "../Plasma/types";
 import {
   getLabelGroupPlacements,
   LabelPlacement,
   LABEL_PADDING_BETWEEN,
   LABEL_PADDING_OUTER_X,
   LABEL_PADDING_OUTER_Y,
-} from "./getLabelGroupPlacements";
+} from "../Plasma/getLabelGroupPlacements";
 
 export const getResponsivePlacements = (
   bounds: FrameBounds,

@@ -2,9 +2,9 @@ import {
   PLAYGROUND_CHARACTERS,
   PLAYGROUND_CHARACTERS_HIGH,
   PLAYGROUND_CHARACTERS_LOW,
-} from "../constants";
-import { Glyph } from "../types";
-import { Metrics } from "../useResponsiveMetrics";
+} from "../Plasma/constants";
+import { Glyph } from "../Plasma/types";
+import { Metrics } from "../Plasma/useResponsiveMetrics";
 import { ContrastKey, KnobState, SizeKey } from "./types";
 
 export const PLAYGROUND_PALETTES: Record<ContrastKey, Glyph[]> = {

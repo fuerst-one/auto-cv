@@ -2,7 +2,7 @@
 
 import { CSSProperties, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { LabelPlacement } from "../getLabelGroupPlacements";
+import { LabelPlacement } from "../Plasma/getLabelGroupPlacements";
 import { ContrastKey, KnobId, KnobState, SizeKey, Source } from "./types";
 
 type KnobDropdownProps = {
