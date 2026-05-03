@@ -1,7 +1,7 @@
 import { Layout } from "@/components/Layout";
 import { ProjectsClientView } from "@/components/Cv/Projects/ProjectsClientView";
 import { LogoMarquee } from "@/components/Cv/Projects/LogoMarquee";
-import { getCvProjects } from "@/server/notion/getCvProjects";
+import { getCachedCvProjects } from "@/server/notion/getCachedCvProjects";
 import { Intro } from "@/components/Cv/Intro";
 import { getClaim } from "@/components/Cv/Projects/getClaim";
 import {
@@ -17,7 +17,7 @@ export default async function Cv({
 }: {
   searchParams: Promise<ProjectSearchParams>;
 }) {
-  const projects = await getCvProjects();
+  const projects = await getCachedCvProjects();
   const params = await searchParams;
   const filterParams = parseProjectSearchParams(params);
 

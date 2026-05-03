@@ -5,7 +5,7 @@ import { IconLink } from "@/components/IconLink";
 import { FaEnvelope } from "@react-icons/all-files/fa/FaEnvelope";
 import { FaLinkedin } from "@react-icons/all-files/fa/FaLinkedin";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
-import { getCvProjects } from "@/server/notion/getCvProjects";
+import { getCachedCvProjects } from "@/server/notion/getCachedCvProjects";
 import { filterProjects } from "@/components/Cv/Projects/Filter/utils";
 import { CV_PRESET_ORDER, CV_PRESETS } from "@/components/Cv/cvPresets";
 
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
-  const projects = await getCvProjects();
+  const projects = await getCachedCvProjects();
   const presets: PresetOption[] = CV_PRESET_ORDER.map((id) => {
     const preset = CV_PRESETS[id];
     const matched = filterProjects(projects, preset.filter);

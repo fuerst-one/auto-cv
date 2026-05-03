@@ -1,4 +1,4 @@
-import { getCvProjects } from "@/server/notion/getCvProjects";
+import { getCachedCvProjects } from "@/server/notion/getCachedCvProjects";
 import { renderCvPdf } from "./renderCvPdf";
 import { NextRequest, NextResponse } from "next/server";
 import { resolvePreset, sortAndCapForPreset } from "@/components/Cv/cvPresets";
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export const GET = async (request: NextRequest) => {
-  const allProjects = await getCvProjects();
+  const allProjects = await getCachedCvProjects();
 
   const preset = resolvePreset(request.nextUrl.searchParams.get("preset"));
   const featuredProjects = sortAndCapForPreset(allProjects, preset);

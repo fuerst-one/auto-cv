@@ -1,4 +1,4 @@
-import { getCvProjects } from "@/server/notion/getCvProjects";
+import { getCachedCvProjects } from "@/server/notion/getCachedCvProjects";
 import { filterProjects } from "@/components/Cv/Projects/Filter/utils";
 import { getClaim } from "@/components/Cv/Projects/getClaim";
 import {
@@ -20,7 +20,7 @@ export default async function PDFContent({
 }: {
   searchParams: Promise<ProjectSearchParams & { dark: string }>;
 }) {
-  const projects = await getCvProjects();
+  const projects = await getCachedCvProjects();
   const params = await searchParams;
 
   if (!projects?.length) {
