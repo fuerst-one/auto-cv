@@ -26,12 +26,20 @@ import {
 } from "../Plasma/constants";
 import {
   DEFAULT_KNOBS,
+  KNOBS_LOCAL_STORAGE_KEY,
   PLAYGROUND_PALETTES,
   SIZE_PRESETS,
   SPLASH_LOCAL_STORAGE_KEY,
   WEBCAM_RAMPS,
 } from "./constants";
-import { KnobId, KnobState, Source, SplashChoice } from "./types";
+import {
+  ContrastKey,
+  KnobId,
+  KnobState,
+  SizeKey,
+  Source,
+  SplashChoice,
+} from "./types";
 
 const FOOTER_RESERVED_PX = 40;
 
@@ -56,6 +64,56 @@ const writeSplashChoice = (choice: Exclude<SplashChoice, null>) => {
     return;
   }
   window.localStorage.setItem(SPLASH_LOCAL_STORAGE_KEY, choice);
+};
+
+const isSource = (value: unknown): value is Source =>
+  value === "plasma" ||
+  value === "camera" ||
+  value === "upload" ||
+  value === "shapes";
+
+const isSizeKey = (value: unknown): value is SizeKey =>
+  value === "small" || value === "medium" || value === "large";
+
+const isContrastKey = (value: unknown): value is ContrastKey =>
+  value === "low" || value === "medium" || value === "high";
+
+const readKnobs = (): KnobState | null => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  const raw = window.localStorage.getItem(KNOBS_LOCAL_STORAGE_KEY);
+  if (raw === null) {
+    return null;
+  }
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") {
+      return null;
+    }
+    const candidate = parsed as Record<string, unknown>;
+    if (
+      !isSource(candidate.source) ||
+      !isSizeKey(candidate.size) ||
+      !isContrastKey(candidate.contrast)
+    ) {
+      return null;
+    }
+    return {
+      source: candidate.source,
+      size: candidate.size,
+      contrast: candidate.contrast,
+    };
+  } catch {
+    return null;
+  }
+};
+
+const writeKnobs = (knobs: KnobState) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.setItem(KNOBS_LOCAL_STORAGE_KEY, JSON.stringify(knobs));
 };
 
 const isSupportedUploadFile = (file: File): boolean =>
@@ -121,9 +179,23 @@ export const PlasmaPlayground = () => {
     useShapesLuminance(isShapesSource);
 
   useEffect(() => {
-    setSplashChoice(readSplashChoice());
+    const splash = readSplashChoice();
+    const persistedKnobs = readKnobs();
+    if (persistedKnobs) {
+      setKnobs(persistedKnobs);
+    } else if (splash) {
+      setKnobs({ ...DEFAULT_KNOBS, source: splash });
+    }
+    setSplashChoice(splash);
     setSplashHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (!splashHydrated) {
+      return;
+    }
+    writeKnobs(knobs);
+  }, [knobs, splashHydrated]);
 
   useEffect(() => {
     const update = () => {
@@ -267,29 +339,15 @@ export const PlasmaPlayground = () => {
   }, [requestSourceChange]);
 
   useEffect(() => {
-    if (pendingSource !== null) {
+    if (!splashHydrated || showSplash || pendingSource !== null) {
       return;
     }
-    if (splashChoice === "camera") {
-      if (knobs.source !== "plasma" || permission !== "idle") {
-        return;
-      }
+    if (knobs.source === "camera" && permission === "idle") {
       void requestSourceChange("camera");
-      return;
-    }
-    if (splashChoice === "upload") {
-      if (knobs.source === "plasma") {
-        setKnobs((prev) => ({ ...prev, source: "upload" }));
-      }
-      return;
-    }
-    if (splashChoice === "shapes") {
-      if (knobs.source === "plasma") {
-        setKnobs((prev) => ({ ...prev, source: "shapes" }));
-      }
     }
   }, [
-    splashChoice,
+    splashHydrated,
+    showSplash,
     pendingSource,
     knobs.source,
     permission,

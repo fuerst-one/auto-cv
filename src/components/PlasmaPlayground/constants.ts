@@ -35,6 +35,7 @@ export const CONTRAST_LUT_GAINS: Record<ContrastKey, number> = {
 };
 
 export const SPLASH_LOCAL_STORAGE_KEY = "plasma:splash";
+export const KNOBS_LOCAL_STORAGE_KEY = "plasma:knobs";
 
 export const DEFAULT_KNOBS: KnobState = {
   source: "plasma",
