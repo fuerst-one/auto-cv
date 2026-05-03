@@ -15,6 +15,16 @@ import {
   CENTER_XS,
   CENTER_YS,
   PLASMA_COMPLEXITY,
+  PLASMA_LENS_BASE_RADIUS_FRAC,
+  PLASMA_LENS_BASE_STRENGTH,
+  PLASMA_LENS_RADIUS_FRAC_MAX,
+  PLASMA_LENS_SCALE_DEFAULT,
+  PLASMA_LENS_SCALE_MAX,
+  PLASMA_LENS_SCALE_MIN,
+  PLASMA_RIPPLE_LIFETIME,
+  PLASMA_RIPPLE_MAX,
+  PLASMA_RIPPLE_RADIUS_FRAC,
+  PLASMA_RIPPLE_STRENGTH,
   PLASMA_SPEED,
   PLASMA_ZOOM,
   RADII,
@@ -31,6 +41,11 @@ export type PlasmaCanvasGLHandle = {
     width: number,
     height: number,
   ) => void;
+  setCursor: (cellX: number, cellY: number) => void;
+  clearCursor: () => void;
+  emitRipple: (cellX: number, cellY: number) => void;
+  setLensScale: (value: number) => number;
+  getLensScale: () => number;
 };
 
 export type PlasmaCanvasGLProps = {
@@ -125,6 +140,8 @@ const createDataTexture = (gl: WebGL2RenderingContext): WebGLTexture => {
   return tex;
 };
 
+type RippleSlot = { cellX: number; cellY: number; t0: number };
+
 type GLState = {
   gl: WebGL2RenderingContext;
   program: WebGLProgram;
@@ -139,6 +156,11 @@ type GLState = {
   lastLuminanceSize: { width: number; height: number };
   angles: [number, number, number, number];
   hueShift: number;
+  cursor: { x: number; y: number } | null;
+  ripples: RippleSlot[];
+  nextRippleSlot: number;
+  rippleUniformBuffer: Float32Array;
+  lensScale: number;
 };
 
 const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
@@ -191,6 +213,14 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
     u_zoomFactor: gl.getUniformLocation(program, "u_zoomFactor"),
     u_xAspectSq: gl.getUniformLocation(program, "u_xAspectSq"),
     u_complexity: gl.getUniformLocation(program, "u_complexity"),
+    u_cursor: gl.getUniformLocation(program, "u_cursor"),
+    u_cursorActive: gl.getUniformLocation(program, "u_cursorActive"),
+    u_lensRadius: gl.getUniformLocation(program, "u_lensRadius"),
+    u_lensStrength: gl.getUniformLocation(program, "u_lensStrength"),
+    u_ripples: gl.getUniformLocation(program, "u_ripples"),
+    u_rippleRadius: gl.getUniformLocation(program, "u_rippleRadius"),
+    u_rippleStrength: gl.getUniformLocation(program, "u_rippleStrength"),
+    u_rippleLifetime: gl.getUniformLocation(program, "u_rippleLifetime"),
   };
 
   gl.uniform1i(uniforms.u_glyphAtlas, 0);
@@ -217,6 +247,17 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
   );
   gl.uniform1i(uniforms.u_complexity, PLASMA_COMPLEXITY);
   gl.uniform1f(uniforms.u_zoomFactor, 1 / PLASMA_ZOOM);
+  gl.uniform1f(uniforms.u_rippleStrength, PLASMA_RIPPLE_STRENGTH);
+  gl.uniform1f(uniforms.u_rippleLifetime, PLASMA_RIPPLE_LIFETIME);
+  gl.uniform2f(uniforms.u_cursor, 0, 0);
+  gl.uniform1f(uniforms.u_cursorActive, 0);
+
+  const ripples: RippleSlot[] = Array.from(
+    { length: PLASMA_RIPPLE_MAX },
+    () => ({ cellX: 0, cellY: 0, t0: -Infinity }),
+  );
+  const rippleUniformBuffer = new Float32Array(PLASMA_RIPPLE_MAX * 3);
+  gl.uniform3fv(uniforms.u_ripples, rippleUniformBuffer);
 
   return {
     gl,
@@ -232,6 +273,11 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
     lastLuminanceSize: { width: 0, height: 0 },
     angles: [0, 0, 0, 0],
     hueShift: 0,
+    cursor: null,
+    ripples,
+    nextRippleSlot: 0,
+    rippleUniformBuffer,
+    lensScale: PLASMA_LENS_SCALE_DEFAULT,
   };
 };
 
@@ -435,6 +481,43 @@ export const PlasmaCanvasGL = forwardRef<
         gl.uniform1f(uniforms.u_hueShift, state.hueShift);
         gl.uniform1f(uniforms.u_xAspectSq, xAspectSq);
         gl.uniform1i(uniforms.u_sourceMode, 0);
+
+        const cellAspect = cellWidth / cellSize;
+        const gridMin = Math.min(gridHeight, gridWidth * cellAspect);
+        const radiusFrac = Math.min(
+          PLASMA_LENS_RADIUS_FRAC_MAX,
+          PLASMA_LENS_BASE_RADIUS_FRAC * state.lensScale,
+        );
+        gl.uniform1f(uniforms.u_lensRadius, gridMin * radiusFrac);
+        gl.uniform1f(
+          uniforms.u_lensStrength,
+          PLASMA_LENS_BASE_STRENGTH * state.lensScale,
+        );
+        gl.uniform1f(
+          uniforms.u_rippleRadius,
+          gridMin * PLASMA_RIPPLE_RADIUS_FRAC,
+        );
+
+        if (state.cursor) {
+          gl.uniform2f(uniforms.u_cursor, state.cursor.x, state.cursor.y);
+          gl.uniform1f(uniforms.u_cursorActive, 1);
+        } else {
+          gl.uniform1f(uniforms.u_cursorActive, 0);
+        }
+
+        const nowMs = performance.now();
+        const buf = state.rippleUniformBuffer;
+        for (let i = 0; i < state.ripples.length; i++) {
+          const r = state.ripples[i];
+          const age = (nowMs - r.t0) / 1000;
+          const alive =
+            Number.isFinite(age) && age >= 0 && age < PLASMA_RIPPLE_LIFETIME;
+          buf[i * 3] = r.cellX;
+          buf[i * 3 + 1] = r.cellY;
+          buf[i * 3 + 2] = alive ? age : -1;
+        }
+        gl.uniform3fv(uniforms.u_ripples, buf);
+
         bindAndDraw(
           state,
           gridWidth,
@@ -461,6 +544,41 @@ export const PlasmaCanvasGL = forwardRef<
           atlasScale,
           bgColor,
         );
+      },
+      setCursor: (cellX, cellY) => {
+        const state = stateRef.current;
+        if (!state) return;
+        state.cursor = { x: cellX, y: cellY };
+      },
+      clearCursor: () => {
+        const state = stateRef.current;
+        if (!state) return;
+        state.cursor = null;
+      },
+      emitRipple: (cellX, cellY) => {
+        const state = stateRef.current;
+        if (!state) return;
+        const slot = state.ripples[state.nextRippleSlot];
+        slot.cellX = cellX;
+        slot.cellY = cellY;
+        slot.t0 = performance.now();
+        state.nextRippleSlot =
+          (state.nextRippleSlot + 1) % state.ripples.length;
+      },
+      setLensScale: (value) => {
+        const state = stateRef.current;
+        if (!state) return PLASMA_LENS_SCALE_DEFAULT;
+        const clamped = Math.max(
+          PLASMA_LENS_SCALE_MIN,
+          Math.min(PLASMA_LENS_SCALE_MAX, value),
+        );
+        state.lensScale = clamped;
+        return clamped;
+      },
+      getLensScale: () => {
+        const state = stateRef.current;
+        if (!state) return PLASMA_LENS_SCALE_DEFAULT;
+        return state.lensScale;
       },
     }),
     [

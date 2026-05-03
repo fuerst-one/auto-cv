@@ -21,6 +21,7 @@ import { useShapesLuminance } from "./useShapesLuminance";
 import { getRadialLuminance } from "./getRadialLuminance";
 import {
   PLASMA_FPS,
+  PLASMA_LENS_WHEEL_SENSITIVITY,
   PLASMA_REDUCED_FPS,
   WEBCAM_FPS,
 } from "../Plasma/constants";
@@ -358,6 +359,54 @@ export const PlasmaPlayground = () => {
     permission,
     requestSourceChange,
   ]);
+
+  useEffect(() => {
+    if (!canvasElement || knobs.source !== "plasma") {
+      return;
+    }
+    if (getIsReducedMotion()) {
+      return;
+    }
+    const handle = canvasRef.current;
+    if (!handle) {
+      return;
+    }
+    const toCellCoords = (event: PointerEvent) => {
+      const rect = canvasElement.getBoundingClientRect();
+      return {
+        x: (event.clientX - rect.left) / cellWidth,
+        y: (event.clientY - rect.top) / cellSize,
+      };
+    };
+    const handleMove = (event: PointerEvent) => {
+      const { x, y } = toCellCoords(event);
+      handle.setCursor(x, y);
+    };
+    const handleLeave = () => {
+      handle.clearCursor();
+    };
+    const handleDown = (event: PointerEvent) => {
+      const { x, y } = toCellCoords(event);
+      handle.emitRipple(x, y);
+    };
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const next =
+        handle.getLensScale() - event.deltaY * PLASMA_LENS_WHEEL_SENSITIVITY;
+      handle.setLensScale(next);
+    };
+    canvasElement.addEventListener("pointermove", handleMove);
+    canvasElement.addEventListener("pointerleave", handleLeave);
+    canvasElement.addEventListener("pointerdown", handleDown);
+    canvasElement.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      canvasElement.removeEventListener("pointermove", handleMove);
+      canvasElement.removeEventListener("pointerleave", handleLeave);
+      canvasElement.removeEventListener("pointerdown", handleDown);
+      canvasElement.removeEventListener("wheel", handleWheel);
+      handle.clearCursor();
+    };
+  }, [canvasElement, knobs.source, cellWidth, cellSize]);
 
   useEffect(() => {
     const handleDragOver = (event: DragEvent) => {

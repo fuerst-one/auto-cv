@@ -39,6 +39,19 @@ export const PLASMA_FPS = 60;
 export const WEBCAM_FPS = 60;
 export const PLASMA_REDUCED_FPS = 4;
 
+export const PLASMA_LENS_BASE_STRENGTH = 0.5;
+export const PLASMA_LENS_BASE_RADIUS_FRAC = 0.25;
+export const PLASMA_LENS_RADIUS_FRAC_MAX = 2;
+export const PLASMA_LENS_SCALE_DEFAULT = 1.0;
+export const PLASMA_LENS_SCALE_MIN = 0;
+export const PLASMA_LENS_SCALE_MAX = 12;
+export const PLASMA_LENS_WHEEL_SENSITIVITY = 0.01;
+
+export const PLASMA_RIPPLE_MAX = 6;
+export const PLASMA_RIPPLE_RADIUS_FRAC = 0.4;
+export const PLASMA_RIPPLE_STRENGTH = 4.0;
+export const PLASMA_RIPPLE_LIFETIME = 0.6;
+
 export const RADII = [65.2, 92.0, 163.2, 176.8];
 export const CENTER_XS = [64.4, 46.4, 93.6, 16.4];
 export const CENTER_YS = [34.8, 26.0, 56.0, -11.6];

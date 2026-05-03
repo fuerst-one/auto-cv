@@ -27,6 +27,11 @@ export type PlasmaCanvasHandle = {
     width: number,
     height: number,
   ) => void;
+  setCursor: (cellX: number, cellY: number) => void;
+  clearCursor: () => void;
+  emitRipple: (cellX: number, cellY: number) => void;
+  setLensScale: (value: number) => number;
+  getLensScale: () => number;
 };
 
 export type PlasmaCanvasProps = {
@@ -127,6 +132,17 @@ export const PlasmaCanvas = forwardRef<PlasmaCanvasHandle, PlasmaCanvasProps>(
             renderLuminanceJS(luminance, width, height);
           }
         },
+        setCursor: (cellX, cellY) => {
+          glRef.current?.setCursor(cellX, cellY);
+        },
+        clearCursor: () => {
+          glRef.current?.clearCursor();
+        },
+        emitRipple: (cellX, cellY) => {
+          glRef.current?.emitRipple(cellX, cellY);
+        },
+        setLensScale: (value) => glRef.current?.setLensScale(value) ?? value,
+        getLensScale: () => glRef.current?.getLensScale() ?? 1,
       }),
       [supportsGL, renderPlasmaJS, renderLuminanceJS],
     );
