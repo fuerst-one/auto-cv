@@ -20,4 +20,5 @@ export type LabelGroup = {
   padding?: number;
   yAlign: "top" | "center" | "bottom";
   xAlign?: "left" | "center" | "right";
+  flex?: boolean;
 };

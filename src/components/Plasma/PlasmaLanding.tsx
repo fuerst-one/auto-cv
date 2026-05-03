@@ -1,28 +1,33 @@
 "use client";
 
-import { ComponentPropsWithoutRef, useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { FrameBounds, Glyph } from "./types";
 import { getAnimationFrame } from "./getAnimationFrame";
 import { useInterval } from "./useInterval";
 import { getIsReducedMotion } from "./getIsReducedMotion";
 import { getLabelsGroups } from "./labelGroups";
-import { insertLabelGroup } from "./insertLabelGroup";
+import { LabelPlacement } from "./getLabelGroupPlacements";
+import { getResponsivePlacements } from "./getResponsivePlacements";
 import { LANDING_CHARACTERS } from "./constants";
+import { PlasmaCanvas } from "./PlasmaCanvas";
+import { LabelOverlay } from "./LabelOverlay";
+import { useResponsiveMetrics } from "./useResponsiveMetrics";
 
-const CELL_SIZE_PX = 24;
 const COMPLEXITY = 4;
 const ZOOM = 25;
 const SPEED = 0.25;
 const FPS = 10;
 
-const loadingLabel: Glyph[] = "FUERST.ONE".split("").map((character) => ({
-  character,
-  className: "font-bold",
-}));
+const LOADING_FRAME: Glyph[][] = [
+  "FUERST.ONE".split("").map((character) => ({
+    character,
+    style: { fontWeight: 700 },
+  })),
+];
 
 export const PlasmaLanding = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { cellSize, fontPx } = useResponsiveMetrics();
   const [bounds, setBounds] = useState<FrameBounds | null>(null);
 
   useEffect(() => {
@@ -30,103 +35,105 @@ export const PlasmaLanding = () => {
       if (!containerRef.current) {
         return;
       }
-      const width = Math.floor(window.innerWidth / CELL_SIZE_PX) - 1;
-      const height = Math.floor(window.innerHeight / CELL_SIZE_PX) - 1;
+      const width = Math.floor(window.innerWidth / cellSize) - 1;
+      const height = Math.floor(window.innerHeight / cellSize) - 1;
       setBounds({ width, height });
     };
+    updateBounds();
     const resizeObserver = new ResizeObserver(updateBounds);
     resizeObserver.observe(containerRef.current!);
     return () => resizeObserver.disconnect();
-  }, []);
+  }, [cellSize]);
 
   return (
     <div
       ref={containerRef}
-      className="text-md flex h-screen w-screen flex-col items-center justify-center leading-none"
-      style={{ fontFamily: "var(--font-plex), monospace" }}
+      className="flex h-screen w-screen items-center justify-center"
     >
-      <Frame bounds={bounds} />
+      <Frame bounds={bounds} cellSize={cellSize} fontPx={fontPx} />
     </div>
   );
 };
 
-const Frame = ({ bounds }: { bounds: FrameBounds | null }) => {
+type FrameProps = {
+  bounds: FrameBounds | null;
+  cellSize: number;
+  fontPx: number;
+};
+
+const Frame = ({ bounds, cellSize, fontPx }: FrameProps) => {
   const [frame, setFrame] = useState<Glyph[][] | null>(null);
+  const [placements, setPlacements] = useState<LabelPlacement[]>([]);
   const [isPlaying, setIsPlaying] = useState(true);
 
   const toggleIsPlaying = () => setIsPlaying((prev) => !prev);
 
+  const renderFrame = (currentBounds: FrameBounds, playing: boolean) => {
+    const nextFrame = getAnimationFrame({
+      ...currentBounds,
+      complexity: COMPLEXITY,
+      zoomFactor: 1 / ZOOM,
+      speedFactor: SPEED,
+      characters: LANDING_CHARACTERS,
+    });
+    const groups = getLabelsGroups(
+      playing,
+      toggleIsPlaying,
+      currentBounds.width,
+      fontPx,
+    );
+    const nextPlacements = getResponsivePlacements(currentBounds, groups);
+    for (const { row, startCol, label } of nextPlacements) {
+      for (let i = 0; i < label.label.length; i++) {
+        nextFrame[row][startCol + i] = { character: " " };
+      }
+    }
+    setFrame(nextFrame);
+    setPlacements(nextPlacements);
+  };
+
+  useEffect(() => {
+    if (bounds) {
+      renderFrame(bounds, isPlaying);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bounds, isPlaying]);
+
   useInterval(
     () => {
-      if (!bounds || !isPlaying) {
-        return;
+      if (bounds && isPlaying) {
+        renderFrame(bounds, isPlaying);
       }
-      const nextFrame = getAnimationFrame({
-        ...bounds,
-        complexity: COMPLEXITY,
-        zoomFactor: 1 / ZOOM,
-        speedFactor: SPEED,
-        characters: LANDING_CHARACTERS,
-      });
-      for (const labelGroup of getLabelsGroups(isPlaying, toggleIsPlaying)) {
-        insertLabelGroup(nextFrame, labelGroup);
-      }
-      setFrame(nextFrame);
     },
     1000 / (getIsReducedMotion() ? 0.5 : FPS),
   );
 
   if (!frame) {
     return (
-      <div style={{ marginTop: -CELL_SIZE_PX }}>
-        {loadingLabel.map((glyph, idx) => (
-          <GlyphCell key={idx} {...glyph} />
-        ))}
+      <div style={{ marginTop: -cellSize }}>
+        <PlasmaCanvas
+          frame={LOADING_FRAME}
+          cellSize={cellSize}
+          fontPx={fontPx}
+        />
       </div>
     );
   }
 
   return (
-    <>
-      {frame.map((row, idx) => (
-        <pre key={idx} className="m-0 p-0">
-          {row.map((glyph, jdx) => (
-            <GlyphCell key={`${idx}-${jdx}`} {...glyph} />
-          ))}
-        </pre>
-      ))}
-    </>
-  );
-};
-
-const GlyphCell = ({ character, style, className, href, onClick }: Glyph) => {
-  const baseClass = `inline-flex items-center justify-center ${
-    onClick || href ? "cursor-pointer" : ""
-  } ${className ?? ""}`;
-  const cellStyle = { ...style, width: CELL_SIZE_PX, height: CELL_SIZE_PX };
-
-  if (href) {
-    return (
-      <Link
-        href={href}
-        style={cellStyle}
-        className={baseClass}
-        onClick={onClick}
-      >
-        {character}
-      </Link>
-    );
-  }
-  return (
-    <Span
-      style={cellStyle}
-      className={baseClass}
-      aria-hidden={!onClick}
-      onClick={onClick}
+    <div
+      className="relative"
+      style={{
+        width: frame[0].length * cellSize,
+        height: frame.length * cellSize,
+      }}
     >
-      {character}
-    </Span>
+      <PlasmaCanvas frame={frame} cellSize={cellSize} fontPx={fontPx} />
+      <LabelOverlay
+        placements={placements}
+        cellSize={cellSize}
+        fontPx={fontPx}
+      />
+    </div>
   );
 };
-
-const Span = (props: ComponentPropsWithoutRef<"span">) => <span {...props} />;
