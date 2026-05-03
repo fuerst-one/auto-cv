@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import {
   ANGLE_INCREMENTS,
   CENTER_XS,
@@ -12,6 +13,7 @@ import {
   RADII,
   SINE_TABLE,
 } from "../Plasma/constants";
+import { getIsReducedMotion } from "../Plasma/getIsReducedMotion";
 import { CONTRAST_LUT_GAINS } from "./constants";
 import {
   buildContrastLutCache,
@@ -28,10 +30,15 @@ type UseShapesLuminanceResult = {
 
 const RENDER_WIDTH = 768;
 const RENDER_HEIGHT = 432;
-const SHAPE_CYCLE_MS = 10000;
 const ROTATION_AXIS = new THREE.Vector3(0.4, 1, 0.2).normalize();
 const ROTATION_RATE = 0.45;
 const CAMERA_FRAME_FACTOR = 3.6;
+const IDLE_RESUME_MS = 3000;
+const ORBIT_DAMPING = 0.08;
+const ORBIT_MIN_DISTANCE = 1.2;
+const ORBIT_MAX_DISTANCE = 12;
+const CLICK_DISTANCE_PX = 8;
+const CLICK_DURATION_MS = 500;
 const PLASMA_PIXELS_PER_CELL = 8.0;
 const PLASMA_RAMP_LENGTH = 64.0;
 const PLASMA_DEPTH_SHIFT = 0.18;
@@ -209,13 +216,27 @@ type SceneRefs = {
   rotation: number;
   plasmaAngles: [number, number, number, number];
   hueShift: number;
-  nextSwapAt: number;
   lastTickAt: number;
   rafId: number | null;
+  controls: OrbitControls | null;
+  reducedMotion: boolean;
+  paused: boolean;
+  lastInteractionAt: number;
+  userHasInteracted: boolean;
+};
+
+const swapToNextShape = (refs: SceneRefs) => {
+  refs.poolIndex = (refs.poolIndex + 1) % refs.geometries.length;
+  refs.mesh.geometry = refs.geometries[refs.poolIndex];
+  if (!refs.userHasInteracted) {
+    frameCameraToGeometry(refs.camera, refs.mesh.geometry);
+    refs.controls?.target.set(0, 0, 0);
+  }
 };
 
 export const useShapesLuminance = (
   active: boolean,
+  interactionTarget: HTMLElement | null,
 ): UseShapesLuminanceResult => {
   const samplerCtxRef = useRef(createSamplerContext());
   const sceneRef = useRef<SceneRefs | null>(null);
@@ -259,6 +280,7 @@ export const useShapesLuminance = (
     frameCameraToGeometry(camera, geometries[0]);
 
     const startedAt = performance.now();
+    const reducedMotion = getIsReducedMotion();
     const refs: SceneRefs = {
       renderer,
       scene,
@@ -271,9 +293,13 @@ export const useShapesLuminance = (
       rotation: 0,
       plasmaAngles: [0, 0, 0, 0],
       hueShift: 0,
-      nextSwapAt: startedAt + SHAPE_CYCLE_MS,
       lastTickAt: startedAt,
       rafId: null,
+      controls: null,
+      reducedMotion,
+      paused: reducedMotion,
+      lastInteractionAt: startedAt,
+      userHasInteracted: false,
     };
     sceneRef.current = refs;
 
@@ -282,8 +308,16 @@ export const useShapesLuminance = (
     const tick = (now: number) => {
       const dt = Math.min(0.05, (now - refs.lastTickAt) / 1000);
       refs.lastTickAt = now;
-      refs.rotation += ROTATION_RATE * dt;
-      refs.mesh.setRotationFromAxisAngle(ROTATION_AXIS, refs.rotation);
+
+      refs.controls?.update();
+
+      if (
+        refs.paused &&
+        !refs.reducedMotion &&
+        now - refs.lastInteractionAt > IDLE_RESUME_MS
+      ) {
+        refs.paused = false;
+      }
 
       const randomFactor = 0.5 + Math.random();
       for (let i = 0; i < 4; i++) {
@@ -299,11 +333,9 @@ export const useShapesLuminance = (
       );
       refs.uniforms.u_hueShift.value = refs.hueShift;
 
-      if (now >= refs.nextSwapAt) {
-        refs.poolIndex = (refs.poolIndex + 1) % refs.geometries.length;
-        refs.mesh.geometry = refs.geometries[refs.poolIndex];
-        frameCameraToGeometry(refs.camera, refs.mesh.geometry);
-        refs.nextSwapAt = now + SHAPE_CYCLE_MS;
+      if (!refs.paused) {
+        refs.rotation += ROTATION_RATE * dt;
+        refs.mesh.setRotationFromAxisAngle(ROTATION_AXIS, refs.rotation);
       }
 
       refs.renderer.render(refs.scene, refs.camera);
@@ -320,6 +352,8 @@ export const useShapesLuminance = (
       if (refs.rafId !== null) {
         cancelAnimationFrame(refs.rafId);
       }
+      refs.controls?.dispose();
+      refs.controls = null;
       for (const geom of refs.geometries) {
         geom.dispose();
       }
@@ -330,6 +364,82 @@ export const useShapesLuminance = (
       setReady(false);
     };
   }, [active]);
+
+  useEffect(() => {
+    const refs = sceneRef.current;
+    if (!active || !interactionTarget || !refs) {
+      return;
+    }
+
+    const controls = new OrbitControls(refs.camera, interactionTarget);
+    controls.enableDamping = true;
+    controls.dampingFactor = ORBIT_DAMPING;
+    controls.enableZoom = true;
+    controls.enablePan = true;
+    controls.screenSpacePanning = true;
+    controls.minDistance = ORBIT_MIN_DISTANCE;
+    controls.maxDistance = ORBIT_MAX_DISTANCE;
+    controls.target.set(0, 0, 0);
+
+    const onStart = () => {
+      refs.paused = true;
+      refs.lastInteractionAt = performance.now();
+    };
+    const onChange = () => {
+      refs.lastInteractionAt = performance.now();
+    };
+    const onEnd = () => {
+      refs.lastInteractionAt = performance.now();
+    };
+    controls.addEventListener("start", onStart);
+    controls.addEventListener("change", onChange);
+    controls.addEventListener("end", onEnd);
+
+    let pointerDownX = 0;
+    let pointerDownY = 0;
+    let pointerDownAt = 0;
+    let pointerActive = false;
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.button !== 0) {
+        pointerActive = false;
+        return;
+      }
+      pointerActive = true;
+      pointerDownX = e.clientX;
+      pointerDownY = e.clientY;
+      pointerDownAt = performance.now();
+    };
+    const onPointerUp = (e: PointerEvent) => {
+      if (!pointerActive) return;
+      pointerActive = false;
+      const dx = e.clientX - pointerDownX;
+      const dy = e.clientY - pointerDownY;
+      const dist = Math.hypot(dx, dy);
+      const dt = performance.now() - pointerDownAt;
+      if (dist < CLICK_DISTANCE_PX && dt < CLICK_DURATION_MS) {
+        swapToNextShape(refs);
+      } else {
+        refs.userHasInteracted = true;
+      }
+    };
+    interactionTarget.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointerup", onPointerUp);
+
+    refs.controls = controls;
+
+    return () => {
+      controls.removeEventListener("start", onStart);
+      controls.removeEventListener("change", onChange);
+      controls.removeEventListener("end", onEnd);
+      interactionTarget.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointerup", onPointerUp);
+      controls.dispose();
+      if (sceneRef.current === refs) {
+        refs.controls = null;
+      }
+    };
+  }, [active, interactionTarget]);
 
   const sample = useCallback(
     (args: SamplerArgs): LuminanceSample | null => {

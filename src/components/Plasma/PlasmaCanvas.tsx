@@ -46,6 +46,12 @@ export type PlasmaCanvasProps = {
    * Never fires in the WebGL2 path because that path has no glyph grid.
    */
   onTextFrame?: (frame: Glyph[][]) => void;
+  /**
+   * Fires with the underlying <canvas> on mount and `null` on unmount.
+   * Only the WebGL2 path emits — the JS fallback never calls back, so
+   * consumers binding pointer interactions silently degrade there.
+   */
+  onCanvasReady?: (canvas: HTMLCanvasElement | null) => void;
 };
 
 export const PlasmaCanvas = forwardRef<PlasmaCanvasHandle, PlasmaCanvasProps>(
@@ -61,6 +67,7 @@ export const PlasmaCanvas = forwardRef<PlasmaCanvasHandle, PlasmaCanvasProps>(
       className,
       style,
       onTextFrame,
+      onCanvasReady,
     } = props;
     const resolvedCellWidth = cellWidth ?? cellSize;
     const cellAspect = resolvedCellWidth / cellSize;
@@ -141,6 +148,7 @@ export const PlasmaCanvas = forwardRef<PlasmaCanvasHandle, PlasmaCanvasProps>(
           gridHeight={gridHeight}
           className={className}
           style={style}
+          onCanvasReady={onCanvasReady}
         />
       );
     }

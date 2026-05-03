@@ -153,6 +153,9 @@ export const PlasmaPlayground = () => {
   const [pendingSource, setPendingSource] = useState<Source | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied">("idle");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(
+    null,
+  );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const frameRef = useRef<Glyph[][] | null>(null);
@@ -175,8 +178,10 @@ export const PlasmaPlayground = () => {
   } = useWebcamLuminance(stream);
   const { sample: sampleUpload, ready: uploadReady } =
     useUploadLuminance(uploadedFile);
-  const { sample: sampleShapes, ready: shapesReady } =
-    useShapesLuminance(isShapesSource);
+  const { sample: sampleShapes, ready: shapesReady } = useShapesLuminance(
+    isShapesSource,
+    isShapesSource ? canvasElement : null,
+  );
 
   useEffect(() => {
     const splash = readSplashChoice();
@@ -613,6 +618,7 @@ export const PlasmaPlayground = () => {
             gridWidth={bounds.width}
             gridHeight={bounds.height}
             onTextFrame={handleTextFrame}
+            onCanvasReady={setCanvasElement}
           />
         )}
         <LabelOverlay

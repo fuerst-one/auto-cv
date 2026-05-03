@@ -43,6 +43,14 @@ export type PlasmaCanvasGLProps = {
   gridHeight: number;
   className?: string;
   style?: CSSProperties;
+  /**
+   * Fires with the underlying <canvas> on mount and `null` on unmount.
+   * Lets consumers (e.g. OrbitControls) bind pointer/wheel events to the
+   * actual canvas element, so overlay UI siblings keep their own clicks.
+   * Pass a referentially stable callback (a useState setter or memoized
+   * function) — the effect's cleanup re-fires whenever the prop changes.
+   */
+  onCanvasReady?: (canvas: HTMLCanvasElement | null) => void;
 };
 
 const BG_DEFAULT: [number, number, number] = [0, 0, 0];
@@ -340,6 +348,7 @@ export const PlasmaCanvasGL = forwardRef<
     gridHeight,
     className,
     style,
+    onCanvasReady,
   },
   ref,
 ) {
@@ -374,6 +383,13 @@ export const PlasmaCanvasGL = forwardRef<
       stateRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !onCanvasReady) return;
+    onCanvasReady(canvas);
+    return () => onCanvasReady(null);
+  }, [onCanvasReady]);
 
   useEffect(() => {
     const state = stateRef.current;
