@@ -7,7 +7,7 @@ const LEGAL_LINKS = [
   { label: "PRIVACY", href: "/privacy" },
 ];
 
-export const PlaygroundFooter = () => {
+export const LegalFooter = () => {
   return (
     <footer className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs tracking-wider text-muted-foreground">
       {LEGAL_LINKS.map((link, idx) => (

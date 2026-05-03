@@ -70,8 +70,6 @@ const bottomLabelGroup: LabelGroup = {
   labels: [
     { label: "contact", href: "/contact" },
     { label: "github", href: "https://github.com/fuerst-one" },
-    { label: "legal", href: "/legal-notice" },
-    { label: "privacy", href: "/privacy" },
   ],
   yAlign: "bottom",
   flex: true,

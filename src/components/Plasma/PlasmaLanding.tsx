@@ -18,7 +18,10 @@ import {
 } from "./constants";
 import { PlasmaCanvas } from "./PlasmaCanvas";
 import { LabelOverlay } from "./LabelOverlay";
+import { LegalFooter } from "./LegalFooter";
 import { useResponsiveMetrics } from "./useResponsiveMetrics";
+
+const FOOTER_RESERVED_PX = 40;
 
 const LOADING_FRAME: Glyph[][] = [
   "FUERST.ONE".split("").map((character) => ({
@@ -38,7 +41,8 @@ export const PlasmaLanding = () => {
         return;
       }
       const width = Math.floor(window.innerWidth / cellSize) - 1;
-      const height = Math.floor(window.innerHeight / cellSize) - 1;
+      const height =
+        Math.floor((window.innerHeight - FOOTER_RESERVED_PX) / cellSize) - 1;
       setBounds({ width, height });
     };
     updateBounds();
@@ -50,9 +54,10 @@ export const PlasmaLanding = () => {
   return (
     <div
       ref={containerRef}
-      className="flex h-screen w-screen items-center justify-center"
+      className="flex h-screen w-screen flex-col items-center justify-center"
     >
       <Frame bounds={bounds} cellSize={cellSize} fontPx={fontPx} />
+      <LegalFooter />
     </div>
   );
 };

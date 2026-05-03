@@ -12,7 +12,7 @@ import { getAnimationFrame } from "../getAnimationFrame";
 import { useInterval } from "../useInterval";
 import { getIsReducedMotion } from "../getIsReducedMotion";
 import { KnobDropdown } from "./KnobDropdown";
-import { PlaygroundFooter } from "./PlaygroundFooter";
+import { LegalFooter } from "../LegalFooter";
 import { getPlaygroundLabels } from "./playgroundLabels";
 import { getSplashLabels } from "./splashLabels";
 import { useWebcamStream } from "./useWebcamStream";
@@ -371,7 +371,7 @@ export const PlasmaPlayground = () => {
           onClose={closeKnob}
         />
       </div>
-      <PlaygroundFooter />
+      <LegalFooter />
       <video
         ref={videoRef}
         playsInline
