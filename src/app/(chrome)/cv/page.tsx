@@ -10,8 +10,7 @@ import {
 } from "@/components/Cv/Projects/parseSearchParams";
 import { ProjectAnalysisPanel } from "@/components/Cv/Projects/Filter/ProjectAnalysisPanel";
 
-// Revalidate content every hour
-export const revalidate = 3600;
+export const revalidate = false;
 
 export default async function Cv({
   searchParams,

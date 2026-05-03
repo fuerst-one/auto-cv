@@ -9,7 +9,7 @@ import { getCvProjects } from "@/server/notion/getCvProjects";
 import { filterProjects } from "@/components/Cv/Projects/Filter/utils";
 import { CV_PRESET_ORDER, CV_PRESETS } from "@/components/Cv/cvPresets";
 
-export const revalidate = 3600;
+export const revalidate = false;
 
 export const metadata: Metadata = {
   title: "Contact | Alexander Fuerst",
