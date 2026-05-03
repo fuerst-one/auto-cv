@@ -1,40 +1,7 @@
 import Color from "color";
 import { Glyph } from "./types";
 
-export const BASE_CHARACTERS = [
-  "@",
-  "0",
-  "#",
-  "§",
-  "&",
-  "O",
-  "%",
-  "$",
-  "F",
-  "1",
-  "n",
-  "e",
-  "s",
-  "*",
-  "=",
-  "u",
-  "t",
-  "r",
-  "/",
-  "+",
-  "~",
-  "-",
-  ";",
-  ":",
-  '"',
-  ",",
-  "'",
-  ".",
-  "`",
-  "´",
-  "`",
-  " ",
-];
+export const BASE_CHARACTERS = "@0#O&$§%eouns1ft*=+r/;:~-,'.`´` ".split("");
 
 const buildGlyphPalette = (lightnessBase: number, lightnessRange: number) => {
   const colors = BASE_CHARACTERS.reduce(
