@@ -19,6 +19,9 @@ import { useWebcamLuminance } from "./useWebcamLuminance";
 import { useUploadLuminance } from "./useUploadLuminance";
 import { useShapesLuminance } from "./useShapesLuminance";
 import { getRadialLuminance } from "./getRadialLuminance";
+import { useCanvasRecorder } from "./useCanvasRecorder";
+import { downloadBlob } from "./downloadBlob";
+import { getTimestampedFilename } from "./getTimestampedFilename";
 import {
   PLASMA_FPS,
   PLASMA_LENS_WHEEL_SENSITIVITY,
@@ -153,14 +156,17 @@ export const PlasmaPlayground = () => {
   const [splashHydrated, setSplashHydrated] = useState(false);
   const [pendingSource, setPendingSource] = useState<Source | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied">("idle");
+  const [snapStatus, setSnapStatus] = useState<"idle" | "saved">("idle");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(
     null,
   );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const snapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const frameRef = useRef<Glyph[][] | null>(null);
   const canvasRef = useRef<PlasmaCanvasHandle | null>(null);
+  const captureFpsRef = useRef(PLASMA_FPS);
 
   const sizeMetrics = SIZE_PRESETS[knobs.size];
   const { cellSize, fontPx } = sizeMetrics;
@@ -247,8 +253,52 @@ export const PlasmaPlayground = () => {
       if (copyTimerRef.current) {
         clearTimeout(copyTimerRef.current);
       }
+      if (snapTimerRef.current) {
+        clearTimeout(snapTimerRef.current);
+      }
     };
   }, []);
+
+  const handleSnap = useCallback(() => {
+    if (!canvasElement) {
+      return;
+    }
+    canvasElement.toBlob((blob) => {
+      if (!blob) {
+        return;
+      }
+      downloadBlob(blob, getTimestampedFilename("png"));
+      setSnapStatus("saved");
+      if (snapTimerRef.current) {
+        clearTimeout(snapTimerRef.current);
+      }
+      snapTimerRef.current = setTimeout(() => {
+        setSnapStatus("idle");
+        snapTimerRef.current = null;
+      }, 1500);
+    }, "image/png");
+  }, [canvasElement]);
+
+  const handleRecordingComplete = useCallback(
+    (blob: Blob, mimeType: string) => {
+      const extension = mimeType.includes("webm") ? "webm" : "bin";
+      downloadBlob(blob, getTimestampedFilename(extension));
+    },
+    [],
+  );
+
+  const recorder = useCanvasRecorder(handleRecordingComplete);
+
+  const handleToggleRec = useCallback(() => {
+    if (recorder.status === "recording") {
+      recorder.stop();
+      return;
+    }
+    if (recorder.status !== "idle" || !canvasElement) {
+      return;
+    }
+    recorder.start(canvasElement, captureFpsRef.current);
+  }, [recorder, canvasElement]);
 
   const requestSourceChange = useCallback(
     async (next: Source) => {
@@ -459,10 +509,15 @@ export const PlasmaPlayground = () => {
     return getPlaygroundLabels({
       isPaused,
       copyStatus,
+      snapStatus,
+      recorderStatus: recorder.status,
+      recorderElapsedSeconds: recorder.elapsedSeconds,
       showUploadPrompt,
       onTogglePause: togglePause,
       onKnobToggle: toggleKnob,
       onCopy: handleCopy,
+      onSnap: handleSnap,
+      onToggleRec: handleToggleRec,
       onUpload: openFilePicker,
     });
   }, [
@@ -475,10 +530,15 @@ export const PlasmaPlayground = () => {
     handleChooseShapes,
     isPaused,
     copyStatus,
+    snapStatus,
+    recorder.status,
+    recorder.elapsedSeconds,
     showUploadPrompt,
     togglePause,
     toggleKnob,
     handleCopy,
+    handleSnap,
+    handleToggleRec,
     openFilePicker,
   ]);
 
@@ -635,7 +695,9 @@ export const PlasmaPlayground = () => {
     knobs.source === "plasma" && getIsReducedMotion()
       ? PLASMA_REDUCED_FPS
       : null;
-  const intervalMs = 1000 / (reducedMotion ?? targetFps);
+  const effectiveFps = reducedMotion ?? targetFps;
+  const intervalMs = 1000 / effectiveFps;
+  captureFpsRef.current = effectiveFps;
 
   useInterval(() => {
     if (bounds && !isPaused) {

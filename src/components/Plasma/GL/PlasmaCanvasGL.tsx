@@ -167,6 +167,7 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
   const gl = canvas.getContext("webgl2", {
     antialias: false,
     premultipliedAlpha: true,
+    preserveDrawingBuffer: true,
   });
   if (!gl) return null;
 
