@@ -19,15 +19,18 @@ import { useWebcamStream } from "./useWebcamStream";
 import { useWebcamLuminance } from "./useWebcamLuminance";
 import { getWebcamFrame } from "./getWebcamFrame";
 import {
-  DEFAULT_KNOBS,
   PLASMA_COMPLEXITY,
   PLASMA_FPS,
+  PLASMA_REDUCED_FPS,
   PLASMA_SPEED,
   PLASMA_ZOOM,
+  WEBCAM_FPS,
+} from "../constants";
+import {
+  DEFAULT_KNOBS,
   PLAYGROUND_PALETTES,
   SIZE_PRESETS,
   SPLASH_LOCAL_STORAGE_KEY,
-  WEBCAM_FPS,
   WEBCAM_RAMPS,
 } from "./constants";
 import { KnobId, KnobState, Mode, SplashChoice } from "./types";
@@ -326,7 +329,7 @@ export const PlasmaPlayground = () => {
 
   const targetFps = isWebcamMode ? WEBCAM_FPS : PLASMA_FPS;
   const reducedMotion =
-    knobs.mode === "plasma" && getIsReducedMotion() ? 0.5 : null;
+    knobs.mode === "plasma" && getIsReducedMotion() ? PLASMA_REDUCED_FPS : null;
   const intervalMs = 1000 / (reducedMotion ?? targetFps);
 
   useInterval(() => {

@@ -6,13 +6,16 @@ import { getAnimationFrame } from "./getAnimationFrame";
 import { useInterval } from "./useInterval";
 import { getIsReducedMotion } from "./getIsReducedMotion";
 import { PlasmaCanvas } from "./PlasmaCanvas";
+import {
+  PLASMA_COMPLEXITY,
+  PLASMA_FPS,
+  PLASMA_REDUCED_FPS,
+  PLASMA_SPEED,
+  PLASMA_ZOOM,
+} from "./constants";
 
 const CELL_SIZE_PX = 20;
 const FONT_PX = 15;
-const COMPLEXITY = 4;
-const ZOOM = 25;
-const SPEED = 0.25;
-const FPS = 8;
 
 export const PlasmaBackground = () => {
   const [bounds, setBounds] = useState<FrameBounds | null>(null);
@@ -37,13 +40,13 @@ export const PlasmaBackground = () => {
       setFrame(
         getAnimationFrame({
           ...bounds,
-          complexity: COMPLEXITY,
-          zoomFactor: 1 / ZOOM,
-          speedFactor: SPEED,
+          complexity: PLASMA_COMPLEXITY,
+          zoomFactor: 1 / PLASMA_ZOOM,
+          speedFactor: PLASMA_SPEED,
         }),
       );
     },
-    1000 / (getIsReducedMotion() ? 0.5 : FPS),
+    1000 / (getIsReducedMotion() ? PLASMA_REDUCED_FPS : PLASMA_FPS),
   );
 
   return (

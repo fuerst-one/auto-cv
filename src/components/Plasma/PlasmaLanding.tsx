@@ -8,15 +8,17 @@ import { getIsReducedMotion } from "./getIsReducedMotion";
 import { getLabelsGroups } from "./labelGroups";
 import { LabelPlacement } from "./getLabelGroupPlacements";
 import { getResponsivePlacements } from "./getResponsivePlacements";
-import { LANDING_CHARACTERS } from "./constants";
+import {
+  LANDING_CHARACTERS,
+  PLASMA_COMPLEXITY,
+  PLASMA_FPS,
+  PLASMA_REDUCED_FPS,
+  PLASMA_SPEED,
+  PLASMA_ZOOM,
+} from "./constants";
 import { PlasmaCanvas } from "./PlasmaCanvas";
 import { LabelOverlay } from "./LabelOverlay";
 import { useResponsiveMetrics } from "./useResponsiveMetrics";
-
-const COMPLEXITY = 4;
-const ZOOM = 25;
-const SPEED = 0.25;
-const FPS = 10;
 
 const LOADING_FRAME: Glyph[][] = [
   "FUERST.ONE".split("").map((character) => ({
@@ -71,9 +73,9 @@ const Frame = ({ bounds, cellSize, fontPx }: FrameProps) => {
   const renderFrame = (currentBounds: FrameBounds, playing: boolean) => {
     const nextFrame = getAnimationFrame({
       ...currentBounds,
-      complexity: COMPLEXITY,
-      zoomFactor: 1 / ZOOM,
-      speedFactor: SPEED,
+      complexity: PLASMA_COMPLEXITY,
+      zoomFactor: 1 / PLASMA_ZOOM,
+      speedFactor: PLASMA_SPEED,
       characters: LANDING_CHARACTERS,
     });
     const groups = getLabelsGroups(
@@ -105,7 +107,7 @@ const Frame = ({ bounds, cellSize, fontPx }: FrameProps) => {
         renderFrame(bounds, isPlaying);
       }
     },
-    1000 / (getIsReducedMotion() ? 0.5 : FPS),
+    1000 / (getIsReducedMotion() ? PLASMA_REDUCED_FPS : PLASMA_FPS),
   );
 
   if (!frame) {

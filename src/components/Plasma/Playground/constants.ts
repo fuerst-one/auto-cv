@@ -34,13 +34,6 @@ export const CONTRAST_LUT_GAINS: Record<ContrastKey, number> = {
   high: 1.6,
 };
 
-export const PLASMA_FPS = 10;
-export const WEBCAM_FPS = 24;
-
-export const PLASMA_COMPLEXITY = 4;
-export const PLASMA_ZOOM = 25;
-export const PLASMA_SPEED = 0.25;
-
 export const SPLASH_LOCAL_STORAGE_KEY = "plasma:splash";
 
 export const DEFAULT_KNOBS: KnobState = {

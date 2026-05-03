@@ -62,6 +62,13 @@ export const PLAYGROUND_CHARACTERS: Glyph[] = buildGlyphPalette(30, 60);
 export const PLAYGROUND_CHARACTERS_LOW: Glyph[] = buildGlyphPalette(20, 50);
 export const PLAYGROUND_CHARACTERS_HIGH: Glyph[] = buildGlyphPalette(45, 75);
 
+export const PLASMA_COMPLEXITY = 4;
+export const PLASMA_ZOOM = 25;
+export const PLASMA_SPEED = 0.1;
+export const PLASMA_FPS = 24;
+export const PLASMA_REDUCED_FPS = 4;
+export const WEBCAM_FPS = 24;
+
 export const RADII = [65.2, 92.0, 163.2, 176.8];
 export const CENTER_XS = [64.4, 46.4, 93.6, 16.4];
 export const CENTER_YS = [34.8, 26.0, 56.0, -11.6];
