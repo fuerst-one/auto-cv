@@ -242,7 +242,7 @@ export const PlasmaPlayground = () => {
       return empty;
     }
     const knobsGroup = labelGroups.find(
-      (group) => group.yAlign === "bottom" && group.xAlign === "left",
+      (group) => group.yAlign === "bottom" && group.xAlign === "center",
     );
     if (!knobsGroup) {
       return empty;
