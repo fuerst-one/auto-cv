@@ -17,7 +17,9 @@ import { getPlaygroundLabels } from "./playgroundLabels";
 import { getSplashLabels } from "./splashLabels";
 import { useWebcamStream } from "./useWebcamStream";
 import { useWebcamLuminance } from "./useWebcamLuminance";
-import { getWebcamFrame } from "./getWebcamFrame";
+import { useUploadLuminance } from "./useUploadLuminance";
+import { getLuminanceFrame } from "./getLuminanceFrame";
+import { getRadialFrame } from "./getRadialFrame";
 import {
   PLASMA_COMPLEXITY,
   PLASMA_FPS,
@@ -33,7 +35,7 @@ import {
   SPLASH_LOCAL_STORAGE_KEY,
   WEBCAM_RAMPS,
 } from "./constants";
-import { KnobId, KnobState, Mode, SplashChoice } from "./types";
+import { KnobId, KnobState, Source, SplashChoice } from "./types";
 
 const FOOTER_RESERVED_PX = 40;
 
@@ -42,7 +44,7 @@ const readSplashChoice = (): SplashChoice => {
     return null;
   }
   const stored = window.localStorage.getItem(SPLASH_LOCAL_STORAGE_KEY);
-  if (stored === "camera" || stored === "plasma-only") {
+  if (stored === "camera" || stored === "upload" || stored === "plasma") {
     return stored;
   }
   return null;
@@ -55,6 +57,33 @@ const writeSplashChoice = (choice: Exclude<SplashChoice, null>) => {
   window.localStorage.setItem(SPLASH_LOCAL_STORAGE_KEY, choice);
 };
 
+const isSupportedUploadFile = (file: File): boolean =>
+  file.type.startsWith("image/") || file.type.startsWith("video/");
+
+const pickFileFromDataTransfer = (dataTransfer: DataTransfer): File | null => {
+  const items = dataTransfer.items;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.kind !== "file") {
+        continue;
+      }
+      const file = item.getAsFile();
+      if (file && isSupportedUploadFile(file)) {
+        return file;
+      }
+    }
+  }
+  const files = dataTransfer.files;
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    if (isSupportedUploadFile(file)) {
+      return file;
+    }
+  }
+  return null;
+};
+
 export const PlasmaPlayground = () => {
   const [knobs, setKnobs] = useState<KnobState>(DEFAULT_KNOBS);
   const [openKnob, setOpenKnob] = useState<KnobId | null>(null);
@@ -63,8 +92,10 @@ export const PlasmaPlayground = () => {
   const [frame, setFrame] = useState<Glyph[][] | null>(null);
   const [splashChoice, setSplashChoice] = useState<SplashChoice>(null);
   const [splashHydrated, setSplashHydrated] = useState(false);
-  const [pendingMode, setPendingMode] = useState<Mode | null>(null);
+  const [pendingSource, setPendingSource] = useState<Source | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied">("idle");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const frameRef = useRef<Glyph[][] | null>(null);
 
@@ -73,10 +104,17 @@ export const PlasmaPlayground = () => {
   const cellWidth = sizeMetrics.cellWidth ?? cellSize;
   const showSplash = splashHydrated && splashChoice === null;
   const showChrome = splashHydrated && splashChoice !== null;
-  const isWebcamMode = knobs.mode !== "plasma";
+  const isCameraSource = knobs.source === "camera";
+  const isUploadSource = knobs.source === "upload";
 
-  const { stream, permission, request } = useWebcamStream(isWebcamMode);
-  const { videoRef, sample, ready } = useWebcamLuminance(stream);
+  const { stream, permission, request } = useWebcamStream(isCameraSource);
+  const {
+    videoRef,
+    sample: sampleCamera,
+    ready: cameraReady,
+  } = useWebcamLuminance(stream);
+  const { sample: sampleUpload, ready: uploadReady } =
+    useUploadLuminance(uploadedFile);
 
   useEffect(() => {
     setSplashChoice(readSplashChoice());
@@ -130,73 +168,159 @@ export const PlasmaPlayground = () => {
     };
   }, []);
 
-  const requestModeChange = useCallback(
-    async (next: Mode) => {
-      if (next === knobs.mode) {
+  const requestSourceChange = useCallback(
+    async (next: Source) => {
+      if (next === knobs.source) {
         return;
       }
-      if (next === "plasma") {
-        setKnobs((prev) => ({ ...prev, mode: "plasma" }));
-        setPendingMode(null);
+      if (next === "plasma" || next === "upload") {
+        setKnobs((prev) => ({ ...prev, source: next }));
+        setPendingSource(null);
         return;
       }
       if (permission === "granted") {
-        setKnobs((prev) => ({ ...prev, mode: next }));
+        setKnobs((prev) => ({ ...prev, source: next }));
         return;
       }
-      setPendingMode(next);
+      setPendingSource(next);
       const result = await request();
       if (result === "granted") {
-        setKnobs((prev) => ({ ...prev, mode: next }));
-        setPendingMode(null);
+        setKnobs((prev) => ({ ...prev, source: next }));
+        setPendingSource(null);
         return;
       }
-      setPendingMode(null);
-      writeSplashChoice("plasma-only");
-      setSplashChoice("plasma-only");
+      setPendingSource(null);
+      writeSplashChoice("plasma");
+      setSplashChoice("plasma");
     },
-    [knobs.mode, permission, request],
+    [knobs.source, permission, request],
+  );
+
+  const openFilePicker = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const adoptFile = useCallback((file: File) => {
+    setUploadedFile(file);
+    setKnobs((prev) =>
+      prev.source === "upload" ? prev : { ...prev, source: "upload" },
+    );
+    setSplashChoice((prev) => {
+      if (prev !== null) {
+        return prev;
+      }
+      writeSplashChoice("upload");
+      return "upload";
+    });
+  }, []);
+
+  const handleFileInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (file && isSupportedUploadFile(file)) {
+        adoptFile(file);
+      }
+    },
+    [adoptFile],
   );
 
   const handleKnobChange = useCallback(
     <K extends keyof KnobState>(key: K, value: KnobState[K]) => {
-      if (key === "mode") {
+      if (key === "source") {
         setOpenKnob(null);
-        void requestModeChange(value as Mode);
+        void requestSourceChange(value as Source);
         return;
       }
       setKnobs((prev) => ({ ...prev, [key]: value }));
       setOpenKnob(null);
     },
-    [requestModeChange],
+    [requestSourceChange],
   );
 
   const handleChooseCamera = useCallback(() => {
     writeSplashChoice("camera");
     setSplashChoice("camera");
-    void requestModeChange("ascii");
-  }, [requestModeChange]);
+    void requestSourceChange("camera");
+  }, [requestSourceChange]);
+
+  const handleChooseUpload = useCallback(() => {
+    writeSplashChoice("upload");
+    setSplashChoice("upload");
+    void requestSourceChange("upload");
+    openFilePicker();
+  }, [requestSourceChange, openFilePicker]);
 
   const handleChoosePlasma = useCallback(() => {
-    writeSplashChoice("plasma-only");
-    setSplashChoice("plasma-only");
+    writeSplashChoice("plasma");
+    setSplashChoice("plasma");
   }, []);
 
   useEffect(() => {
-    if (splashChoice !== "camera" || pendingMode !== null) {
+    if (pendingSource !== null) {
       return;
     }
-    if (knobs.mode !== "plasma" || permission !== "idle") {
+    if (splashChoice === "camera") {
+      if (knobs.source !== "plasma" || permission !== "idle") {
+        return;
+      }
+      void requestSourceChange("camera");
       return;
     }
-    void requestModeChange("ascii");
-  }, [splashChoice, pendingMode, knobs.mode, permission, requestModeChange]);
+    if (splashChoice === "upload") {
+      if (knobs.source === "plasma") {
+        setKnobs((prev) => ({ ...prev, source: "upload" }));
+      }
+    }
+  }, [
+    splashChoice,
+    pendingSource,
+    knobs.source,
+    permission,
+    requestSourceChange,
+  ]);
+
+  useEffect(() => {
+    const handleDragOver = (event: DragEvent) => {
+      if (!event.dataTransfer) {
+        return;
+      }
+      const items = event.dataTransfer.items;
+      const hasFile =
+        items && Array.from(items).some((item) => item.kind === "file");
+      if (!hasFile) {
+        return;
+      }
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "copy";
+    };
+    const handleDrop = (event: DragEvent) => {
+      if (!event.dataTransfer) {
+        return;
+      }
+      const file = pickFileFromDataTransfer(event.dataTransfer);
+      if (!file) {
+        return;
+      }
+      event.preventDefault();
+      adoptFile(file);
+    };
+    window.addEventListener("dragover", handleDragOver);
+    window.addEventListener("drop", handleDrop);
+    return () => {
+      window.removeEventListener("dragover", handleDragOver);
+      window.removeEventListener("drop", handleDrop);
+    };
+  }, [adoptFile]);
+
+  const showUploadPrompt = isUploadSource && !uploadedFile;
 
   const labelGroups: LabelGroup[] = useMemo(() => {
     if (showSplash) {
       return getSplashLabels({
         fontPx,
         onChooseCamera: handleChooseCamera,
+        onChooseUpload: handleChooseUpload,
         onChoosePlasma: handleChoosePlasma,
       });
     }
@@ -206,21 +330,26 @@ export const PlasmaPlayground = () => {
     return getPlaygroundLabels({
       isPaused,
       copyStatus,
+      showUploadPrompt,
       onTogglePause: togglePause,
       onKnobToggle: toggleKnob,
       onCopy: handleCopy,
+      onUpload: openFilePicker,
     });
   }, [
     showSplash,
     showChrome,
     fontPx,
     handleChooseCamera,
+    handleChooseUpload,
     handleChoosePlasma,
     isPaused,
     copyStatus,
+    showUploadPrompt,
     togglePause,
     toggleKnob,
     handleCopy,
+    openFilePicker,
   ]);
 
   const placements = useMemo<LabelPlacement[]>(() => {
@@ -234,7 +363,7 @@ export const PlasmaPlayground = () => {
 
   const knobPlacements = useMemo<Record<KnobId, LabelPlacement | null>>(() => {
     const empty: Record<KnobId, LabelPlacement | null> = {
-      mode: null,
+      source: null,
       size: null,
       contrast: null,
     };
@@ -248,7 +377,7 @@ export const PlasmaPlayground = () => {
       return empty;
     }
     const bottomPlacements = getLabelGroupPlacements(bounds, knobsGroup);
-    const ids: KnobId[] = ["mode", "size", "contrast"];
+    const ids: KnobId[] = ["source", "size", "contrast"];
     return ids.reduce(
       (acc, id, idx) => ({ ...acc, [id]: bottomPlacements[idx] ?? null }),
       empty,
@@ -259,10 +388,14 @@ export const PlasmaPlayground = () => {
   placementsRef.current = placements;
   const knobsRef = useRef(knobs);
   knobsRef.current = knobs;
-  const sampleRef = useRef(sample);
-  sampleRef.current = sample;
-  const readyRef = useRef(ready);
-  readyRef.current = ready;
+  const sampleCameraRef = useRef(sampleCamera);
+  sampleCameraRef.current = sampleCamera;
+  const cameraReadyRef = useRef(cameraReady);
+  cameraReadyRef.current = cameraReady;
+  const sampleUploadRef = useRef(sampleUpload);
+  sampleUploadRef.current = sampleUpload;
+  const uploadReadyRef = useRef(uploadReady);
+  uploadReadyRef.current = uploadReady;
 
   const blankLabelsInPlace = useCallback((target: Glyph[][]) => {
     for (const { row, startCol, label } of placementsRef.current) {
@@ -284,25 +417,49 @@ export const PlasmaPlayground = () => {
       const palette = PLAYGROUND_PALETTES[k.contrast];
       const ramp = WEBCAM_RAMPS[k.contrast];
       const { width, height } = currentBounds;
+      const cellAspect = cellWidth / cellSize;
 
-      const sampleResult =
-        k.mode !== "plasma" && readyRef.current
-          ? sampleRef.current({
+      let next: Glyph[][];
+      if (k.source === "camera" && cameraReadyRef.current) {
+        const sampleResult = sampleCameraRef.current({
+          width,
+          height,
+          cellAspect,
+          contrast: k.contrast,
+        });
+        next = sampleResult
+          ? getLuminanceFrame({
+              luminance: sampleResult.luminance,
+              ramp,
               width,
               height,
-              cellAspect: cellWidth / cellSize,
+            })
+          : getAnimationFrame({
+              width,
+              height,
+              complexity: PLASMA_COMPLEXITY,
+              zoomFactor: 1 / PLASMA_ZOOM,
+              speedFactor: PLASMA_SPEED,
+              characters: palette,
+              cellAspect,
+            });
+      } else if (k.source === "upload") {
+        const sampleResult = uploadReadyRef.current
+          ? sampleUploadRef.current({
+              width,
+              height,
+              cellAspect,
               contrast: k.contrast,
             })
           : null;
-
-      let next: Glyph[][];
-      if (k.mode === "ascii" && sampleResult) {
-        next = getWebcamFrame({
-          luminance: sampleResult.luminance,
-          ramp,
-          width,
-          height,
-        });
+        next = sampleResult
+          ? getLuminanceFrame({
+              luminance: sampleResult.luminance,
+              ramp,
+              width,
+              height,
+            })
+          : getRadialFrame({ width, height, ramp, cellAspect });
       } else {
         next = getAnimationFrame({
           width,
@@ -311,7 +468,7 @@ export const PlasmaPlayground = () => {
           zoomFactor: 1 / PLASMA_ZOOM,
           speedFactor: PLASMA_SPEED,
           characters: palette,
-          cellAspect: cellWidth / cellSize,
+          cellAspect,
         });
       }
       blankLabelsInPlace(next);
@@ -327,9 +484,15 @@ export const PlasmaPlayground = () => {
     }
   }, [bounds, renderFrame, knobs.size, knobs.contrast]);
 
-  const targetFps = isWebcamMode ? WEBCAM_FPS : PLASMA_FPS;
+  const isAnimatedSource =
+    knobs.source === "camera" ||
+    (knobs.source === "upload" &&
+      uploadedFile?.type.startsWith("video/") === true);
+  const targetFps = isAnimatedSource ? WEBCAM_FPS : PLASMA_FPS;
   const reducedMotion =
-    knobs.mode === "plasma" && getIsReducedMotion() ? PLASMA_REDUCED_FPS : null;
+    knobs.source === "plasma" && getIsReducedMotion()
+      ? PLASMA_REDUCED_FPS
+      : null;
   const intervalMs = 1000 / (reducedMotion ?? targetFps);
 
   useInterval(() => {
@@ -366,7 +529,7 @@ export const PlasmaPlayground = () => {
           cellSize={cellSize}
           cellWidth={cellWidth}
           knobs={knobs}
-          webcamModesEnabled
+          cameraSourceEnabled
           onChange={handleKnobChange}
           onClose={closeKnob}
         />
@@ -380,6 +543,13 @@ export const PlasmaPlayground = () => {
         aria-hidden
         className="pointer-events-none absolute h-px w-px opacity-0"
         style={{ top: 0, left: 0 }}
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,video/*"
+        className="hidden"
+        onChange={handleFileInputChange}
       />
     </div>
   );

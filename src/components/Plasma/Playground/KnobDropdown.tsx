@@ -3,7 +3,7 @@
 import { CSSProperties, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { LabelPlacement } from "../getLabelGroupPlacements";
-import { ContrastKey, KnobId, KnobState, Mode, SizeKey } from "./types";
+import { ContrastKey, KnobId, KnobState, SizeKey, Source } from "./types";
 
 type KnobDropdownProps = {
   openKnob: KnobId | null;
@@ -11,14 +11,15 @@ type KnobDropdownProps = {
   cellSize: number;
   cellWidth?: number;
   knobs: KnobState;
-  webcamModesEnabled: boolean;
+  cameraSourceEnabled: boolean;
   onChange: <K extends keyof KnobState>(key: K, value: KnobState[K]) => void;
   onClose: () => void;
 };
 
-const MODES: ReadonlyArray<{ value: Mode; label: string }> = [
+const SOURCES: ReadonlyArray<{ value: Source; label: string }> = [
   { value: "plasma", label: "PLASMA" },
-  { value: "ascii", label: "ASCII VIDEO" },
+  { value: "camera", label: "CAMERA" },
+  { value: "upload", label: "UPLOAD" },
 ];
 
 const SIZES: ReadonlyArray<{ value: SizeKey; label: string }> = [
@@ -39,7 +40,7 @@ export const KnobDropdown = ({
   cellSize,
   cellWidth,
   knobs,
-  webcamModesEnabled,
+  cameraSourceEnabled,
   onChange,
   onClose,
 }: KnobDropdownProps) => {
@@ -90,15 +91,15 @@ export const KnobDropdown = ({
       style={panelStyle}
       role="menu"
     >
-      {openKnob === "mode" && (
+      {openKnob === "source" && (
         <RadioList
-          name="mode"
-          value={knobs.mode}
-          options={MODES}
+          name="source"
+          value={knobs.source}
+          options={SOURCES}
           isDisabled={(option) =>
-            option.value !== "plasma" && !webcamModesEnabled
+            option.value === "camera" && !cameraSourceEnabled
           }
-          onChange={(value) => onChange("mode", value)}
+          onChange={(value) => onChange("source", value)}
         />
       )}
       {openKnob === "size" && (

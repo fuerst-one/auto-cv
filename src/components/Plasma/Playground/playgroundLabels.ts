@@ -4,9 +4,11 @@ import { KnobId } from "./types";
 export type PlaygroundLabelsArgs = {
   isPaused: boolean;
   copyStatus: "idle" | "copied";
+  showUploadPrompt: boolean;
   onTogglePause: () => void;
   onKnobToggle: (id: KnobId) => void;
   onCopy: () => void;
+  onUpload: () => void;
 };
 
 const PAUSE_ICON = "⏸";
@@ -15,11 +17,13 @@ const PLAY_ICON = "⏵";
 export const getPlaygroundLabels = ({
   isPaused,
   copyStatus,
+  showUploadPrompt,
   onTogglePause,
   onKnobToggle,
   onCopy,
+  onUpload,
 }: PlaygroundLabelsArgs): LabelGroup[] => {
-  return [
+  const groups: LabelGroup[] = [
     {
       labels: [{ label: "← FUERST.ONE", href: "/" }],
       yAlign: "top",
@@ -37,7 +41,7 @@ export const getPlaygroundLabels = ({
     },
     {
       labels: [
-        { label: "MODE", onClick: () => onKnobToggle("mode") },
+        { label: "SOURCE", onClick: () => onKnobToggle("source") },
         { label: "SIZE", onClick: () => onKnobToggle("size") },
         { label: "CONTRAST", onClick: () => onKnobToggle("contrast") },
         {
@@ -50,4 +54,20 @@ export const getPlaygroundLabels = ({
       padding: 2,
     },
   ];
+
+  if (showUploadPrompt) {
+    groups.push({
+      labels: [
+        {
+          label: "[UPLOAD]",
+          onClick: onUpload,
+          style: { fontWeight: 700 },
+        },
+      ],
+      yAlign: "center",
+      xAlign: "center",
+    });
+  }
+
+  return groups;
 };

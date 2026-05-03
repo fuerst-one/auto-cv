@@ -1,18 +1,18 @@
 import { Glyph } from "../types";
 
-type GetWebcamFrameArgs = {
+type GetLuminanceFrameArgs = {
   luminance: Uint8Array;
   ramp: Glyph[];
   width: number;
   height: number;
 };
 
-export const getWebcamFrame = ({
+export const getLuminanceFrame = ({
   luminance,
   ramp,
   width,
   height,
-}: GetWebcamFrameArgs): Glyph[][] => {
+}: GetLuminanceFrameArgs): Glyph[][] => {
   const lastIdx = ramp.length - 1;
   const scale = ramp.length / 256;
   const frame: Glyph[][] = Array.from(
