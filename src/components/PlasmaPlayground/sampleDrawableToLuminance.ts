@@ -13,6 +13,7 @@ export type SamplerArgs = {
   cellAspect: number;
   contrast: ContrastKey;
   mirror?: boolean;
+  imageSmoothing?: boolean;
 };
 
 export type LuminanceSample = {
@@ -63,7 +64,14 @@ export const sampleDrawableToLuminance = (
   args: SamplerArgs,
   lutCache: Map<ContrastKey, Uint8Array>,
 ): LuminanceSample | null => {
-  const { width, height, cellAspect, contrast, mirror = false } = args;
+  const {
+    width,
+    height,
+    cellAspect,
+    contrast,
+    mirror = false,
+    imageSmoothing = true,
+  } = args;
   if (width <= 0 || height <= 0 || source.width === 0 || source.height === 0) {
     return null;
   }
@@ -95,6 +103,7 @@ export const sampleDrawableToLuminance = (
   );
 
   canvasCtx.save();
+  canvasCtx.imageSmoothingEnabled = imageSmoothing;
   if (mirror) {
     canvasCtx.setTransform(-1, 0, 0, 1, width, 0);
   }

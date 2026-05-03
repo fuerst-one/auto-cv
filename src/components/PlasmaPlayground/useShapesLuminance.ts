@@ -2,6 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import {
+  ANGLE_INCREMENTS,
+  CENTER_XS,
+  CENTER_YS,
+  PLASMA_COMPLEXITY,
+  PLASMA_SPEED,
+  PLASMA_ZOOM,
+  RADII,
+  SINE_TABLE,
+} from "../Plasma/constants";
 import { CONTRAST_LUT_GAINS } from "./constants";
 import {
   buildContrastLutCache,
@@ -22,6 +32,129 @@ const SHAPE_CYCLE_MS = 10000;
 const ROTATION_AXIS = new THREE.Vector3(0.4, 1, 0.2).normalize();
 const ROTATION_RATE = 0.45;
 const CAMERA_FRAME_FACTOR = 3.6;
+const PLASMA_PIXELS_PER_CELL = 8.0;
+const PLASMA_RAMP_LENGTH = 64.0;
+const PLASMA_DEPTH_SHIFT = 0.18;
+
+const PLASMA_VERTEX_SHADER = /* glsl */ `
+  varying vec3 vViewNormal;
+  void main() {
+    vViewNormal = normalize(normalMatrix * normal);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const PLASMA_FRAGMENT_SHADER = /* glsl */ `
+  precision highp float;
+  precision highp int;
+
+  uniform vec4 u_angles;
+  uniform vec4 u_radii;
+  uniform vec4 u_centerXs;
+  uniform vec4 u_centerYs;
+  uniform float u_sineTable[256];
+  uniform float u_hueShift;
+  uniform float u_zoomFactor;
+  uniform int u_complexity;
+  uniform float u_pixelsPerCell;
+  uniform float u_rampLength;
+  uniform float u_depthShift;
+
+  varying vec3 vViewNormal;
+
+  float computePlasmaValue(vec2 cellCoord) {
+    float fx = floor(cellCoord.x);
+    float fy = floor(cellCoord.y);
+    float value = u_hueShift;
+    for (int i = 0; i < 4; i++) {
+      if (i >= u_complexity) break;
+      float ai = u_angles[i];
+      float ri = u_radii[i];
+      float cxi = u_centerXs[i];
+      float cyi = u_centerYs[i];
+      float xi = cos(ai) * ri + cxi - fx;
+      float yi = sin(ai) * ri + cyi - fy;
+      float fIdx = (xi * xi + yi * yi) * u_zoomFactor;
+      int rounded = int(floor(fIdx + 0.5));
+      int shifted = rounded / 32;
+      int masked = shifted - (shifted / 256) * 256;
+      if (masked < 0) masked += 256;
+      value += u_sineTable[masked];
+    }
+    return value;
+  }
+
+  void main() {
+    vec2 cellCoord = gl_FragCoord.xy / u_pixelsPerCell;
+    float plasmaValue = computePlasmaValue(cellCoord);
+    float rampIdx = mod(floor(plasmaValue), u_rampLength);
+    if (rampIdx < 0.0) rampIdx += u_rampLength;
+
+    float v = ((u_rampLength - 1.0) - rampIdx + 0.5) / u_rampLength;
+
+    vec3 n = normalize(vViewNormal);
+    float depth = (1.0 - clamp(n.z, 0.0, 1.0)) * u_depthShift;
+    v -= depth;
+    v = clamp(v, 0.0, 1.0);
+
+    gl_FragColor = vec4(vec3(v), 1.0);
+  }
+`;
+
+type PlasmaUniforms = {
+  u_angles: { value: THREE.Vector4 };
+  u_radii: { value: THREE.Vector4 };
+  u_centerXs: { value: THREE.Vector4 };
+  u_centerYs: { value: THREE.Vector4 };
+  u_sineTable: { value: Float32Array };
+  u_hueShift: { value: number };
+  u_zoomFactor: { value: number };
+  u_complexity: { value: number };
+  u_pixelsPerCell: { value: number };
+  u_rampLength: { value: number };
+  u_depthShift: { value: number };
+};
+
+const createPlasmaMaterial = (): {
+  material: THREE.ShaderMaterial;
+  uniforms: PlasmaUniforms;
+} => {
+  const uniforms: PlasmaUniforms = {
+    u_angles: { value: new THREE.Vector4(0, 0, 0, 0) },
+    u_radii: {
+      value: new THREE.Vector4(RADII[0], RADII[1], RADII[2], RADII[3]),
+    },
+    u_centerXs: {
+      value: new THREE.Vector4(
+        CENTER_XS[0],
+        CENTER_XS[1],
+        CENTER_XS[2],
+        CENTER_XS[3],
+      ),
+    },
+    u_centerYs: {
+      value: new THREE.Vector4(
+        CENTER_YS[0],
+        CENTER_YS[1],
+        CENTER_YS[2],
+        CENTER_YS[3],
+      ),
+    },
+    u_sineTable: { value: new Float32Array(SINE_TABLE) },
+    u_hueShift: { value: 0 },
+    u_zoomFactor: { value: 1 / PLASMA_ZOOM },
+    u_complexity: { value: PLASMA_COMPLEXITY },
+    u_pixelsPerCell: { value: PLASMA_PIXELS_PER_CELL },
+    u_rampLength: { value: PLASMA_RAMP_LENGTH },
+    u_depthShift: { value: PLASMA_DEPTH_SHIFT },
+  };
+  const material = new THREE.ShaderMaterial({
+    vertexShader: PLASMA_VERTEX_SHADER,
+    fragmentShader: PLASMA_FRAGMENT_SHADER,
+    uniforms: uniforms as unknown as Record<string, THREE.IUniform>,
+  });
+  return { material, uniforms };
+};
 
 const buildTwistedBox = (): THREE.BufferGeometry => {
   const geometry = new THREE.BoxGeometry(1.4, 1.4, 1.4, 12, 12, 12);
@@ -69,9 +202,13 @@ type SceneRefs = {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   mesh: THREE.Mesh;
+  material: THREE.ShaderMaterial;
+  uniforms: PlasmaUniforms;
   geometries: THREE.BufferGeometry[];
   poolIndex: number;
   rotation: number;
+  plasmaAngles: [number, number, number, number];
+  hueShift: number;
   nextSwapAt: number;
   lastTickAt: number;
   rafId: number | null;
@@ -115,7 +252,7 @@ export const useShapesLuminance = (
     );
 
     const geometries = buildGeometryPool();
-    const material = new THREE.MeshNormalMaterial();
+    const { material, uniforms } = createPlasmaMaterial();
     const mesh = new THREE.Mesh(geometries[0], material);
     scene.add(mesh);
 
@@ -127,9 +264,13 @@ export const useShapesLuminance = (
       scene,
       camera,
       mesh,
+      material,
+      uniforms,
       geometries,
       poolIndex: 0,
       rotation: 0,
+      plasmaAngles: [0, 0, 0, 0],
+      hueShift: 0,
       nextSwapAt: startedAt + SHAPE_CYCLE_MS,
       lastTickAt: startedAt,
       rafId: null,
@@ -143,6 +284,20 @@ export const useShapesLuminance = (
       refs.lastTickAt = now;
       refs.rotation += ROTATION_RATE * dt;
       refs.mesh.setRotationFromAxisAngle(ROTATION_AXIS, refs.rotation);
+
+      const randomFactor = 0.5 + Math.random();
+      for (let i = 0; i < 4; i++) {
+        refs.plasmaAngles[i] +=
+          ANGLE_INCREMENTS[i] * PLASMA_SPEED * randomFactor;
+      }
+      refs.hueShift += PLASMA_SPEED * randomFactor;
+      refs.uniforms.u_angles.value.set(
+        refs.plasmaAngles[0],
+        refs.plasmaAngles[1],
+        refs.plasmaAngles[2],
+        refs.plasmaAngles[3],
+      );
+      refs.uniforms.u_hueShift.value = refs.hueShift;
 
       if (now >= refs.nextSwapAt) {
         refs.poolIndex = (refs.poolIndex + 1) % refs.geometries.length;
@@ -168,7 +323,7 @@ export const useShapesLuminance = (
       for (const geom of refs.geometries) {
         geom.dispose();
       }
-      (refs.mesh.material as THREE.Material).dispose();
+      refs.material.dispose();
       refs.renderer.dispose();
       sceneRef.current = null;
       canvasRef.current = null;
@@ -186,7 +341,7 @@ export const useShapesLuminance = (
         samplerCtxRef.current,
         canvas,
         { width: canvas.width, height: canvas.height },
-        args,
+        { ...args, imageSmoothing: false },
         lutCache,
       );
     },

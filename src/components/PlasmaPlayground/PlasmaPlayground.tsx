@@ -519,7 +519,8 @@ export const PlasmaPlayground = () => {
         if (sampleResult) {
           handle.renderLuminance(sampleResult.luminance, width, height);
         } else {
-          handle.renderPlasma();
+          const radial = getRadialLuminance({ width, height, cellAspect });
+          handle.renderLuminance(radial, width, height);
         }
         return;
       }
@@ -602,7 +603,7 @@ export const PlasmaPlayground = () => {
           <PlasmaCanvas
             ref={canvasRef}
             ramp={
-              knobs.source === "plasma"
+              knobs.source === "plasma" || knobs.source === "shapes"
                 ? PLAYGROUND_PALETTES[knobs.contrast]
                 : WEBCAM_RAMPS[knobs.contrast]
             }
