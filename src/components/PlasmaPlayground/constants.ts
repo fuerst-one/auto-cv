@@ -23,9 +23,9 @@ export const WEBCAM_RAMPS: Record<ContrastKey, Glyph[]> = {
 };
 
 export const SIZE_PRESETS: Record<SizeKey, Metrics> = {
-  small: { cellSize: 10, cellWidth: 6, fontPx: 10 },
-  medium: { cellSize: 18, cellWidth: 11, fontPx: 18 },
-  large: { cellSize: 26, cellWidth: 15, fontPx: 26 },
+  small: { cellSize: 8, cellWidth: 5, fontPx: 8 },
+  medium: { cellSize: 12, cellWidth: 7, fontPx: 12 },
+  large: { cellSize: 18, cellWidth: 11, fontPx: 18 },
 };
 
 export const CONTRAST_LUT_GAINS: Record<ContrastKey, number> = {
