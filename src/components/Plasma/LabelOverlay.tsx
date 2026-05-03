@@ -32,6 +32,7 @@ export const LabelOverlay = ({
           fontSize: label.style?.fontSize ?? fontPx,
           fontWeight: label.style?.fontWeight,
           color: label.style?.color,
+          backgroundColor: "black",
         };
         const cellStyle: CSSProperties = {
           display: "flex",
@@ -40,7 +41,7 @@ export const LabelOverlay = ({
           width: cw,
           height: ch,
           lineHeight: 1,
-          transform: "translate(-0.25px, -1.5px)",
+          transform: `translate(${0.8 + 0.01 * cw}px, ${-0.4 - 0.01 * ch}px)`,
         };
         const className =
           "pointer-events-auto cursor-pointer text-foreground hover:underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current";

@@ -25,7 +25,7 @@ export const getPlaygroundLabels = ({
 }: PlaygroundLabelsArgs): LabelGroup[] => {
   const groups: LabelGroup[] = [
     {
-      labels: [{ label: "← FUERST.ONE", href: "/" }],
+      labels: [{ label: "< FUERST.ONE", href: "/" }],
       yAlign: "top",
       xAlign: "left",
     },

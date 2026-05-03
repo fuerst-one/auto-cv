@@ -25,9 +25,9 @@ export default function RootLayout({
       <body
         className={cn(
           "relative flex min-h-full flex-col bg-background text-foreground antialiased",
-          plexMono.className,
           plexMono.variable,
         )}
+        style={{ fontFamily: "Menlo, var(--font-plex), monospace" }}
       >
         {children}
       </body>

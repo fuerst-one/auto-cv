@@ -20,6 +20,12 @@ import { useWebcamLuminance } from "./useWebcamLuminance";
 import { useUploadLuminance } from "./useUploadLuminance";
 import { getLuminanceFrame } from "./getLuminanceFrame";
 import { getRadialFrame } from "./getRadialFrame";
+import { getRadialLuminance } from "./getRadialLuminance";
+import {
+  PlasmaCanvasGL,
+  PlasmaCanvasGLHandle,
+  isWebGL2Supported,
+} from "../PlasmaCanvasGL/PlasmaCanvasGL";
 import {
   PLASMA_COMPLEXITY,
   PLASMA_FPS,
@@ -95,9 +101,11 @@ export const PlasmaPlayground = () => {
   const [pendingSource, setPendingSource] = useState<Source | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied">("idle");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [useGL, setUseGL] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const frameRef = useRef<Glyph[][] | null>(null);
+  const glRef = useRef<PlasmaCanvasGLHandle | null>(null);
 
   const sizeMetrics = SIZE_PRESETS[knobs.size];
   const { cellSize, fontPx } = sizeMetrics;
@@ -119,6 +127,7 @@ export const PlasmaPlayground = () => {
   useEffect(() => {
     setSplashChoice(readSplashChoice());
     setSplashHydrated(true);
+    setUseGL(isWebGL2Supported());
   }, []);
 
   useEffect(() => {
@@ -411,6 +420,9 @@ export const PlasmaPlayground = () => {
     }
   }, []);
 
+  const useGLRef = useRef(useGL);
+  useGLRef.current = useGL;
+
   const renderFrame = useCallback(
     (currentBounds: FrameBounds) => {
       const k = knobsRef.current;
@@ -418,6 +430,46 @@ export const PlasmaPlayground = () => {
       const ramp = WEBCAM_RAMPS[k.contrast];
       const { width, height } = currentBounds;
       const cellAspect = cellWidth / cellSize;
+
+      if (useGLRef.current) {
+        const handle = glRef.current;
+        if (!handle) return;
+        if (k.source === "camera") {
+          const sampleResult = cameraReadyRef.current
+            ? sampleCameraRef.current({
+                width,
+                height,
+                cellAspect,
+                contrast: k.contrast,
+              })
+            : null;
+          if (sampleResult) {
+            handle.renderLuminance(sampleResult.luminance, width, height);
+          } else {
+            handle.renderPlasma();
+          }
+          return;
+        }
+        if (k.source === "upload") {
+          const sampleResult = uploadReadyRef.current
+            ? sampleUploadRef.current({
+                width,
+                height,
+                cellAspect,
+                contrast: k.contrast,
+              })
+            : null;
+          if (sampleResult) {
+            handle.renderLuminance(sampleResult.luminance, width, height);
+          } else {
+            const radial = getRadialLuminance({ width, height, cellAspect });
+            handle.renderLuminance(radial, width, height);
+          }
+          return;
+        }
+        handle.renderPlasma();
+        return;
+      }
 
       let next: Glyph[][];
       if (k.source === "camera" && cameraReadyRef.current) {
@@ -511,12 +563,28 @@ export const PlasmaPlayground = () => {
         className="relative"
         style={{ width: canvasWidthPx, height: canvasHeightPx }}
       >
-        <PlasmaCanvas
-          frame={frame}
-          cellSize={cellSize}
-          cellWidth={cellWidth}
-          fontPx={fontPx}
-        />
+        {useGL && bounds ? (
+          <PlasmaCanvasGL
+            ref={glRef}
+            ramp={
+              knobs.source === "plasma"
+                ? PLAYGROUND_PALETTES[knobs.contrast]
+                : WEBCAM_RAMPS[knobs.contrast]
+            }
+            cellSize={cellSize}
+            cellWidth={cellWidth}
+            fontPx={fontPx}
+            gridWidth={bounds.width}
+            gridHeight={bounds.height}
+          />
+        ) : (
+          <PlasmaCanvas
+            frame={frame}
+            cellSize={cellSize}
+            cellWidth={cellWidth}
+            fontPx={fontPx}
+          />
+        )}
         <LabelOverlay
           placements={placements}
           cellSize={cellSize}
