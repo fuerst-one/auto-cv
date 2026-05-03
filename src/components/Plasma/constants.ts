@@ -3,12 +3,15 @@ import { Glyph } from "./types";
 
 export const BASE_CHARACTERS = "@0#O&$§%eouns1ft*=+r/;:~-,'.`´` ".split("");
 
+const TINT_HUE = 30;
+const TINT_SATURATION = 7.5;
+
 const buildGlyphPalette = (lightnessBase: number, lightnessRange: number) => {
   const colors = BASE_CHARACTERS.reduce(
     (acc, character, idx, arr) => {
       const color = Color.hsl(
-        0,
-        0,
+        TINT_HUE,
+        TINT_SATURATION,
         lightnessBase + ((arr.length - idx) / arr.length) * lightnessRange,
       );
       return { ...acc, [character]: color.hex() };
