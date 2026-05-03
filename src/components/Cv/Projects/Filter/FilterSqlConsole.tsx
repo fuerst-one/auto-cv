@@ -6,6 +6,7 @@ import { useFiltersStore } from "../filtersStore";
 import clsx from "clsx";
 import { CvProject } from "@/server/notion/getCvProjects";
 import { FilterParams, filterProjects } from "./utils";
+import { CV_PRESETS, CV_PRESET_ORDER, CvPreset } from "../../cvPresets";
 
 const ARRAY_COLUMNS: (keyof FilterParams)[] = [
   "industries",
@@ -133,6 +134,24 @@ export const FilterSqlConsole = ({
     setFilters(nextFilters as unknown as FilterParams);
     router.replace(search ? `?${search}` : "/", { scroll: false });
   };
+
+  const handleApplyPreset = (preset: CvPreset) => {
+    const params = new URLSearchParams();
+    Object.entries(preset.filter).forEach(([paramKey, values]) => {
+      if (!values?.length) {
+        return;
+      }
+      params.set(paramKey, values.join(","));
+    });
+    const search = params.toString();
+    setFilters(preset.filter);
+    router.replace(search ? `?${search}` : "/", { scroll: false });
+  };
+
+  const activePresetId = useMemo(
+    () => findActivePreset(normalizedFilters),
+    [normalizedFilters],
+  );
 
   const activeFilters = useMemo(() => {
     return Object.entries(normalizedFilters).flatMap(([key, values]) =>
@@ -304,6 +323,32 @@ export const FilterSqlConsole = ({
           </>
         )}
       </div>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <span className="text-[0.65rem] uppercase tracking-[0.25em] text-neutral-400">
+          Preset
+        </span>
+        {CV_PRESET_ORDER.map((id) => {
+          const preset = CV_PRESETS[id];
+          const isActive = activePresetId === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => handleApplyPreset(preset)}
+              aria-pressed={isActive}
+              title={preset.description}
+              className={clsx(
+                "border px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] transition",
+                isActive
+                  ? "border-white bg-white/10 text-white"
+                  : "border-white/30 bg-black text-neutral-200 hover:border-white hover:text-white",
+              )}
+            >
+              {preset.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -385,6 +430,36 @@ const buildOptionsForKey = (
 };
 
 type NormalizedFilters = Record<string, string[]>;
+
+const findActivePreset = (filters: NormalizedFilters) => {
+  const filterKeys = Object.keys(filters).sort();
+  for (const id of CV_PRESET_ORDER) {
+    const preset = CV_PRESETS[id];
+    const presetKeys = Object.keys(preset.filter).sort();
+    if (presetKeys.length !== filterKeys.length) {
+      continue;
+    }
+    if (presetKeys.some((k, i) => k !== filterKeys[i])) {
+      continue;
+    }
+    const allMatch = presetKeys.every((key) => {
+      const presetValues = [...(preset.filter[key as keyof FilterParams] ?? [])]
+        .map((v) => v.toLowerCase())
+        .sort();
+      const currentValues = [...(filters[key] ?? [])]
+        .map((v) => v.toLowerCase())
+        .sort();
+      if (presetValues.length !== currentValues.length) {
+        return false;
+      }
+      return presetValues.every((v, i) => v === currentValues[i]);
+    });
+    if (allMatch) {
+      return id;
+    }
+  }
+  return null;
+};
 
 const normalizeFilters = (filters: FilterParams): NormalizedFilters => {
   return Object.fromEntries(

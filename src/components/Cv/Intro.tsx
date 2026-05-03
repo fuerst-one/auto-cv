@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { SignUpForm } from "./SignUpForm";
+import { Button } from "../Button";
 import { Contact } from "./Contact";
 
 export function Intro({ claim }: { claim: ReactNode }) {
@@ -12,7 +12,9 @@ export function Intro({ claim }: { claim: ReactNode }) {
           intuitive design.
         </p>
       </div>
-      <SignUpForm />
+      <Button href="/contact" arrow className="mt-8 w-full justify-center">
+        Contact &amp; download CV
+      </Button>
       <Contact />
     </>
   );
