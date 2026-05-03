@@ -20,6 +20,7 @@ const SOURCES: ReadonlyArray<{ value: Source; label: string }> = [
   { value: "plasma", label: "PLASMA" },
   { value: "camera", label: "CAMERA" },
   { value: "upload", label: "UPLOAD" },
+  { value: "shapes", label: "SHAPES" },
 ];
 
 const SIZES: ReadonlyArray<{ value: SizeKey; label: string }> = [

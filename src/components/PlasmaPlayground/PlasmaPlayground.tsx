@@ -17,6 +17,7 @@ import { getSplashLabels } from "./splashLabels";
 import { useWebcamStream } from "./useWebcamStream";
 import { useWebcamLuminance } from "./useWebcamLuminance";
 import { useUploadLuminance } from "./useUploadLuminance";
+import { useShapesLuminance } from "./useShapesLuminance";
 import { getRadialLuminance } from "./getRadialLuminance";
 import {
   PLASMA_FPS,
@@ -39,7 +40,12 @@ const readSplashChoice = (): SplashChoice => {
     return null;
   }
   const stored = window.localStorage.getItem(SPLASH_LOCAL_STORAGE_KEY);
-  if (stored === "camera" || stored === "upload" || stored === "plasma") {
+  if (
+    stored === "camera" ||
+    stored === "upload" ||
+    stored === "plasma" ||
+    stored === "shapes"
+  ) {
     return stored;
   }
   return null;
@@ -101,6 +107,7 @@ export const PlasmaPlayground = () => {
   const showChrome = splashHydrated && splashChoice !== null;
   const isCameraSource = knobs.source === "camera";
   const isUploadSource = knobs.source === "upload";
+  const isShapesSource = knobs.source === "shapes";
 
   const { stream, permission, request } = useWebcamStream(isCameraSource);
   const {
@@ -110,6 +117,8 @@ export const PlasmaPlayground = () => {
   } = useWebcamLuminance(stream);
   const { sample: sampleUpload, ready: uploadReady } =
     useUploadLuminance(uploadedFile);
+  const { sample: sampleShapes, ready: shapesReady } =
+    useShapesLuminance(isShapesSource);
 
   useEffect(() => {
     setSplashChoice(readSplashChoice());
@@ -168,7 +177,7 @@ export const PlasmaPlayground = () => {
       if (next === knobs.source) {
         return;
       }
-      if (next === "plasma" || next === "upload") {
+      if (next === "plasma" || next === "upload" || next === "shapes") {
         setKnobs((prev) => ({ ...prev, source: next }));
         setPendingSource(null);
         return;
@@ -251,6 +260,12 @@ export const PlasmaPlayground = () => {
     setSplashChoice("plasma");
   }, []);
 
+  const handleChooseShapes = useCallback(() => {
+    writeSplashChoice("shapes");
+    setSplashChoice("shapes");
+    void requestSourceChange("shapes");
+  }, [requestSourceChange]);
+
   useEffect(() => {
     if (pendingSource !== null) {
       return;
@@ -265,6 +280,12 @@ export const PlasmaPlayground = () => {
     if (splashChoice === "upload") {
       if (knobs.source === "plasma") {
         setKnobs((prev) => ({ ...prev, source: "upload" }));
+      }
+      return;
+    }
+    if (splashChoice === "shapes") {
+      if (knobs.source === "plasma") {
+        setKnobs((prev) => ({ ...prev, source: "shapes" }));
       }
     }
   }, [
@@ -317,6 +338,7 @@ export const PlasmaPlayground = () => {
         onChooseCamera: handleChooseCamera,
         onChooseUpload: handleChooseUpload,
         onChoosePlasma: handleChoosePlasma,
+        onChooseShapes: handleChooseShapes,
       });
     }
     if (!showChrome) {
@@ -338,6 +360,7 @@ export const PlasmaPlayground = () => {
     handleChooseCamera,
     handleChooseUpload,
     handleChoosePlasma,
+    handleChooseShapes,
     isPaused,
     copyStatus,
     showUploadPrompt,
@@ -391,6 +414,10 @@ export const PlasmaPlayground = () => {
   sampleUploadRef.current = sampleUpload;
   const uploadReadyRef = useRef(uploadReady);
   uploadReadyRef.current = uploadReady;
+  const sampleShapesRef = useRef(sampleShapes);
+  sampleShapesRef.current = sampleShapes;
+  const shapesReadyRef = useRef(shapesReady);
+  shapesReadyRef.current = shapesReady;
 
   const blankLabelsInPlace = useCallback((target: Glyph[][]) => {
     for (const { row, startCol, label } of placementsRef.current) {
@@ -457,6 +484,23 @@ export const PlasmaPlayground = () => {
         return;
       }
 
+      if (k.source === "shapes") {
+        const sampleResult = shapesReadyRef.current
+          ? sampleShapesRef.current({
+              width,
+              height,
+              cellAspect,
+              contrast: k.contrast,
+            })
+          : null;
+        if (sampleResult) {
+          handle.renderLuminance(sampleResult.luminance, width, height);
+        } else {
+          handle.renderPlasma();
+        }
+        return;
+      }
+
       handle.renderPlasma();
     },
     [cellWidth, cellSize],
@@ -470,6 +514,7 @@ export const PlasmaPlayground = () => {
 
   const isAnimatedSource =
     knobs.source === "camera" ||
+    knobs.source === "shapes" ||
     (knobs.source === "upload" &&
       uploadedFile?.type.startsWith("video/") === true);
   const targetFps = isAnimatedSource ? WEBCAM_FPS : PLASMA_FPS;

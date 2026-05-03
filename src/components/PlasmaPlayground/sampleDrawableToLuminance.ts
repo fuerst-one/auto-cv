@@ -1,6 +1,6 @@
 import { ContrastKey } from "./types";
 
-export type Drawable = HTMLImageElement | HTMLVideoElement;
+export type Drawable = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement;
 
 export type DrawableSize = {
   width: number;

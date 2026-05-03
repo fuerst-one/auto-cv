@@ -109,11 +109,15 @@ export const useUploadLuminance = (
       const sourceWidth =
         drawable instanceof HTMLVideoElement
           ? drawable.videoWidth
-          : drawable.naturalWidth;
+          : drawable instanceof HTMLImageElement
+            ? drawable.naturalWidth
+            : drawable.width;
       const sourceHeight =
         drawable instanceof HTMLVideoElement
           ? drawable.videoHeight
-          : drawable.naturalHeight;
+          : drawable instanceof HTMLImageElement
+            ? drawable.naturalHeight
+            : drawable.height;
       return sampleDrawableToLuminance(
         samplerCtxRef.current,
         drawable,

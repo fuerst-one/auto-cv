@@ -5,6 +5,7 @@ export type SplashLabelsArgs = {
   onChooseCamera: () => void;
   onChooseUpload: () => void;
   onChoosePlasma: () => void;
+  onChooseShapes: () => void;
 };
 
 export const getSplashLabels = ({
@@ -12,6 +13,7 @@ export const getSplashLabels = ({
   onChooseCamera,
   onChooseUpload,
   onChoosePlasma,
+  onChooseShapes,
 }: SplashLabelsArgs): LabelGroup[] => {
   const fontSize = fontPx + 2;
   return [
@@ -25,6 +27,11 @@ export const getSplashLabels = ({
         {
           label: "[UPLOAD]",
           onClick: onChooseUpload,
+          style: { fontWeight: 700, fontSize },
+        },
+        {
+          label: "[3D SHAPES]",
+          onClick: onChooseShapes,
           style: { fontWeight: 700, fontSize },
         },
         {
