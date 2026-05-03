@@ -126,6 +126,24 @@ export const buildOpenApiSpec = () => ({
         },
       },
     },
+    "/api/profile": {
+      get: {
+        summary: "Public CV profile (owner)",
+        description:
+          "Returns Alexander Fuerst's public CV profile facts. Sensitive fields (daily rate, full address, phone) are deliberately not exposed via this endpoint.",
+        responses: {
+          "200": {
+            description: "Public profile",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/CvOwnerPublic" },
+              },
+            },
+          },
+          "429": { $ref: "#/components/responses/RateLimited" },
+        },
+      },
+    },
     "/api/facets": {
       get: {
         summary: "Discover available filter values",
@@ -189,6 +207,46 @@ export const buildOpenApiSpec = () => ({
         description:
           "Full project record. description and kpis are Notion rich-text objects; use rich_text[].plain_text for plain text.",
         additionalProperties: true,
+      },
+      CvOwnerPublic: {
+        type: "object",
+        required: [
+          "name",
+          "position",
+          "status",
+          "languages",
+          "education",
+          "city",
+          "available",
+        ],
+        properties: {
+          name: { type: "string", description: "Full name." },
+          position: {
+            type: "string",
+            description: "Current employment status (e.g. 'Self-Employed').",
+          },
+          status: {
+            type: "string",
+            description: "Role classification (e.g. 'Entrepreneur').",
+          },
+          languages: {
+            type: "string",
+            description:
+              "CV-formatted language list, including proficiency (e.g. 'German (native), English (business-fluent)').",
+          },
+          education: {
+            type: "string",
+            description: "Highest formal education entry.",
+          },
+          city: {
+            type: "string",
+            description: "City and country (e.g. 'Würzburg, Germany').",
+          },
+          available: {
+            type: "boolean",
+            description: "Whether currently available for new engagements.",
+          },
+        },
       },
       Facets: {
         type: "object",

@@ -1,6 +1,7 @@
 import { View, Text } from "@react-pdf/renderer";
 import { styles } from "./styles";
 import { CvProject } from "@/server/notion/getCvProjects";
+import { CvOwner } from "@/server/notion/getCvOwner";
 
 const rankByFrequency = (
   projects: CvProject[],
@@ -26,7 +27,20 @@ const Section = ({ label, children }: { label: string; children: string }) => (
   </View>
 );
 
-export const Sidebar = ({ projects }: { projects: CvProject[] }) => {
+const formatLocation = (owner: CvOwner): string => {
+  const { street, zip, city, country } = owner.address;
+  const streetLine = street;
+  const zipCity = [zip, city].filter(Boolean).join(" ");
+  return [streetLine, zipCity, country].filter(Boolean).join(" · ");
+};
+
+export const Sidebar = ({
+  projects,
+  owner,
+}: {
+  projects: CvProject[];
+  owner: CvOwner;
+}) => {
   const tools = rankByFrequency(projects, (p) => p.tools, 14).join(" · ");
   const industries = rankByFrequency(projects, (p) => p.industries, 5).join(
     " · ",
@@ -36,13 +50,9 @@ export const Sidebar = ({ projects }: { projects: CvProject[] }) => {
     <View style={styles.sidebar}>
       <Section label="Tools">{tools}</Section>
       <Section label="Industries">{industries}</Section>
-      <Section label="Languages">
-        Deutsch (Muttersprachlich) · English (Verhandlungssicher)
-      </Section>
-      <Section label="Location">Würzburg, DE · Remote / On-site</Section>
-      <Section label="Education">
-        B.Sc. E-Commerce · TH Würzburg-Schweinfurt · 2020
-      </Section>
+      <Section label="Languages">{owner.languages}</Section>
+      <Section label="Location">{formatLocation(owner)}</Section>
+      <Section label="Education">{owner.education}</Section>
     </View>
   );
 };

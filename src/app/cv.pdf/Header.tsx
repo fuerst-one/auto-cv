@@ -1,14 +1,20 @@
 import { View, Text } from "@react-pdf/renderer";
 import { styles } from "./styles";
+import { CvOwner } from "@/server/notion/getCvOwner";
 
-export const Header = () => (
+const formatHeaderLocation = (owner: CvOwner): string => {
+  const { city, country } = owner.address;
+  return [city, country].filter(Boolean).join(", ");
+};
+
+export const Header = ({ owner }: { owner: CvOwner }) => (
   <View>
-    <Text style={styles.name}>Alexander Fürst</Text>
+    <Text style={styles.name}>{owner.name}</Text>
     <Text style={styles.roleLine}>
-      UX+AI Engineer · Würzburg, DE · 8+ years
+      UX+AI Engineer · {formatHeaderLocation(owner)} · 8+ years
     </Text>
     <Text style={styles.contactLine}>
-      alexander@fuerst.one · linkedin.com/in/fuerst-one · github.com/fuerst-one
+      {owner.email} · linkedin.com/in/fuerst-one · github.com/fuerst-one
     </Text>
     <View style={styles.divider} />
     <Text style={styles.summary}>
