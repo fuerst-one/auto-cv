@@ -19,6 +19,7 @@ export const getAnimationFrame = ({
   zoomFactor,
   speedFactor,
   characters = CHARACTERS,
+  out,
 }: {
   width: number;
   height: number;
@@ -26,10 +27,12 @@ export const getAnimationFrame = ({
   zoomFactor: number;
   speedFactor: number;
   characters?: Glyph[];
+  out?: Float32Array;
 }) => {
   const frame: Glyph[][] = Array.from({ length: height }, () =>
     Array.from({ length: width }, () => ({ character: " " })),
   );
+  const lastRampIndex = Math.max(1, characters.length - 1);
 
   const sxs: number[] = Array.from({ length: complexity });
   const ys: number[] = Array.from({ length: complexity });
@@ -48,6 +51,9 @@ export const getAnimationFrame = ({
       }
       const index = mod(Math.floor(value), characters.length);
       frame[y][x] = characters[index];
+      if (out) {
+        out[y * width + x] = index / lastRampIndex;
+      }
       for (let i = 0; i < complexity; i++) {
         xs[i] -= 1;
       }

@@ -1,7 +1,8 @@
 import { LabelGroup } from "./types";
 
 const PLAY_PAUSE_FULL_LABEL = "play/pause";
-const TOP_LEFT_LABEL = "code";
+const TOP_LEFT_LABEL = "tinker";
+const CENTER_LABEL = "FUERST.ONE";
 const TOP_OUTER_PADDING = 1;
 
 export const CENTER_FONT_BOOST_PX = 2;
@@ -47,7 +48,7 @@ const topLeftLabelGroup: LabelGroup = {
   labels: [
     {
       label: TOP_LEFT_LABEL,
-      href: "https://github.com/fuerst-one/fuerst-one-website",
+      href: "/plasma",
     },
   ],
   yAlign: "top",
@@ -57,7 +58,7 @@ const topLeftLabelGroup: LabelGroup = {
 const getCenterLabelGroup = (fontPx: number): LabelGroup => ({
   labels: [
     {
-      label: "FUERST.ONE",
+      label: CENTER_LABEL,
       style: { fontWeight: 700, fontSize: fontPx + CENTER_FONT_BOOST_PX },
       href: "/cv",
     },
