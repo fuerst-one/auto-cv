@@ -218,6 +218,7 @@ export const buildOpenApiSpec = () => ({
           "education",
           "city",
           "available",
+          "avatarUrl",
         ],
         properties: {
           name: { type: "string", description: "Full name." },
@@ -245,6 +246,12 @@ export const buildOpenApiSpec = () => ({
           available: {
             type: "boolean",
             description: "Whether currently available for new engagements.",
+          },
+          avatarUrl: {
+            type: ["string", "null"],
+            format: "uri",
+            description:
+              "Stable public avatar image URL served via this site's image proxy. Bytes are streamed from Notion server-side; the upstream URL is never exposed.",
           },
         },
       },

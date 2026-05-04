@@ -5,7 +5,7 @@ export const CV_OWNER_CACHE_TAG = "cv-owner";
 
 export const getCachedCvOwner = unstable_cache(
   () => getCvOwner(),
-  ["cv-owner-v1"],
+  ["cv-owner-v4"],
   { tags: [CV_OWNER_CACHE_TAG], revalidate: false },
 );
 

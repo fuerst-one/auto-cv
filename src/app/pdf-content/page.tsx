@@ -1,4 +1,5 @@
 import { getCachedCvProjects } from "@/server/notion/getCachedCvProjects";
+import { getCachedCvOwnerPublic } from "@/server/notion/getCachedCvOwner";
 import { filterProjects } from "@/components/Cv/Projects/Filter/utils";
 import { getClaim } from "@/components/Cv/Projects/getClaim";
 import {
@@ -8,7 +9,6 @@ import {
 import { Suspense } from "react";
 import { ProjectFilters } from "@/components/Cv/Projects/Filter/ProjectFilters";
 import { ProjectCard } from "@/components/Cv/PDF/ProjectCard";
-import Image from "next/image";
 import { IconLink } from "@/components/IconLink";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
 import { FaLinkedin } from "@react-icons/all-files/fa/FaLinkedin";
@@ -20,7 +20,10 @@ export default async function PDFContent({
 }: {
   searchParams: Promise<ProjectSearchParams & { dark: string }>;
 }) {
-  const projects = await getCachedCvProjects();
+  const [projects, owner] = await Promise.all([
+    getCachedCvProjects(),
+    getCachedCvOwnerPublic(),
+  ]);
   const params = await searchParams;
 
   if (!projects?.length) {
@@ -38,24 +41,28 @@ export default async function PDFContent({
     <div className={params.dark ? "dark bg-gray-950 text-white" : ""}>
       <div className="container mx-auto max-w-screen-lg p-8">
         <header className="mb-24 text-center">
-          <Image
-            src="/avatar.png"
-            alt="Alexander Fuerst"
-            width={128}
-            height={128}
-            className="mx-auto mb-4 mt-12 h-32 w-32"
-          />
+          {owner.avatarUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={owner.avatarUrl}
+              alt={owner.name}
+              width={128}
+              height={128}
+              className="mx-auto mb-4 mt-12 h-32 w-32"
+            />
+          )}
           <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200">
             Alexander Fuerst
           </h1>
-          <p className="mb-6 text-xl text-secondary">Senior UI Engineer</p>
+          <p className="mb-6 text-xl text-secondary">Senior UX+AI Engineer</p>
           <p className="text-center text-xl text-gray-600 dark:text-gray-400">
             {claim}
           </p>
         </header>
         <section className="mb-24">
           <h2 className="mb-4 text-2xl font-semibold text-gray-800 dark:text-gray-200">
-            The aggregate of my 9 years work experience
+            The aggregate of my {new Date().getFullYear() - 2017} years of work
+            experience
           </h2>
           <Suspense fallback={null}>
             <ProjectFilters projects={projects} />

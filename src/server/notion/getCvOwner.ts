@@ -1,6 +1,9 @@
 import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { fetchNotionPage } from "./utils/fetchNotionPage";
 import { flattenNotionObject } from "./utils/flattenNotionObject";
+import { buildNotionImageProxyPath } from "./notionImageProxy";
+
+const AVATAR_PROPERTY_NAME = "Avatar";
 
 export type CvAddress = {
   street: string;
@@ -17,6 +20,7 @@ export type CvOwnerPublic = {
   education: string;
   city: string;
   available: boolean;
+  avatarUrl: string | null;
 };
 
 export type CvOwner = CvOwnerPublic & {
@@ -43,6 +47,13 @@ type NotionOwnerRow = {
   "Address ZIP"?: string;
   "Address City"?: string;
   "Address Country"?: string;
+  Avatar?: string | string[] | null;
+};
+
+const hasAvatar = (value: NotionOwnerRow["Avatar"]): boolean => {
+  if (!value) return false;
+  if (Array.isArray(value)) return value.length > 0;
+  return value.length > 0;
 };
 
 export const getCvOwner = async (): Promise<CvOwner> => {
@@ -80,6 +91,9 @@ export const getCvOwner = async (): Promise<CvOwner> => {
     phone: row.Phone ?? "",
     address,
     dailyRate: row["Daily Rate"] ?? 0,
+    avatarUrl: hasAvatar(row.Avatar)
+      ? buildNotionImageProxyPath(ownerId, AVATAR_PROPERTY_NAME)
+      : null,
   };
 };
 
@@ -91,4 +105,5 @@ export const toPublicOwner = (owner: CvOwner): CvOwnerPublic => ({
   education: owner.education,
   city: owner.city,
   available: owner.available,
+  avatarUrl: owner.avatarUrl,
 });

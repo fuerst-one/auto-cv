@@ -1,10 +1,10 @@
 import { ReactNode, Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { SiteFooter } from "./SiteFooter";
 import { BackToTopButton } from "./BackToTopButton";
+import { getCachedCvOwnerPublic } from "@/server/notion/getCachedCvOwner";
 
-export function Layout({
+export async function Layout({
   sidebarContent,
   topContent,
   children,
@@ -13,6 +13,7 @@ export function Layout({
   topContent?: ReactNode;
   children: ReactNode;
 }) {
+  const owner = await getCachedCvOwnerPublic();
   return (
     <div className="relative z-10 min-h-screen max-w-full">
       <div className="relative mx-auto flex w-full max-w-6xl flex-col px-2 py-12 sm:px-4 lg:px-6">
@@ -20,13 +21,16 @@ export function Layout({
           <div className="flex flex-wrap items-center justify-between gap-6">
             <Link href="/" className="flex items-center gap-4">
               <div className="relative h-20 w-20 border border-white/30 bg-black p-1">
-                <Image
-                  src="/avatar.png"
-                  alt="Alexander Fuerst"
-                  width={80}
-                  height={80}
-                  className="h-full w-full object-cover grayscale"
-                />
+                {owner.avatarUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={owner.avatarUrl}
+                    alt={owner.name}
+                    width={80}
+                    height={80}
+                    className="h-full w-full object-cover grayscale"
+                  />
+                )}
               </div>
               <div className="flex flex-col gap-0">
                 <span className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-400">
@@ -37,15 +41,15 @@ export function Layout({
                     Alexander Fuerst
                   </span>
                   <span className="text-xs uppercase tracking-[0.2em] text-neutral-400">
-                    creative technology · accessible aesthetics · converting
-                    interfaces
+                    creative technology · cogent interfaces · effective
+                    automation
                   </span>
                 </div>
               </div>
             </Link>
             <div className="flex items-center gap-3 border border-white/30 bg-black px-4 py-2 text-[0.7rem] uppercase tracking-[0.25em] text-neutral-200">
               <span className="inline-flex h-1.5 w-1.5 bg-white" />
-              UI Engineer
+              UX+AI Engineer
             </div>
           </div>
           <div className="h-px w-full bg-white/20" />

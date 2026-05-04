@@ -9,6 +9,21 @@ import { NotionClient, fetchNotionClient } from "./fetchNotionClient";
 import { fetchNotionContact, NotionContact } from "./fetchNotionContact";
 import { RichTextField } from "./types";
 import omit from "lodash/omit";
+import { buildNotionImageProxyPath } from "./notionImageProxy";
+
+const PROJECT_LOGO_PROPERTY = "Logo";
+const PROJECT_SCREENSHOTS_PROPERTY = "Screenshots";
+
+const toProxyUrls = (
+  pageId: string,
+  propertyName: string,
+  files: string[] | null,
+): string[] | null => {
+  if (!files?.length) return files;
+  return files.map((_, index) =>
+    buildNotionImageProxyPath(pageId, propertyName, index),
+  );
+};
 
 export type CvProject = {
   id: string;
@@ -126,6 +141,12 @@ const mergeProjectData = (
     );
     return {
       ...project,
+      logo: toProxyUrls(project.id, PROJECT_LOGO_PROPERTY, project.logo),
+      screenshots: toProxyUrls(
+        project.id,
+        PROJECT_SCREENSHOTS_PROPERTY,
+        project.screenshots,
+      ),
       clients: mappedClients.map((client) => omit(client, ["contacts"])),
     };
   });

@@ -5,8 +5,16 @@ import {
   checkRateLimit,
 } from "@/server/api/rateLimit";
 import { buildApiHeaders } from "@/server/api/responseHeaders";
+import { API_BASE_URL } from "@/server/api/baseUrl";
 
 export const runtime = "nodejs";
+
+const absolutizeImagePaths = (paths: string[] | null): string[] | null => {
+  if (!paths) return paths;
+  return paths.map((path) =>
+    path.startsWith("/") ? `${API_BASE_URL}${path}` : path,
+  );
+};
 
 export const GET = async (
   request: NextRequest,
@@ -26,5 +34,13 @@ export const GET = async (
     );
   }
 
-  return NextResponse.json(project, { headers: buildApiHeaders(rateLimit) });
+  const absoluteProject = {
+    ...project,
+    logo: absolutizeImagePaths(project.logo),
+    screenshots: absolutizeImagePaths(project.screenshots),
+  };
+
+  return NextResponse.json(absoluteProject, {
+    headers: buildApiHeaders(rateLimit),
+  });
 };
