@@ -59,7 +59,10 @@ const getCenterLabelGroup = (fontPx: number): LabelGroup => ({
   labels: [
     {
       label: CENTER_LABEL,
-      style: { fontWeight: 700, fontSize: fontPx + CENTER_FONT_BOOST_PX },
+      style: {
+        fontWeight: 700,
+        fontSize: fontPx + CENTER_FONT_BOOST_PX,
+      },
       href: "/cv",
     },
   ],
@@ -70,6 +73,7 @@ const bottomLabelGroup: LabelGroup = {
   labels: [
     { label: "contact", href: "/contact" },
     { label: "github", href: "https://github.com/fuerst-one" },
+    { label: "linkedin", href: "https://www.linkedin.com/in/fuerst-one" },
   ],
   yAlign: "bottom",
   flex: true,
