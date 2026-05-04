@@ -59,18 +59,18 @@ export default async function ContactPage() {
               alexander@fuerst.one
             </IconLink>
             <IconLink
-              href="https://www.linkedin.com/in/fuerst-one/"
-              icon={FaLinkedin}
-              className="flex-none"
-            >
-              LinkedIn
-            </IconLink>
-            <IconLink
               href="https://github.com/fuerst-one"
               icon={FaGithub}
               className="flex-none"
             >
               GitHub
+            </IconLink>
+            <IconLink
+              href="https://www.linkedin.com/in/fuerst-one/"
+              icon={FaLinkedin}
+              className="flex-none"
+            >
+              LinkedIn
             </IconLink>
           </div>
         </section>
