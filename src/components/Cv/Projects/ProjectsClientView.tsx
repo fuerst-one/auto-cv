@@ -49,9 +49,6 @@ export function ProjectsClientView({ projects }: { projects: CvProject[] }) {
         <div className="mb-8">
           <FilterSqlConsole filterParams={filterParams} projects={projects} />
         </div>
-        <div className="mb-8">
-          <ProjectAnalysisTabs projects={projects} />
-        </div>
         <div className="mb-12 space-y-5">
           <h2 className="text-3xl font-semibold text-white">{headline}</h2>
           <p className="max-w-2xl text-sm leading-relaxed text-neutral-400">
@@ -60,6 +57,9 @@ export function ProjectsClientView({ projects }: { projects: CvProject[] }) {
             filter, compare, and discover the collaborations, technologies, and
             results that drive real impact.
           </p>
+        </div>
+        <div className="mb-8">
+          <ProjectAnalysisTabs projects={projects} />
         </div>
         <div className="space-y-6">
           {featuredProjects.map((project) => (
