@@ -5,7 +5,6 @@ import { CvProject } from "@/server/notion/getCvProjects";
 import { FilterSqlConsole } from "./Filter/FilterSqlConsole";
 import { ProjectCard } from "./ProjectCard";
 import { ProjectCollapse } from "./ProjectCollapse";
-import { ProjectSearchParams } from "./parseSearchParams";
 import { filterProjects } from "./Filter/utils";
 import { filterConfigs } from "./filterConfigs";
 import { FiltersUrlSync } from "./FiltersUrlSync";
@@ -13,13 +12,7 @@ import { useFiltersStore } from "./filtersStore";
 
 const SLICE_DEFAULT = 8;
 
-export function ProjectsClientView({
-  projects,
-  initialSearchParams,
-}: {
-  projects: CvProject[];
-  initialSearchParams: ProjectSearchParams;
-}) {
+export function ProjectsClientView({ projects }: { projects: CvProject[] }) {
   const filterParams = useFiltersStore((s) => s.filters);
   const filteredProjects = useMemo(
     () => filterProjects(projects, filterParams),
@@ -50,7 +43,7 @@ export function ProjectsClientView({
 
   return (
     <div className="pl-1 pr-1 lg:pl-4 lg:pr-4">
-      <FiltersUrlSync initialSearchParams={initialSearchParams} />
+      <FiltersUrlSync />
       <div className="mb-12 space-y-5">
         <span className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-400">
           Project Index

@@ -37,7 +37,7 @@ export default async function Cv({
       }
       topContent={<LogoMarquee projects={projects} />}
     >
-      <ProjectsClientView projects={projects} initialSearchParams={params} />
+      <ProjectsClientView projects={projects} />
     </Layout>
   );
 }

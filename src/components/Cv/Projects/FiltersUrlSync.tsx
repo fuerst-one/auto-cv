@@ -1,49 +1,57 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useFiltersStore } from "./filtersStore";
-import {
-  parseProjectSearchParams,
-  ProjectSearchParams,
-} from "./parseSearchParams";
+import { parseProjectSearchParams } from "./parseSearchParams";
+import { FilterParams } from "./Filter/utils";
 
-export const FiltersUrlSync = ({
-  initialSearchParams,
-}: {
-  initialSearchParams: ProjectSearchParams;
-}) => {
+const filtersToSearchString = (filters: FilterParams) => {
+  const params = new URLSearchParams();
+  Object.entries(filters)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .forEach(([key, values]) => {
+      if (values?.length) params.set(key, values.join(","));
+    });
+  return params.toString();
+};
+
+export const FiltersUrlSync = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const filters = useFiltersStore((s) => s.filters);
   const setFilters = useFiltersStore((s) => s.setFilters);
 
-  // 1) Hydrate store from server-provided search params on mount
-  useEffect(() => {
-    setFilters(parseProjectSearchParams(initialSearchParams));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const lastSyncedSearchRef = useRef<string | null>(null);
 
-  // 2) When URL changes (back/forward), update store
   useEffect(() => {
-    const fromUrl = parseProjectSearchParams(
-      Object.fromEntries(searchParams.entries()) as ProjectSearchParams,
-    );
-    setFilters(fromUrl);
-  }, [searchParams, setFilters]);
+    const urlSearch = searchParams.toString();
+    const filtersSearch = filtersToSearchString(filters);
 
-  // 3) When store changes (user interactions), update URL without scroll
-  useEffect(() => {
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, values]) => {
-      if (values?.length) params.set(key, values.join(","));
-    });
-    const search = params.toString();
-    router.replace(search ? `${pathname}?${search}` : pathname, {
+    if (urlSearch === filtersSearch) {
+      lastSyncedSearchRef.current = urlSearch;
+      return;
+    }
+
+    // First run, or URL changed externally (back/forward, link nav) — URL wins.
+    if (
+      lastSyncedSearchRef.current === null ||
+      urlSearch !== lastSyncedSearchRef.current
+    ) {
+      lastSyncedSearchRef.current = urlSearch;
+      setFilters(
+        parseProjectSearchParams(Object.fromEntries(searchParams.entries())),
+      );
+      return;
+    }
+
+    // URL is in sync with the last reconciliation, so the store changed — push to URL.
+    lastSyncedSearchRef.current = filtersSearch;
+    router.replace(filtersSearch ? `${pathname}?${filtersSearch}` : pathname, {
       scroll: false,
     });
-  }, [filters, pathname, router]);
+  }, [searchParams, filters, setFilters, pathname, router]);
 
   return null;
 };
