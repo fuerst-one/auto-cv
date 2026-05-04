@@ -11,6 +11,8 @@ import { FaChartLine } from "@react-icons/all-files/fa/FaChartLine";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
 import { ProjectScreenshots } from "./ProjectScreenshots";
 import { getProjectLogoSources } from "./getProjectLogoSources";
+import { colors } from "./colors";
+import { cn } from "@/lib/utils";
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -31,14 +33,26 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
 
   const logos = getProjectLogoSources(project);
   const primaryLogo = logos[0];
+  const color = colors.projectType?.[projectType];
 
   return (
     <article className="group relative border border-white/30 bg-black/85 p-6 transition hover:border-white">
       <div className="relative flex items-start justify-between gap-4">
         <header className="space-y-3">
           <div className="space-y-1">
-            <span className="inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-400">
-              <span className="h-1 w-1 bg-white" />
+            <span
+              className={cn(
+                "inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.2em]",
+                color?.text,
+              )}
+            >
+              <span
+                className={cn(
+                  "inline-block size-2 shrink-0 rounded-[50%] border",
+                  color?.background,
+                  color?.border,
+                )}
+              />
               {projectType}
             </span>
             <h3 className="text-2xl font-semibold text-white">{name}</h3>
@@ -71,7 +85,7 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
             )}
           </div>
         </header>
-        <div className="flex shrink-0 items-center justify-center border border-white/30 bg-black px-3 py-2 text-neutral-200 print:hidden">
+        <div className="flex shrink-0 items-center justify-center border border-white/30 bg-white/20 px-3 py-2 text-neutral-200 print:hidden">
           {primaryLogo ? (
             <div className="h-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}

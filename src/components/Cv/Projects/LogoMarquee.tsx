@@ -18,14 +18,14 @@ export const LogoMarquee = ({ projects }: { projects: CvProject[] }) => {
   const animationDurationSeconds = Math.max(uniqueLogos.length * 4, 24);
 
   return (
-    <div className="relative overflow-hidden border border-white/20 bg-black/60 px-8">
+    <div className="relative overflow-hidden border border-white/20 bg-white/20 px-8">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black via-black/80 to-transparent"
+        className="pointer-events-none absolute inset-y-0 left-0 w-32"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black via-black/80 to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 w-32"
       />
       <div
         className="flex w-max items-center gap-12 py-3 motion-safe:animate-marquee"
