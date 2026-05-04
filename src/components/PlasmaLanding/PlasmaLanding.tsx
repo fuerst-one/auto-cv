@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FrameBounds } from "../Plasma/types";
 import { useInterval } from "../Plasma/useInterval";
 import { getIsReducedMotion } from "../Plasma/getIsReducedMotion";
@@ -10,6 +10,9 @@ import { getResponsivePlacements } from "./getResponsivePlacements";
 import {
   LANDING_CHARACTERS,
   PLASMA_FPS,
+  PLASMA_LANDING_LENS_SCALE,
+  PLASMA_LANDING_LENS_X_FRAC,
+  PLASMA_LANDING_LENS_Y_FRAC,
   PLASMA_REDUCED_FPS,
 } from "../Plasma/constants";
 import { PlasmaCanvas, PlasmaCanvasHandle } from "../Plasma/PlasmaCanvas";
@@ -76,15 +79,28 @@ const Frame = ({ bounds, cellSize, fontPx }: FrameProps) => {
     return getResponsivePlacements(bounds, groups);
   }, [bounds, isPlaying, fontPx]);
 
+  const applyStaticLens = useCallback(() => {
+    if (!bounds) {
+      return;
+    }
+    canvasRef.current?.setLensScale(PLASMA_LANDING_LENS_SCALE);
+    canvasRef.current?.setCursor(
+      bounds.width * PLASMA_LANDING_LENS_X_FRAC,
+      bounds.height * PLASMA_LANDING_LENS_Y_FRAC,
+    );
+  }, [bounds]);
+
   useEffect(() => {
     if (bounds) {
+      applyStaticLens();
       canvasRef.current?.renderPlasma();
     }
-  }, [bounds]);
+  }, [bounds, applyStaticLens]);
 
   useInterval(
     () => {
       if (bounds && isPlaying) {
+        applyStaticLens();
         canvasRef.current?.renderPlasma();
       }
     },

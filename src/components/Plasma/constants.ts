@@ -46,6 +46,9 @@ export const PLASMA_LENS_SCALE_DEFAULT = 1.0;
 export const PLASMA_LENS_SCALE_MIN = 0;
 export const PLASMA_LENS_SCALE_MAX = 12;
 export const PLASMA_LENS_WHEEL_SENSITIVITY = 0.01;
+export const PLASMA_LANDING_LENS_SCALE = 3;
+export const PLASMA_LANDING_LENS_X_FRAC = 0.5;
+export const PLASMA_LANDING_LENS_Y_FRAC = 0.48;
 
 export const PLASMA_RIPPLE_MAX = 6;
 export const PLASMA_RIPPLE_RADIUS_FRAC = 0.4;
