@@ -3,7 +3,7 @@ import { FilterParams, filterProjects } from "./Projects/Filter/utils";
 
 export type CvPresetId =
   | "highlights"
-  | "frontend"
+  | "fullstack"
   | "dataviz"
   | "conversion"
   | "all";
@@ -18,6 +18,13 @@ export type CvPreset = {
 };
 
 export const CV_PRESETS: Record<CvPresetId, CvPreset> = {
+  all: {
+    id: "all",
+    label: "All",
+    description: "The full archive — every project listed.",
+    headline: "Every project, end to end — the complete archive.",
+    filter: {},
+  },
   highlights: {
     id: "highlights",
     label: "Highlights",
@@ -26,12 +33,12 @@ export const CV_PRESETS: Record<CvPresetId, CvPreset> = {
     filter: { featured: ["true"] },
     topN: 4,
   },
-  frontend: {
-    id: "frontend",
+  fullstack: {
+    id: "fullstack",
     label: "Full-Stack",
     description: "From business logic to UI — full products.",
     headline: "Full-stack builds, from data model to polished UI.",
-    filter: { tools: ["Next.js", "Node", "Laravel"] },
+    filter: { experiences: ["Fullstack-Development"] },
     topN: 6,
   },
   dataviz: {
@@ -39,7 +46,7 @@ export const CV_PRESETS: Record<CvPresetId, CvPreset> = {
     label: "Data Viz",
     description: "Maps, Charts, Canvases — data-driven design.",
     headline: "Transforming your bits and bytes to actionable design.",
-    filter: { tools: ["DeckGL", "Cosmograph", "ECharts"] },
+    filter: { experiences: ["Geospatial Visualization", "Data Visualization"] },
     topN: 6,
   },
   conversion: {
@@ -53,21 +60,14 @@ export const CV_PRESETS: Record<CvPresetId, CvPreset> = {
     },
     topN: 6,
   },
-  all: {
-    id: "all",
-    label: "All",
-    description: "The full archive — every project listed.",
-    headline: "Every project, end to end — the complete archive.",
-    filter: {},
-  },
 };
 
 export const CV_PRESET_ORDER: CvPresetId[] = [
+  "all",
   "highlights",
-  "frontend",
+  "fullstack",
   "dataviz",
   "conversion",
-  "all",
 ];
 
 export const DEFAULT_PRESET_ID: CvPresetId = "highlights";

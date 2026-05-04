@@ -10,6 +10,7 @@ import { fetchNotionContact, NotionContact } from "./fetchNotionContact";
 import { RichTextField } from "./types";
 import omit from "lodash/omit";
 import { buildNotionImageProxyPath } from "./notionImageProxy";
+import { embedProjectsTo3D } from "./embedProjectsTo3D";
 
 const PROJECT_LOGO_PROPERTY = "Logo";
 const PROJECT_SCREENSHOTS_PROPERTY = "Screenshots";
@@ -46,6 +47,7 @@ export type CvProject = {
   languages: string[];
   workplace: string;
   clients: CvClient[];
+  position3d: [number, number, number];
 };
 
 export type CvClient = {
@@ -69,7 +71,7 @@ export const getCvProjects = async () => {
     const projects = await fetchNotionProjectsDatabase();
     const clients = await getClientsFromNotionProjects(projects);
     const contacts = await getContactsFromNotionClients(clients);
-    return mergeProjectData(projects, clients, contacts)
+    const merged = mergeProjectData(projects, clients, contacts)
       .sort((a, b) => {
         if (a.endDate === null) return -1;
         if (b.endDate === null) return 1;
@@ -78,6 +80,7 @@ export const getCvProjects = async () => {
       .sort((a, b) => {
         return b.wowFactor - a.wowFactor;
       });
+    return embedProjectsTo3D(merged);
   } catch (error) {
     console.error(error);
     return [];
@@ -108,7 +111,7 @@ const mergeProjectData = (
   projects: NotionProject[],
   clients: NotionClient[],
   contacts: NotionContact[],
-): CvProject[] => {
+): Omit<CvProject, "position3d">[] => {
   const cvContacts = contacts.map((contact) => ({
     id: contact.id,
     name: contact["Name 1"] ?? "Unknown",
