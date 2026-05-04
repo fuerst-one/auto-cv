@@ -12,9 +12,9 @@ export const ProjectFilters = ({ projects }: { projects: CvProject[] }) => {
       {filterConfigs.map((filterConfig) => (
         <div
           key={filterConfig.projectKey}
-          className="border border-white/20 bg-black/60 p-5"
+          className="border border-white/20 bg-black/60 p-3"
         >
-          <h2 className="text-md mb-3 text-xs uppercase tracking-[0.3em] text-neutral-300">
+          <h2 className="text-md mb-2 text-xs uppercase tracking-[0.3em] text-neutral-300">
             {filterConfig.label}
           </h2>
           <Filter filterConfig={filterConfig} projects={projects} />

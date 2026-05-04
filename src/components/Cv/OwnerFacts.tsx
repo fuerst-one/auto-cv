@@ -15,16 +15,6 @@ const FactRow = ({
   </div>
 );
 
-const AvailableBadge = () => (
-  <span className="inline-flex items-center gap-1.5 text-[0.7rem] uppercase tracking-[0.2em] text-emerald-300">
-    <span
-      aria-hidden
-      className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_currentColor]"
-    />
-    Available
-  </span>
-);
-
 export const OwnerFacts = ({ owner }: { owner: CvOwnerPublic }) => {
   const statusLine = [owner.position, owner.status].filter(Boolean).join(" · ");
 
@@ -42,7 +32,6 @@ export const OwnerFacts = ({ owner }: { owner: CvOwnerPublic }) => {
           <FactRow label="Education">{owner.education}</FactRow>
         )}
         {owner.city && <FactRow label="Location">{owner.city}</FactRow>}
-        {owner.available && <AvailableBadge />}
       </div>
     </div>
   );

@@ -6,7 +6,14 @@ import { useFiltersStore } from "../filtersStore";
 import clsx from "clsx";
 import { CvProject } from "@/server/notion/getCvProjects";
 import { FilterParams, filterProjects } from "./utils";
-import { CV_PRESETS, CV_PRESET_ORDER, CvPreset } from "../../cvPresets";
+import {
+  CV_PRESETS,
+  CV_PRESET_ORDER,
+  CvPreset,
+  findActivePreset,
+  normalizeFilters,
+  NormalizedFilters,
+} from "../../cvPresets";
 
 const ARRAY_COLUMNS: (keyof FilterParams)[] = [
   "industries",
@@ -169,61 +176,84 @@ export const FilterSqlConsole = ({
 
   return (
     <div className="border border-white/20 bg-black/85 p-5">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-xs uppercase tracking-[0.3em] text-neutral-300">
-            Project query console
-          </h3>
-          <span className="text-[0.65rem] text-neutral-500">SELECT mode</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="border border-white/30 bg-black px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200">
-            {resultsCount} results
-          </span>
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 border border-white/30 bg-black px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200 transition hover:border-white hover:text-white"
-            onClick={() => {
-              resetFilters();
-              router.replace("/", { scroll: false });
-            }}
-          >
-            Reset filters
-          </button>
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 border border-white/30 bg-black px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200 transition hover:border-white hover:text-white"
-            onClick={() => setIsExpanded((prev) => !prev)}
-            aria-expanded={isExpanded}
-            aria-controls={panelId}
-          >
-            {isExpanded ? "Collapse" : "Expand"}
-            <span
+      <div className="flex flex-wrap items-center gap-2">
+        {CV_PRESET_ORDER.map((id) => {
+          const preset = CV_PRESETS[id];
+          const isActive = activePresetId === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => handleApplyPreset(preset)}
+              aria-pressed={isActive}
+              title={preset.description}
               className={clsx(
-                "transition-transform",
-                isExpanded ? "rotate-180" : "rotate-0",
+                "border px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] transition",
+                isActive
+                  ? "border-white bg-white/10 text-white"
+                  : "border-white/30 bg-black text-neutral-200 hover:border-white hover:text-white",
               )}
-              aria-hidden="true"
             >
-              ▾
-            </span>
-          </button>
-        </div>
-      </div>
-      <div className="mt-4 border border-white/20 bg-black p-4 text-[0.8rem] leading-relaxed text-neutral-100">
-        <span className="mr-2 text-neutral-500">&gt;</span>
-        <pre className="inline whitespace-pre-wrap break-words text-neutral-100">
-          {sqlStatement}
-        </pre>
+              {preset.label}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 border border-white/30 bg-black px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200 transition hover:border-white hover:text-white"
+          onClick={() => setIsExpanded((prev) => !prev)}
+          aria-expanded={isExpanded}
+          aria-controls={panelId}
+        >
+          {isExpanded ? "Close" : "Filter"}
+          <span
+            className={clsx(
+              "transition-transform",
+              isExpanded ? "rotate-180" : "rotate-0",
+            )}
+            aria-hidden="true"
+          >
+            ▾
+          </span>
+        </button>
       </div>
       <div
         id={panelId}
-        className={clsx("mt-5", !isExpanded && "hidden")}
+        className={clsx(
+          "mt-3 border-t border-white/20 pt-3",
+          !isExpanded && "hidden",
+        )}
         aria-hidden={!isExpanded}
       >
         {isExpanded && (
           <>
-            <div className="mb-3 flex flex-wrap items-center gap-2 text-[0.7rem] uppercase tracking-[0.25em] text-neutral-400">
+            <div className="flex items-center justify-between gap-4">
+              <h3 className="text-xs uppercase tracking-[0.2em] text-neutral-300">
+                Project query console
+              </h3>
+              <div className="flex items-center gap-2">
+                <span className="bg-black px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200">
+                  {resultsCount} results
+                </span>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 border border-white/30 bg-black px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-neutral-200 transition hover:border-white hover:text-white"
+                  onClick={() => {
+                    resetFilters();
+                    router.replace("/", { scroll: false });
+                  }}
+                >
+                  Reset filters
+                </button>
+              </div>
+            </div>
+            <div className="mt-4 border border-white/20 bg-black p-4 text-[0.8rem] leading-relaxed text-neutral-100">
+              <span className="mr-2 text-neutral-500">&gt;</span>
+              <pre className="inline whitespace-pre-wrap break-words text-neutral-100">
+                {sqlStatement}
+              </pre>
+            </div>
+            <div className="my-3 flex flex-wrap items-center gap-2 text-[0.7rem] uppercase tracking-[0.25em] text-neutral-400">
               <span>Active filters</span>
               <div className="flex flex-wrap gap-2">
                 {activeFilters.length ? (
@@ -323,32 +353,6 @@ export const FilterSqlConsole = ({
           </>
         )}
       </div>
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="text-[0.65rem] uppercase tracking-[0.25em] text-neutral-400">
-          Preset
-        </span>
-        {CV_PRESET_ORDER.map((id) => {
-          const preset = CV_PRESETS[id];
-          const isActive = activePresetId === id;
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => handleApplyPreset(preset)}
-              aria-pressed={isActive}
-              title={preset.description}
-              className={clsx(
-                "border px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] transition",
-                isActive
-                  ? "border-white bg-white/10 text-white"
-                  : "border-white/30 bg-black text-neutral-200 hover:border-white hover:text-white",
-              )}
-            >
-              {preset.label}
-            </button>
-          );
-        })}
-      </div>
     </div>
   );
 };
@@ -427,46 +431,6 @@ const buildOptionsForKey = (
       }
       return b.count - a.count;
     });
-};
-
-type NormalizedFilters = Record<string, string[]>;
-
-const findActivePreset = (filters: NormalizedFilters) => {
-  const filterKeys = Object.keys(filters).sort();
-  for (const id of CV_PRESET_ORDER) {
-    const preset = CV_PRESETS[id];
-    const presetKeys = Object.keys(preset.filter).sort();
-    if (presetKeys.length !== filterKeys.length) {
-      continue;
-    }
-    if (presetKeys.some((k, i) => k !== filterKeys[i])) {
-      continue;
-    }
-    const allMatch = presetKeys.every((key) => {
-      const presetValues = [...(preset.filter[key as keyof FilterParams] ?? [])]
-        .map((v) => v.toLowerCase())
-        .sort();
-      const currentValues = [...(filters[key] ?? [])]
-        .map((v) => v.toLowerCase())
-        .sort();
-      if (presetValues.length !== currentValues.length) {
-        return false;
-      }
-      return presetValues.every((v, i) => v === currentValues[i]);
-    });
-    if (allMatch) {
-      return id;
-    }
-  }
-  return null;
-};
-
-const normalizeFilters = (filters: FilterParams): NormalizedFilters => {
-  return Object.fromEntries(
-    Object.entries(filters)
-      .filter(([, values]) => values && values.length)
-      .map(([key, values]) => [key, Array.from(new Set(values)).sort()]),
-  );
 };
 
 const formatColumnName = (column: string) => {

@@ -11,12 +11,8 @@ export function ProjectAnalysisPanel({ projects }: { projects: CvProject[] }) {
     <div className="space-y-3 print:hidden">
       <div className="space-y-1">
         <span className="text-[0.65rem] uppercase tracking-[0.3em] text-neutral-400">
-          Project Analysis
+          Project Breakdown
         </span>
-        <p className="text-xs text-neutral-400">
-          Explore the collaborations, stacks, and outcomes fueling my recent
-          work.
-        </p>
       </div>
       <Suspense
         fallback={

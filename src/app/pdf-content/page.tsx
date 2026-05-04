@@ -1,7 +1,6 @@
 import { getCachedCvProjects } from "@/server/notion/getCachedCvProjects";
 import { getCachedCvOwnerPublic } from "@/server/notion/getCachedCvOwner";
 import { filterProjects } from "@/components/Cv/Projects/Filter/utils";
-import { getClaim } from "@/components/Cv/Projects/getClaim";
 import {
   ProjectSearchParams,
   parseProjectSearchParams,
@@ -35,8 +34,6 @@ export default async function PDFContent({
     ...filterParams,
     ...(!Object.keys(filterParams).length && { featured: ["true"] }),
   });
-  const claim = getClaim(filterParams);
-
   return (
     <div className={params.dark ? "dark bg-gray-950 text-white" : ""}>
       <div className="container mx-auto max-w-screen-lg p-8">
@@ -55,9 +52,6 @@ export default async function PDFContent({
             Alexander Fuerst
           </h1>
           <p className="mb-6 text-xl text-secondary">Senior UX+AI Engineer</p>
-          <p className="text-center text-xl text-gray-600 dark:text-gray-400">
-            {claim}
-          </p>
         </header>
         <section className="mb-24">
           <h2 className="mb-4 text-2xl font-semibold text-gray-800 dark:text-gray-200">

@@ -2,23 +2,23 @@ import { FilterConfig } from "./Filter/types";
 
 export const filterConfigs: FilterConfig[] = [
   {
-    label: "Areas of expertise",
+    label: "Fields",
     projectKey: "experiences",
     displayType: "treemap",
   },
   {
-    label: "Clients' industries",
+    label: "Industries",
     projectKey: "industries",
     displayType: "treemap",
   },
   {
-    label: "Tools used in projects",
-    projectKey: "tools",
-    displayType: "bar",
-  },
-  {
-    label: "Project types",
+    label: "Types",
     projectKey: "projectType",
     displayType: "pie",
+  },
+  {
+    label: "Tools",
+    projectKey: "tools",
+    displayType: "bar",
   },
 ];

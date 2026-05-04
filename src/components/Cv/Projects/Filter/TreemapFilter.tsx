@@ -42,7 +42,7 @@ export const TreemapFilter = ({
   }, [itemCounts, itemsLength]);
 
   return (
-    <div className="flex h-[210px] w-full items-start justify-center">
+    <div className="flex h-[120px] w-full items-start justify-center">
       <div className="h-full w-full overflow-hidden">
         <ClientChartWrapper
           projectKey={projectKey}

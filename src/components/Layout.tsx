@@ -6,18 +6,16 @@ import { getCachedCvOwnerPublic } from "@/server/notion/getCachedCvOwner";
 
 export async function Layout({
   sidebarContent,
-  topContent,
   children,
 }: {
   sidebarContent?: ReactNode;
-  topContent?: ReactNode;
   children: ReactNode;
 }) {
   const owner = await getCachedCvOwnerPublic();
   return (
     <div className="relative z-10 min-h-screen max-w-full">
       <div className="relative mx-auto flex w-full max-w-6xl flex-col px-2 py-12 sm:px-4 lg:px-6">
-        <header className="flex flex-col gap-6 text-sm text-neutral-300">
+        <header className="mb-12 flex flex-col gap-6 text-sm text-neutral-300">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <Link href="/" className="flex items-center gap-4">
               <div className="relative h-20 w-20 border border-white/30 bg-black p-1">
@@ -47,15 +45,23 @@ export async function Layout({
                 </div>
               </div>
             </Link>
-            <div className="flex items-center gap-3 border border-white/30 bg-black px-4 py-2 text-[0.7rem] uppercase tracking-[0.25em] text-neutral-200">
-              <span className="inline-flex h-1.5 w-1.5 bg-white" />
-              UX+AI Engineer
+            <div className="flex flex-col items-end gap-2">
+              <div className="border border-white/30 bg-black px-4 py-2 text-[0.7rem] uppercase tracking-[0.25em] text-neutral-200">
+                UX+AI Engineer
+              </div>
+              {owner.available && (
+                <span className="inline-flex items-center gap-1.5 text-[0.7rem] uppercase tracking-[0.2em] text-emerald-300">
+                  <span
+                    aria-hidden
+                    className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_currentColor]"
+                  />
+                  Available
+                </span>
+              )}
             </div>
           </div>
           <div className="h-px w-full bg-white/20" />
         </header>
-
-        {topContent && <div className="relative mb-12 mt-6">{topContent}</div>}
 
         {sidebarContent ? (
           <div className="grid grid-cols-1 lg:grid-cols-[360px,1fr] lg:gap-8 xl:gap-16">
