@@ -9,7 +9,7 @@ import { filterProjects } from "./Filter/utils";
 import { FiltersUrlSync } from "./FiltersUrlSync";
 import { useFiltersStore } from "./filtersStore";
 import { CV_PRESETS, findActivePreset, normalizeFilters } from "../cvPresets";
-import { ProjectGraph3D } from "./ProjectGraph3D";
+import { ProjectAnalysisTabs } from "./ProjectAnalysisTabs";
 import { ProjectFocusUrlSync } from "./ProjectFocusUrlSync";
 import { useProjectFocusStore } from "./projectFocusStore";
 import { FaArrowLeft } from "@react-icons/all-files/fa/FaArrowLeft";
@@ -56,7 +56,7 @@ export function ProjectsClientView({ projects }: { projects: CvProject[] }) {
           <FilterSqlConsole filterParams={filterParams} projects={projects} />
         </div>
         <div className="mb-8">
-          <ProjectGraph3D projects={projects} />
+          <ProjectAnalysisTabs projects={projects} />
         </div>
         {focusedProject ? (
           <FocusedProjectView

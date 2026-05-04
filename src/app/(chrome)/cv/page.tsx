@@ -5,7 +5,6 @@ import { getCachedCvProjects } from "@/server/notion/getCachedCvProjects";
 import { getCachedCvOwnerPublic } from "@/server/notion/getCachedCvOwner";
 import { Intro } from "@/components/Cv/Intro";
 import { OwnerFacts } from "@/components/Cv/OwnerFacts";
-import { ProjectAnalysisPanel } from "@/components/Cv/Projects/Filter/ProjectAnalysisPanel";
 
 export const revalidate = false;
 
@@ -22,7 +21,6 @@ export default async function Cv() {
           <Intro />
           <LogoMarquee projects={projects} />
           <OwnerFacts owner={owner} />
-          <ProjectAnalysisPanel projects={projects} />
         </>
       }
     >

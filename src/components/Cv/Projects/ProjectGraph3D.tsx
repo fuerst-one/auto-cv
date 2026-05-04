@@ -56,7 +56,7 @@ export const ProjectGraph3D = ({ projects }: { projects: CvProject[] }) => {
   if (projects.length === 0) return null;
 
   return (
-    <div className="relative h-[30vh] w-full overflow-hidden border border-white/30 bg-black/50">
+    <div className="relative h-full w-full overflow-hidden">
       <Canvas
         camera={{ position: [0, 0, 6], fov: 45 }}
         dpr={[1, 2]}
