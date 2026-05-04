@@ -1,6 +1,5 @@
 import { LabelGroup } from "../Plasma/types";
 
-const PLAY_PAUSE_FULL_LABEL = "play/pause";
 const TOP_LEFT_LABEL = "tinker";
 const CENTER_LABEL = "FUERST.ONE";
 const TOP_OUTER_PADDING = 1;
@@ -26,14 +25,14 @@ const getPlayPauseLabelGroup = (
 ): LabelGroup => {
   const icon = isPlaying ? "⏸" : "⏵";
   const fullLabels = [
-    { label: PLAY_PAUSE_FULL_LABEL, onClick },
+    { label: isPlaying ? "Pause" : "Play", onClick },
     { label: icon, onClick },
   ];
   const compactLabels = [{ label: icon, onClick }];
 
   // Reserve space for top-left "code" + outer paddings + a 1-cell breathing gap
   const reservedForLeft = TOP_LEFT_LABEL.length + TOP_OUTER_PADDING * 2 + 1;
-  const fullWidth = PLAY_PAUSE_FULL_LABEL.length + 1 + icon.length; // padding=1
+  const fullWidth = fullLabels[0].label.length + 1 + icon.length; // padding=1
   const fitsFull = fullWidth + reservedForLeft <= availableWidth;
 
   return {
@@ -71,9 +70,10 @@ const getCenterLabelGroup = (fontPx: number): LabelGroup => ({
 
 const bottomLabelGroup: LabelGroup = {
   labels: [
-    { label: "contact", href: "/contact" },
-    { label: "github", href: "https://github.com/fuerst-one" },
-    { label: "linkedin", href: "https://www.linkedin.com/in/fuerst-one" },
+    { label: "CV", href: "/cv" },
+    { label: "Contact", href: "/contact" },
+    { label: "GitHub", href: "https://github.com/fuerst-one" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/fuerst-one" },
   ],
   yAlign: "bottom",
   flex: true,
