@@ -2,8 +2,9 @@ import { CvProject } from "@/server/notion/getCvProjects";
 import { FilterParams, filterProjects } from "./Projects/Filter/utils";
 
 export type CvPresetId =
-  | "highlights"
+  | "featured"
   | "fullstack"
+  | "ai"
   | "dataviz"
   | "conversion"
   | "all";
@@ -25,9 +26,9 @@ export const CV_PRESETS: Record<CvPresetId, CvPreset> = {
     headline: "Every project, end to end — the complete archive.",
     filter: {},
   },
-  highlights: {
-    id: "highlights",
-    label: "Highlights",
+  featured: {
+    id: "featured",
+    label: "Featured",
     description: "Greatest hits — top featured projects.",
     headline: "Hand-picked: the projects I'd show first in a meeting.",
     filter: { featured: ["true"] },
@@ -35,10 +36,24 @@ export const CV_PRESETS: Record<CvPresetId, CvPreset> = {
   },
   fullstack: {
     id: "fullstack",
-    label: "Full-Stack",
+    label: "Fullstack",
     description: "From business logic to UI — full products.",
-    headline: "Full-stack builds, from data model to polished UI.",
+    headline: "Fullstack builds, from data model to polished UI.",
     filter: { experiences: ["Fullstack-Development"] },
+    topN: 6,
+  },
+  ai: {
+    id: "ai",
+    label: "AI",
+    description: "AI-powered projects — from data to insights.",
+    headline: "AI-powered projects — from data to insights.",
+    filter: {
+      experiences: [
+        "Artificial Intelligence",
+        "AI Engineering",
+        "Agent Harnesses",
+      ],
+    },
     topN: 6,
   },
   dataviz: {
@@ -51,7 +66,7 @@ export const CV_PRESETS: Record<CvPresetId, CvPreset> = {
   },
   conversion: {
     id: "conversion",
-    label: "CRO & A11y",
+    label: "UX/UI",
     description:
       "Where behavioral psychology meets the funnel — CRO work across industries.",
     headline: "Persuasive, accessible, conversion-driven design.",
@@ -64,13 +79,14 @@ export const CV_PRESETS: Record<CvPresetId, CvPreset> = {
 
 export const CV_PRESET_ORDER: CvPresetId[] = [
   "all",
-  "highlights",
+  "featured",
   "fullstack",
+  "ai",
   "dataviz",
   "conversion",
 ];
 
-export const DEFAULT_PRESET_ID: CvPresetId = "highlights";
+export const DEFAULT_PRESET_ID: CvPresetId = "featured";
 
 export const isCvPresetId = (value: unknown): value is CvPresetId =>
   typeof value === "string" && value in CV_PRESETS;
