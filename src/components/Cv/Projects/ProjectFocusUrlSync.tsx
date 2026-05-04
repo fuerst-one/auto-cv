@@ -15,24 +15,25 @@ export const ProjectFocusUrlSync = () => {
     (s) => s.setFocusedProjectId,
   );
 
-  const lastSyncedRef = useRef<string | null>(null);
+  const previousUrlFocus = useRef<string | null>(searchParams.get(FOCUS_PARAM));
 
   useEffect(() => {
     const urlFocus = searchParams.get(FOCUS_PARAM);
     const storeFocus = focusedProjectId;
 
+    if (urlFocus !== previousUrlFocus.current) {
+      previousUrlFocus.current = urlFocus;
+      if (urlFocus !== storeFocus) {
+        setFocusedProjectId(urlFocus);
+      }
+      return;
+    }
+
     if (urlFocus === storeFocus) {
-      lastSyncedRef.current = urlFocus;
       return;
     }
 
-    if (lastSyncedRef.current === null || urlFocus !== lastSyncedRef.current) {
-      lastSyncedRef.current = urlFocus;
-      setFocusedProjectId(urlFocus);
-      return;
-    }
-
-    lastSyncedRef.current = storeFocus;
+    previousUrlFocus.current = storeFocus;
     const next = new URLSearchParams(searchParams.toString());
     if (storeFocus) {
       next.set(FOCUS_PARAM, storeFocus);

@@ -1,6 +1,7 @@
+"use client";
+
 import { getJsxFormattedTextFromTextBlock } from "./getJsxFormattedTextFromTextBlock";
 import { CvProject } from "@/server/notion/getCvProjects";
-import { Tag } from "./Tag";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -9,9 +10,9 @@ import { FaImage } from "@react-icons/all-files/fa/FaImage";
 import { FaExternalLinkAlt } from "@react-icons/all-files/fa/FaExternalLinkAlt";
 import { FaChartLine } from "@react-icons/all-files/fa/FaChartLine";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
-import { ProjectScreenshots } from "./ProjectScreenshots";
 import { getProjectLogoSources } from "./getProjectLogoSources";
 import { colors } from "./colors";
+import { useProjectFocusStore } from "./projectFocusStore";
 import { cn } from "@/lib/utils";
 
 dayjs.extend(duration);
@@ -19,6 +20,7 @@ dayjs.extend(relativeTime);
 
 export const ProjectCard = ({ project }: { project: CvProject }) => {
   const {
+    id,
     name,
     projectType,
     websiteUrl,
@@ -28,39 +30,33 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
     screenshots,
   } = project;
 
+  const setFocused = useProjectFocusStore((s) => s.setFocusedProjectId);
   const description = getJsxFormattedTextFromTextBlock(project.description);
   const kpis = getJsxFormattedTextFromTextBlock(project.kpis);
 
   const logos = getProjectLogoSources(project);
   const primaryLogo = logos[0];
+  const thumbnail = screenshots?.[0];
   const color = colors.projectType?.[projectType];
+  const openDialog = () => setFocused(id);
 
   return (
-    <article className="group relative border border-white/30 bg-black/85 p-6 transition hover:border-white">
-      <div className="relative flex items-start justify-between gap-4">
-        <header className="space-y-3">
-          <div className="space-y-1">
-            <span
-              className={cn(
-                "inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.2em]",
-                color?.text,
-              )}
-            >
-              <span
-                className={cn(
-                  "inline-block size-2 shrink-0 rounded-[50%] border",
-                  color?.background,
-                  color?.border,
-                )}
-              />
-              {projectType}
-            </span>
-            <h3 className="text-2xl font-semibold text-white">{name}</h3>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-400">
-            <span className="tracking-normal">
-              <DateRange startDate={startDate} endDate={endDate} />
-            </span>
+    <article className="group relative grid grid-cols-1 gap-5 border border-white/30 bg-black/85 p-5 transition hover:border-white md:grid-cols-[14rem_1fr] md:gap-6">
+      <button
+        type="button"
+        onClick={openDialog}
+        aria-label={`View details for ${name}`}
+        className="absolute inset-0 z-0 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white print:hidden"
+      />
+      <div className="pointer-events-none relative z-10 flex flex-col gap-3">
+        <Thumbnail
+          src={thumbnail}
+          projectName={name}
+          onClick={openDialog}
+          screenshotCount={screenshots?.length ?? 0}
+        />
+        {(websiteUrl || githubUrl) && (
+          <div className="pointer-events-auto flex flex-wrap items-center gap-2">
             {websiteUrl && (
               <Link
                 href={websiteUrl}
@@ -84,39 +80,101 @@ export const ProjectCard = ({ project }: { project: CvProject }) => {
               </Link>
             )}
           </div>
-        </header>
-        <div className="flex shrink-0 items-center justify-center border border-white/30 bg-white/20 px-3 py-2 text-neutral-200 print:hidden">
-          {primaryLogo ? (
-            <div className="h-6">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={primaryLogo}
-                alt={`${name} logo`}
-                className="h-full w-auto object-contain grayscale [mix-blend-mode:screen]"
-                loading="lazy"
-              />
-            </div>
-          ) : (
-            <FaImage className="text-xl" />
-          )}
-        </div>
+        )}
+        {kpis && (
+          <div className="flex items-start gap-2 text-sm text-white">
+            <FaChartLine className="mt-0.5 shrink-0 text-base" />
+            <span className="line-clamp-3">{kpis}</span>
+          </div>
+        )}
       </div>
-      {screenshots && screenshots.length > 0 && (
-        <ProjectScreenshots screenshots={screenshots} projectName={name} />
-      )}
-      {kpis && (
-        <div className="relative mt-4 flex items-center gap-2 text-sm text-white">
-          <FaChartLine className="text-base" />
-          <span>{kpis}</span>
-        </div>
-      )}
-      {description && (
-        <div className="mt-4 space-y-2 text-sm leading-relaxed text-neutral-200">
-          {description}
-        </div>
-      )}
-      <MetaTable project={project} />
+      <div className="pointer-events-none relative z-10 flex flex-col gap-3">
+        <header className="space-y-1">
+          <div className="flex items-center justify-between gap-3">
+            <span
+              className={cn(
+                "inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.2em]",
+                color?.text,
+              )}
+            >
+              <span
+                className={cn(
+                  "inline-block size-2 shrink-0 rounded-[50%] border",
+                  color?.background,
+                  color?.border,
+                )}
+              />
+              {projectType}
+            </span>
+            {primaryLogo && (
+              <div className="flex h-5 shrink-0 items-center justify-center border border-white/30 bg-white/20 px-2 text-neutral-200 print:hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={primaryLogo}
+                  alt={`${name} logo`}
+                  className="h-3 w-auto object-contain grayscale [mix-blend-mode:screen]"
+                  loading="lazy"
+                />
+              </div>
+            )}
+          </div>
+          <h3 className="text-2xl font-semibold text-white">{name}</h3>
+          <p className="text-xs text-neutral-400">
+            <DateRange startDate={startDate} endDate={endDate} />
+          </p>
+        </header>
+        {description && (
+          <div className="line-clamp-5 text-sm leading-relaxed text-neutral-300">
+            {description}
+          </div>
+        )}
+      </div>
     </article>
+  );
+};
+
+const Thumbnail = ({
+  src,
+  projectName,
+  onClick,
+  screenshotCount,
+}: {
+  src: string | undefined;
+  projectName: string;
+  onClick: () => void;
+  screenshotCount: number;
+}) => {
+  const hasMultiple = screenshotCount > 1;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`Open details for ${projectName}`}
+      className="group/thumb pointer-events-auto relative block aspect-video w-full overflow-hidden border border-white/20 bg-black transition hover:border-white focus-visible:border-white focus-visible:outline-none print:hidden"
+    >
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={`${projectName} preview`}
+          loading="lazy"
+          className="h-full w-full object-cover transition duration-500 group-hover/thumb:scale-105"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-neutral-500">
+          <FaImage className="text-2xl" />
+        </div>
+      )}
+      <span className="absolute inset-0 flex items-center justify-center bg-black/60 text-[0.65rem] uppercase tracking-[0.3em] text-white opacity-0 transition group-hover/thumb:opacity-100">
+        View
+      </span>
+      {hasMultiple && (
+        <span className="absolute bottom-2 right-2 border border-white/30 bg-black/70 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.25em] text-neutral-200">
+          +{screenshotCount - 1}
+        </span>
+      )}
+    </button>
   );
 };
 
@@ -132,158 +190,23 @@ const DateRange = ({
   if (endDateObj.isAfter(dayjs())) {
     endDateObj = dayjs();
   }
-  const duration = dayjs.duration(endDateObj.diff(startDateObj)).humanize();
+  const durationLabel = dayjs
+    .duration(endDateObj.diff(startDateObj))
+    .humanize();
   const startDateFormatted = startDateObj.format("YYYY/MM");
   const endDateFormatted = endDateObj.format("YYYY/MM");
 
   if (startDateFormatted === endDateFormatted) {
     return (
       <span>
-        {startDateFormatted} · {duration}
+        {startDateFormatted} · {durationLabel}
       </span>
     );
   }
 
   return (
     <span>
-      {startDateFormatted} – {endDateFormatted} · {duration}
+      {startDateFormatted} – {endDateFormatted} · {durationLabel}
     </span>
   );
-};
-
-const MetaTable = ({ project }: { project: CvProject }) => {
-  const rows: Partial<Record<keyof CvProject, string>> = {
-    clients: "Clients",
-    industries: "Industries",
-    experiences: "Experiences",
-    tools: "Tools",
-    languages: "Languages",
-  };
-
-  const filteredFields = Object.entries(rows)
-    .filter(([projectKey]) => {
-      const value = project[projectKey as keyof CvProject];
-      if (Array.isArray(value)) {
-        return value.length > 0;
-      }
-      return value !== null;
-    })
-    .map(([key, label]) => ({
-      label,
-      projectKey: key as keyof CvProject,
-      value: project[key as keyof CvProject],
-    }));
-
-  return (
-    <div className="mt-6 space-y-3 border border-white/20 bg-black/60 p-4 text-sm text-neutral-200">
-      {filteredFields.map(({ label, projectKey, value }) => {
-        const preview = formatPreviewValue(value);
-
-        return (
-          <details
-            key={projectKey}
-            className="group border border-white/15 bg-black/60 p-3"
-          >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-left text-[0.7rem] uppercase tracking-[0.3em] text-neutral-300 [&::-webkit-details-marker]:hidden">
-              <span>{label}</span>
-              <span className="flex items-center gap-2 text-[0.6rem] tracking-[0.25em] text-neutral-500">
-                <span className="truncate text-neutral-300/80" title={preview}>
-                  {preview}
-                </span>
-                <span
-                  className="text-neutral-400 transition-transform group-open:rotate-180"
-                  aria-hidden="true"
-                >
-                  ▾
-                </span>
-              </span>
-            </summary>
-            <div className="mt-3 border-t border-white/10 pt-3 text-[0.75rem] tracking-normal text-neutral-200">
-              <Property projectKey={projectKey} value={value} />
-            </div>
-          </details>
-        );
-      })}
-    </div>
-  );
-};
-
-const Property = <TKey extends keyof CvProject>({
-  projectKey,
-  value,
-}: {
-  projectKey: TKey;
-  value: CvProject[TKey];
-}) => {
-  if (projectKey === "clients") {
-    return (
-      <div className="flex flex-wrap gap-2">
-        {(value as { id: string; name: string }[]).map((item) => (
-          <Tag key={item.id} className="flex gap-0.5">
-            <div>{item.name}</div>
-          </Tag>
-        ))}
-      </div>
-    );
-  }
-  if (Array.isArray(value)) {
-    return (
-      <div className="flex flex-wrap gap-2">
-        {(value as string[]).map((i, idx) => (
-          <Tag key={idx} searchParamKey={projectKey} value={i}>
-            {i}
-          </Tag>
-        ))}
-      </div>
-    );
-  }
-  return <span className="text-neutral-200">{value as string}</span>;
-};
-
-const formatPreviewValue = (value: CvProject[keyof CvProject]) => {
-  if (Array.isArray(value)) {
-    const names = value
-      .map((item) => {
-        if (!item) {
-          return null;
-        }
-        if (typeof item === "string") {
-          return item;
-        }
-        if (typeof item === "object" && "name" in item) {
-          return String(item.name);
-        }
-        return null;
-      })
-      .filter((item): item is string => !!item);
-
-    if (!names.length) {
-      return "None";
-    }
-
-    if (names.length <= 2) {
-      return names.join(", ");
-    }
-
-    return `${names.slice(0, 2).join(", ")} +${names.length - 2} more`;
-  }
-
-  if (typeof value === "string" && value.trim()) {
-    return value;
-  }
-
-  if (!value) {
-    return "None";
-  }
-
-  if (
-    typeof value === "object" &&
-    value !== null &&
-    "name" in value &&
-    typeof (value as { name?: unknown }).name === "string"
-  ) {
-    return String((value as { name: string }).name);
-  }
-
-  return String(value);
 };
