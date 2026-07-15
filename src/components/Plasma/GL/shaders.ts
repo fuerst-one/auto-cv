@@ -156,3 +156,100 @@ void main() {
   fragColor = vec4(mix(u_bgColor, color, alpha), 1.0);
 }
 `;
+
+export const POST_VERTEX_SHADER = `#version 300 es
+precision highp float;
+
+in vec2 a_position;
+out vec2 v_uv;
+
+void main() {
+  v_uv = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}
+`;
+
+export const POST_FRAGMENT_SHADER = `#version 300 es
+precision highp float;
+
+in vec2 v_uv;
+out vec4 fragColor;
+
+uniform sampler2D u_scene;
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform float u_blurMaxPx;
+uniform float u_blurInner;
+uniform float u_blurOuter;
+uniform float u_glitchInterval;
+uniform float u_glitchDuration;
+uniform float u_glitchShift;
+uniform float u_glitchCaPx;
+
+float hash11(float p) {
+  p = fract(p * 0.1031);
+  p *= p + 33.33;
+  p *= p + p;
+  return fract(p);
+}
+
+float hash21(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
+
+const vec2 RING_INNER[4] = vec2[4](
+  vec2(1.0, 0.0), vec2(-1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0)
+);
+const vec2 RING_OUTER[8] = vec2[8](
+  vec2(1.0, 0.0), vec2(-1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0),
+  vec2(0.7071, 0.7071), vec2(-0.7071, 0.7071),
+  vec2(0.7071, -0.7071), vec2(-0.7071, -0.7071)
+);
+
+void main() {
+  vec2 uv = v_uv;
+  float edgeDist = length((v_uv - 0.5) * 2.0);
+  float vignette = smoothstep(u_blurInner, u_blurOuter, edgeDist);
+
+  // Occasional glitch burst: one short, randomly-placed window per interval.
+  float slot = floor(u_time / u_glitchInterval);
+  float slotT = u_time - slot * u_glitchInterval;
+  float start = hash11(slot) * (u_glitchInterval - u_glitchDuration);
+  float local = slotT - start;
+  float burst = 0.0;
+  if (local >= 0.0 && local < u_glitchDuration) {
+    float envelope = sin(3.14159265 * local / u_glitchDuration);
+    burst = envelope * (0.35 + 0.65 * hash11(slot * 7.13));
+  }
+
+  if (burst > 0.0) {
+    float band = floor(uv.y * 28.0);
+    float frame = floor(u_time * 24.0);
+    float bandOn = step(0.8, hash21(vec2(band, frame)));
+    float shift = (hash21(vec2(band * 3.7, frame)) - 0.5) * 2.0;
+    uv.x += bandOn * shift * u_glitchShift * burst;
+  }
+
+  // Radial blur: zero in the center, ramping up towards the frame edges.
+  vec2 texel = 1.0 / u_resolution;
+  float radius = u_blurMaxPx * vignette;
+  vec3 col = texture(u_scene, uv).rgb * 0.22;
+  for (int i = 0; i < 4; i++) {
+    col += texture(u_scene, uv + RING_INNER[i] * texel * radius * 0.5).rgb * 0.1;
+  }
+  for (int i = 0; i < 8; i++) {
+    col += texture(u_scene, uv + RING_OUTER[i] * texel * radius).rgb * 0.0475;
+  }
+
+  if (burst > 0.0) {
+    // Chromatic aberration, slightly stronger away from the center.
+    float ca = u_glitchCaPx * texel.x * burst * (0.5 + 0.5 * vignette);
+    col.r = mix(col.r, texture(u_scene, uv + vec2(ca, 0.0)).r, 0.8);
+    col.b = mix(col.b, texture(u_scene, uv - vec2(ca, 0.0)).b, 0.8);
+  }
+
+  fragColor = vec4(col, 1.0);
+}
+`;

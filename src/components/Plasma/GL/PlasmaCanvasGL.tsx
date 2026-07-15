@@ -13,6 +13,13 @@ import {
   ANGLE_INCREMENTS,
   BASE_CHARACTERS,
   CENTER_XS,
+  PLASMA_BLUR_INNER_FRAC,
+  PLASMA_BLUR_MAX_PX,
+  PLASMA_BLUR_OUTER_FRAC,
+  PLASMA_GLITCH_CA_PX,
+  PLASMA_GLITCH_DURATION,
+  PLASMA_GLITCH_INTERVAL,
+  PLASMA_GLITCH_SHIFT,
   CENTER_YS,
   PLASMA_COMPLEXITY,
   PLASMA_LENS_BASE_RADIUS_FRAC,
@@ -32,7 +39,12 @@ import {
 } from "../constants";
 import { buildGlyphAtlas, GlyphAtlas, SDF_PARAMS } from "./buildGlyphAtlas";
 import { buildRampTable, packRampToRGBA } from "./buildRampTable";
-import { FRAGMENT_SHADER, VERTEX_SHADER } from "./shaders";
+import {
+  FRAGMENT_SHADER,
+  POST_FRAGMENT_SHADER,
+  POST_VERTEX_SHADER,
+  VERTEX_SHADER,
+} from "./shaders";
 
 export type PlasmaCanvasGLHandle = {
   renderPlasma: () => void;
@@ -87,9 +99,13 @@ const compileShader = (
   return shader;
 };
 
-const createProgram = (gl: WebGL2RenderingContext): WebGLProgram => {
-  const vs = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
-  const fs = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
+const createProgram = (
+  gl: WebGL2RenderingContext,
+  vertexSource: string,
+  fragmentSource: string,
+): WebGLProgram => {
+  const vs = compileShader(gl, gl.VERTEX_SHADER, vertexSource);
+  const fs = compileShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
   const program = gl.createProgram();
   if (!program) throw new Error("createProgram failed");
   gl.attachShader(program, vs);
@@ -151,6 +167,13 @@ type GLState = {
   luminanceTex: WebGLTexture;
   atlas: GlyphAtlas;
   uniforms: Record<string, WebGLUniformLocation | null>;
+  postProgram: WebGLProgram;
+  postVao: WebGLVertexArrayObject;
+  postUniforms: Record<string, WebGLUniformLocation | null>;
+  sceneTex: WebGLTexture;
+  sceneFbo: WebGLFramebuffer;
+  sceneSize: { width: number; height: number };
+  timeOrigin: number;
   rampLength: number;
   lastRampSignature: string;
   lastLuminanceSize: { width: number; height: number };
@@ -171,7 +194,7 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
   });
   if (!gl) return null;
 
-  const program = createProgram(gl);
+  const program = createProgram(gl, VERTEX_SHADER, FRAGMENT_SHADER);
   gl.useProgram(program);
 
   const vao = gl.createVertexArray()!;
@@ -186,6 +209,48 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
   const positionLoc = gl.getAttribLocation(program, "a_position");
   gl.enableVertexAttribArray(positionLoc);
   gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+
+  const postProgram = createProgram(
+    gl,
+    POST_VERTEX_SHADER,
+    POST_FRAGMENT_SHADER,
+  );
+  const postVao = gl.createVertexArray()!;
+  gl.bindVertexArray(postVao);
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  const postPositionLoc = gl.getAttribLocation(postProgram, "a_position");
+  gl.enableVertexAttribArray(postPositionLoc);
+  gl.vertexAttribPointer(postPositionLoc, 2, gl.FLOAT, false, 0, 0);
+  gl.bindVertexArray(vao);
+
+  const sceneTex = gl.createTexture()!;
+  gl.bindTexture(gl.TEXTURE_2D, sceneTex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const sceneFbo = gl.createFramebuffer()!;
+
+  const postUniforms = {
+    u_scene: gl.getUniformLocation(postProgram, "u_scene"),
+    u_resolution: gl.getUniformLocation(postProgram, "u_resolution"),
+    u_time: gl.getUniformLocation(postProgram, "u_time"),
+    u_blurMaxPx: gl.getUniformLocation(postProgram, "u_blurMaxPx"),
+    u_blurInner: gl.getUniformLocation(postProgram, "u_blurInner"),
+    u_blurOuter: gl.getUniformLocation(postProgram, "u_blurOuter"),
+    u_glitchInterval: gl.getUniformLocation(postProgram, "u_glitchInterval"),
+    u_glitchDuration: gl.getUniformLocation(postProgram, "u_glitchDuration"),
+    u_glitchShift: gl.getUniformLocation(postProgram, "u_glitchShift"),
+    u_glitchCaPx: gl.getUniformLocation(postProgram, "u_glitchCaPx"),
+  };
+  gl.useProgram(postProgram);
+  gl.uniform1i(postUniforms.u_scene, 3);
+  gl.uniform1f(postUniforms.u_blurInner, PLASMA_BLUR_INNER_FRAC);
+  gl.uniform1f(postUniforms.u_blurOuter, PLASMA_BLUR_OUTER_FRAC);
+  gl.uniform1f(postUniforms.u_glitchInterval, PLASMA_GLITCH_INTERVAL);
+  gl.uniform1f(postUniforms.u_glitchDuration, PLASMA_GLITCH_DURATION);
+  gl.uniform1f(postUniforms.u_glitchShift, PLASMA_GLITCH_SHIFT);
+  gl.useProgram(program);
 
   const atlas = buildGlyphAtlas(BASE_CHARACTERS);
   const glyphTex = createGlyphTexture(gl, atlas);
@@ -269,6 +334,13 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
     luminanceTex,
     atlas,
     uniforms,
+    postProgram,
+    postVao,
+    postUniforms,
+    sceneTex,
+    sceneFbo,
+    sceneSize: { width: 0, height: 0 },
+    timeOrigin: performance.now(),
     rampLength: 0,
     lastRampSignature: "",
     lastLuminanceSize: { width: 0, height: 0 },
@@ -349,6 +421,36 @@ const uploadLuminance = (
   }
 };
 
+const ensureSceneTarget = (state: GLState, width: number, height: number) => {
+  const { gl } = state;
+  if (state.sceneSize.width === width && state.sceneSize.height === height) {
+    return;
+  }
+  gl.activeTexture(gl.TEXTURE3);
+  gl.bindTexture(gl.TEXTURE_2D, state.sceneTex);
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA8,
+    width,
+    height,
+    0,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    null,
+  );
+  gl.bindFramebuffer(gl.FRAMEBUFFER, state.sceneFbo);
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    state.sceneTex,
+    0,
+  );
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  state.sceneSize = { width, height };
+};
+
 const bindAndDraw = (
   state: GLState,
   gridWidth: number,
@@ -358,7 +460,7 @@ const bindAndDraw = (
   atlasScale: number,
   bgColor: [number, number, number],
 ) => {
-  const { gl, uniforms } = state;
+  const { gl, uniforms, postUniforms } = state;
   gl.uniform2f(uniforms.u_gridSize, gridWidth, gridHeight);
   gl.uniform2f(uniforms.u_cellPx, cellWidth, cellHeight);
   gl.uniform1f(uniforms.u_atlasScale, atlasScale);
@@ -377,8 +479,32 @@ const bindAndDraw = (
   gl.activeTexture(gl.TEXTURE2);
   gl.bindTexture(gl.TEXTURE_2D, state.luminanceTex);
 
+  // Pass 1: glyph field into the offscreen scene texture.
+  const targetW = gl.drawingBufferWidth;
+  const targetH = gl.drawingBufferHeight;
+  ensureSceneTarget(state, targetW, targetH);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, state.sceneFbo);
+  gl.viewport(0, 0, targetW, targetH);
   gl.bindVertexArray(state.vao);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+  // Pass 2: edge blur + occasional glitch onto the canvas.
+  const dpr = typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
+  gl.useProgram(state.postProgram);
+  gl.activeTexture(gl.TEXTURE3);
+  gl.bindTexture(gl.TEXTURE_2D, state.sceneTex);
+  gl.uniform2f(postUniforms.u_resolution, targetW, targetH);
+  gl.uniform1f(
+    postUniforms.u_time,
+    (performance.now() - state.timeOrigin) / 1000,
+  );
+  gl.uniform1f(postUniforms.u_blurMaxPx, PLASMA_BLUR_MAX_PX * dpr);
+  gl.uniform1f(postUniforms.u_glitchCaPx, PLASMA_GLITCH_CA_PX * dpr);
+  gl.viewport(0, 0, targetW, targetH);
+  gl.bindVertexArray(state.postVao);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.useProgram(state.program);
 };
 
 export const PlasmaCanvasGL = forwardRef<
@@ -425,8 +551,12 @@ export const PlasmaCanvasGL = forwardRef<
       gl.deleteTexture(s.glyphTex);
       gl.deleteTexture(s.rampTex);
       gl.deleteTexture(s.luminanceTex);
+      gl.deleteTexture(s.sceneTex);
+      gl.deleteFramebuffer(s.sceneFbo);
       gl.deleteVertexArray(s.vao);
+      gl.deleteVertexArray(s.postVao);
       gl.deleteProgram(s.program);
+      gl.deleteProgram(s.postProgram);
       stateRef.current = null;
     };
   }, []);
