@@ -16,6 +16,7 @@ import {
   PLASMA_BLUR_INNER_FRAC,
   PLASMA_BLUR_MAX_PX,
   PLASMA_BLUR_OUTER_FRAC,
+  PLASMA_GLITCH_BANDS,
   PLASMA_GLITCH_TEAR_PX,
   PLASMA_GLITCH_DURATION,
   PLASMA_GLITCH_INTERVAL,
@@ -241,6 +242,7 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
     u_glitchInterval: gl.getUniformLocation(postProgram, "u_glitchInterval"),
     u_glitchDuration: gl.getUniformLocation(postProgram, "u_glitchDuration"),
     u_glitchShift: gl.getUniformLocation(postProgram, "u_glitchShift"),
+    u_glitchBands: gl.getUniformLocation(postProgram, "u_glitchBands"),
     u_glitchTearPx: gl.getUniformLocation(postProgram, "u_glitchTearPx"),
   };
   gl.useProgram(postProgram);
@@ -250,6 +252,7 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
   gl.uniform1f(postUniforms.u_glitchInterval, PLASMA_GLITCH_INTERVAL);
   gl.uniform1f(postUniforms.u_glitchDuration, PLASMA_GLITCH_DURATION);
   gl.uniform1f(postUniforms.u_glitchShift, PLASMA_GLITCH_SHIFT);
+  gl.uniform1f(postUniforms.u_glitchBands, PLASMA_GLITCH_BANDS);
   gl.useProgram(program);
 
   const atlas = buildGlyphAtlas(BASE_CHARACTERS);

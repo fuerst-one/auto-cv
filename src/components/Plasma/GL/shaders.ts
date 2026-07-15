@@ -184,6 +184,7 @@ uniform float u_blurOuter;
 uniform float u_glitchInterval;
 uniform float u_glitchDuration;
 uniform float u_glitchShift;
+uniform float u_glitchBands;
 uniform float u_glitchTearPx;
 
 float hash11(float p) {
@@ -225,7 +226,7 @@ void main() {
   }
 
   if (burst > 0.0) {
-    float band = floor(uv.y * 28.0);
+    float band = floor(uv.y * u_glitchBands);
     float frame = floor(u_time * 24.0);
     float bandOn = step(0.8, hash21(vec2(band, frame)));
     float shift = (hash21(vec2(band * 3.7, frame)) - 0.5) * 2.0;
@@ -247,7 +248,7 @@ void main() {
     // Anaglyph tear: red pulled one way, cyan (green + blue) the opposite
     // way, so bright glyphs briefly rip into a red and a cyan ghost. The
     // tear direction wobbles a little from burst to burst.
-    float angle = (hash11(slot * 3.31) - 0.5) * 0.5;
+    float angle = (hash11(slot * 3.31) - 0.5) * 0.3;
     vec2 dir = vec2(cos(angle), sin(angle));
     vec2 tear = dir * texel * u_glitchTearPx * burst;
     vec3 redSide = texture(u_scene, uv + tear).rgb;
