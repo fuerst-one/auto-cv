@@ -246,11 +246,12 @@ void main() {
 
   if (burst > 0.0) {
     // Anaglyph tear: red pulled one way, cyan (green + blue) the opposite
-    // way, so bright glyphs briefly rip into a red and a cyan ghost. The
-    // tear direction wobbles a little from burst to burst.
-    float angle = (hash11(slot * 3.31) - 0.5) * 0.3;
+    // way, so bright glyphs briefly rip into a red and a cyan ghost. Each
+    // burst tears in its own random direction and with its own strength.
+    float angle = hash11(slot * 3.31) * 6.2831853;
+    float tearAmp = 0.3 + 0.7 * hash11(slot * 5.77);
     vec2 dir = vec2(cos(angle), sin(angle));
-    vec2 tear = dir * texel * u_glitchTearPx * burst;
+    vec2 tear = dir * texel * u_glitchTearPx * burst * tearAmp;
     vec3 redSide = texture(u_scene, uv + tear).rgb;
     vec3 cyanSide = texture(u_scene, uv - tear).rgb;
     col = vec3(redSide.r, cyanSide.g, cyanSide.b);
