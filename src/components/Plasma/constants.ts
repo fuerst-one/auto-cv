@@ -57,7 +57,6 @@ export const PLASMA_BLUR_INNER_FRAC = 0.35;
 export const PLASMA_BLUR_OUTER_FRAC = 1.15;
 export const PLASMA_GLITCH_INTERVAL = 5.0;
 export const PLASMA_GLITCH_DURATION = 0.3;
-export const PLASMA_GLITCH_SHIFT = 0.008;
 export const PLASMA_GLITCH_BANDS = 12.0;
 export const PLASMA_GLITCH_TEAR_PX = 12.0;
 

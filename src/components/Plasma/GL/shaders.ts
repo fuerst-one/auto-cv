@@ -183,7 +183,6 @@ uniform float u_blurInner;
 uniform float u_blurOuter;
 uniform float u_glitchInterval;
 uniform float u_glitchDuration;
-uniform float u_glitchShift;
 uniform float u_glitchBands;
 uniform float u_glitchTearPx;
 
@@ -225,14 +224,6 @@ void main() {
     burst = envelope * (0.35 + 0.65 * hash11(slot * 7.13));
   }
 
-  if (burst > 0.0) {
-    float band = floor(uv.y * u_glitchBands);
-    float frame = floor(u_time * 24.0);
-    float bandOn = step(0.8, hash21(vec2(band, frame)));
-    float shift = (hash21(vec2(band * 3.7, frame)) - 0.5) * 2.0;
-    uv.x += bandOn * shift * u_glitchShift * burst;
-  }
-
   // Radial blur: zero in the center, ramping up towards the frame edges.
   vec2 texel = 1.0 / u_resolution;
   float radius = u_blurMaxPx * vignette;
@@ -245,16 +236,20 @@ void main() {
   }
 
   if (burst > 0.0) {
-    // Anaglyph tear: red pulled one way, cyan (green + blue) the opposite
-    // way, so bright glyphs briefly rip into a red and a cyan ghost. Each
-    // burst tears in its own random direction and with its own strength.
-    float angle = hash11(slot * 3.31) * 6.2831853;
-    float tearAmp = 0.3 + 0.7 * hash11(slot * 5.77);
-    vec2 dir = vec2(cos(angle), sin(angle));
-    vec2 tear = dir * texel * u_glitchTearPx * burst * tearAmp;
-    vec3 redSide = texture(u_scene, uv + tear).rgb;
-    vec3 cyanSide = texture(u_scene, uv - tear).rgb;
-    col = vec3(redSide.r, cyanSide.g, cyanSide.b);
+    // Band tear: only some horizontal bands rip apart, red pulled one way
+    // and cyan (green + blue) the other, each band with its own random
+    // strength and pull direction. Everything outside a torn band stays put.
+    float band = floor(v_uv.y * u_glitchBands);
+    float bandOn = step(0.55, hash21(vec2(band, slot)));
+    float bandAmp = 0.3 + 0.7 * hash21(vec2(band * 3.7, slot + 13.7));
+    float bandSign = sign(hash21(vec2(band * 9.1, slot + 41.3)) - 0.5);
+    float tear =
+      bandOn * bandSign * bandAmp * u_glitchTearPx * texel.x * burst;
+    if (tear != 0.0) {
+      vec3 redSide = texture(u_scene, uv + vec2(tear, 0.0)).rgb;
+      vec3 cyanSide = texture(u_scene, uv - vec2(tear, 0.0)).rgb;
+      col = vec3(redSide.r, cyanSide.g, cyanSide.b);
+    }
   }
 
   fragColor = vec4(col, 1.0);

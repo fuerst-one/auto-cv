@@ -20,7 +20,6 @@ import {
   PLASMA_GLITCH_TEAR_PX,
   PLASMA_GLITCH_DURATION,
   PLASMA_GLITCH_INTERVAL,
-  PLASMA_GLITCH_SHIFT,
   CENTER_YS,
   PLASMA_COMPLEXITY,
   PLASMA_LENS_BASE_RADIUS_FRAC,
@@ -241,7 +240,6 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
     u_blurOuter: gl.getUniformLocation(postProgram, "u_blurOuter"),
     u_glitchInterval: gl.getUniformLocation(postProgram, "u_glitchInterval"),
     u_glitchDuration: gl.getUniformLocation(postProgram, "u_glitchDuration"),
-    u_glitchShift: gl.getUniformLocation(postProgram, "u_glitchShift"),
     u_glitchBands: gl.getUniformLocation(postProgram, "u_glitchBands"),
     u_glitchTearPx: gl.getUniformLocation(postProgram, "u_glitchTearPx"),
   };
@@ -251,7 +249,6 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
   gl.uniform1f(postUniforms.u_blurOuter, PLASMA_BLUR_OUTER_FRAC);
   gl.uniform1f(postUniforms.u_glitchInterval, PLASMA_GLITCH_INTERVAL);
   gl.uniform1f(postUniforms.u_glitchDuration, PLASMA_GLITCH_DURATION);
-  gl.uniform1f(postUniforms.u_glitchShift, PLASMA_GLITCH_SHIFT);
   gl.uniform1f(postUniforms.u_glitchBands, PLASMA_GLITCH_BANDS);
   gl.useProgram(program);
 
