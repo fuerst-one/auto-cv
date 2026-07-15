@@ -16,7 +16,7 @@ import {
   PLASMA_BLUR_INNER_FRAC,
   PLASMA_BLUR_MAX_PX,
   PLASMA_BLUR_OUTER_FRAC,
-  PLASMA_GLITCH_CA_PX,
+  PLASMA_GLITCH_TEAR_PX,
   PLASMA_GLITCH_DURATION,
   PLASMA_GLITCH_INTERVAL,
   PLASMA_GLITCH_SHIFT,
@@ -241,7 +241,7 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
     u_glitchInterval: gl.getUniformLocation(postProgram, "u_glitchInterval"),
     u_glitchDuration: gl.getUniformLocation(postProgram, "u_glitchDuration"),
     u_glitchShift: gl.getUniformLocation(postProgram, "u_glitchShift"),
-    u_glitchCaPx: gl.getUniformLocation(postProgram, "u_glitchCaPx"),
+    u_glitchTearPx: gl.getUniformLocation(postProgram, "u_glitchTearPx"),
   };
   gl.useProgram(postProgram);
   gl.uniform1i(postUniforms.u_scene, 3);
@@ -500,7 +500,7 @@ const bindAndDraw = (
     (performance.now() - state.timeOrigin) / 1000,
   );
   gl.uniform1f(postUniforms.u_blurMaxPx, PLASMA_BLUR_MAX_PX * dpr);
-  gl.uniform1f(postUniforms.u_glitchCaPx, PLASMA_GLITCH_CA_PX * dpr);
+  gl.uniform1f(postUniforms.u_glitchTearPx, PLASMA_GLITCH_TEAR_PX * dpr);
   gl.viewport(0, 0, targetW, targetH);
   gl.bindVertexArray(state.postVao);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

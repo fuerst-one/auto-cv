@@ -184,7 +184,7 @@ uniform float u_blurOuter;
 uniform float u_glitchInterval;
 uniform float u_glitchDuration;
 uniform float u_glitchShift;
-uniform float u_glitchCaPx;
+uniform float u_glitchTearPx;
 
 float hash11(float p) {
   p = fract(p * 0.1031);
@@ -244,10 +244,15 @@ void main() {
   }
 
   if (burst > 0.0) {
-    // Chromatic aberration, slightly stronger away from the center.
-    float ca = u_glitchCaPx * texel.x * burst * (0.5 + 0.5 * vignette);
-    col.r = mix(col.r, texture(u_scene, uv + vec2(ca, 0.0)).r, 0.8);
-    col.b = mix(col.b, texture(u_scene, uv - vec2(ca, 0.0)).b, 0.8);
+    // Anaglyph tear: red pulled one way, cyan (green + blue) the opposite
+    // way, so bright glyphs briefly rip into a red and a cyan ghost. The
+    // tear direction wobbles a little from burst to burst.
+    float angle = (hash11(slot * 3.31) - 0.5) * 0.5;
+    vec2 dir = vec2(cos(angle), sin(angle));
+    vec2 tear = dir * texel * u_glitchTearPx * burst;
+    vec3 redSide = texture(u_scene, uv + tear).rgb;
+    vec3 cyanSide = texture(u_scene, uv - tear).rgb;
+    col = vec3(redSide.r, cyanSide.g, cyanSide.b);
   }
 
   fragColor = vec4(col, 1.0);
