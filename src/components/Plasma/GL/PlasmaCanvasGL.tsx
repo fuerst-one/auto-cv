@@ -174,6 +174,7 @@ type GLState = {
   sceneFbo: WebGLFramebuffer;
   sceneSize: { width: number; height: number };
   timeOrigin: number;
+  reducedMotion: MediaQueryList | null;
   rampLength: number;
   lastRampSignature: string;
   lastLuminanceSize: { width: number; height: number };
@@ -242,6 +243,7 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
     u_glitchDuration: gl.getUniformLocation(postProgram, "u_glitchDuration"),
     u_glitchBands: gl.getUniformLocation(postProgram, "u_glitchBands"),
     u_glitchTearPx: gl.getUniformLocation(postProgram, "u_glitchTearPx"),
+    u_glitchEnabled: gl.getUniformLocation(postProgram, "u_glitchEnabled"),
   };
   gl.useProgram(postProgram);
   gl.uniform1i(postUniforms.u_scene, 3);
@@ -341,6 +343,10 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
     sceneFbo,
     sceneSize: { width: 0, height: 0 },
     timeOrigin: performance.now(),
+    reducedMotion:
+      typeof window === "undefined"
+        ? null
+        : window.matchMedia("(prefers-reduced-motion: reduce)"),
     rampLength: 0,
     lastRampSignature: "",
     lastLuminanceSize: { width: 0, height: 0 },
@@ -501,6 +507,10 @@ const bindAndDraw = (
   );
   gl.uniform1f(postUniforms.u_blurMaxPx, PLASMA_BLUR_MAX_PX * dpr);
   gl.uniform1f(postUniforms.u_glitchTearPx, PLASMA_GLITCH_TEAR_PX * dpr);
+  gl.uniform1f(
+    postUniforms.u_glitchEnabled,
+    state.reducedMotion?.matches ? 0 : 1,
+  );
   gl.viewport(0, 0, targetW, targetH);
   gl.bindVertexArray(state.postVao);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

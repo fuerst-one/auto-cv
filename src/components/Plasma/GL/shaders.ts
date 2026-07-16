@@ -185,6 +185,7 @@ uniform float u_glitchInterval;
 uniform float u_glitchDuration;
 uniform float u_glitchBands;
 uniform float u_glitchTearPx;
+uniform float u_glitchEnabled;
 
 float hash11(float p) {
   p = fract(p * 0.1031);
@@ -222,7 +223,7 @@ void main() {
   float local = slotT - start;
   float burst = 0.0;
   float seed = 0.0;
-  if (local >= 0.0 && local < u_glitchDuration) {
+  if (u_glitchEnabled > 0.5 && local >= 0.0 && local < u_glitchDuration) {
     float subCount = 2.0 + floor(hash11(slot * 2.17) * 3.0);
     float sub = floor(local / u_glitchDuration * subCount);
     seed = slot * 17.0 + sub * 3.7;
