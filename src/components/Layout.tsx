@@ -38,14 +38,17 @@ export async function Layout({
                   <span className="text-2xl font-semibold">
                     Alexander Fuerst
                   </span>
-                  <span className="text-xs uppercase tracking-[0.2em] text-neutral-400">
-                    creative technology · cogent interfaces · effective
-                    automation
+                  <span className="flex flex-col text-xs uppercase tracking-[0.2em] text-neutral-400 sm:block">
+                    <span>creative technology</span>
+                    <span className="hidden sm:inline"> · </span>
+                    <span>cogent interfaces</span>
+                    <span className="hidden sm:inline"> · </span>
+                    <span>effective automation</span>
                   </span>
                 </div>
               </div>
             </Link>
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-row items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
               <div className="border border-white/30 bg-black px-4 py-2 text-[0.7rem] uppercase tracking-[0.25em] text-neutral-200">
                 UX+AI Engineer
               </div>
