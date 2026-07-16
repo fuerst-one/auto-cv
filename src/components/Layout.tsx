@@ -18,14 +18,14 @@ export async function Layout({
         <header className="mb-12 flex flex-col gap-6 text-sm text-neutral-300">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <Link href="/" className="flex items-center gap-4">
-              <div className="relative h-20 w-20 border border-white/30 bg-black p-1">
+              <div className="relative h-24 w-24 border border-white/30 bg-black p-1">
                 {owner.avatarUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={owner.avatarUrl}
                     alt={owner.name}
-                    width={80}
-                    height={80}
+                    width={96}
+                    height={96}
                     className="h-full w-full object-cover grayscale"
                   />
                 )}
