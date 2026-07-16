@@ -214,14 +214,19 @@ void main() {
   float vignette = smoothstep(u_blurInner, u_blurOuter, edgeDist);
 
   // Occasional glitch burst: one short, randomly-placed window per interval.
+  // No easing — the tear appears and vanishes instantly. Each burst is cut
+  // into 2-4 sub-bursts, and every sub-burst re-rolls the tear pattern.
   float slot = floor(u_time / u_glitchInterval);
   float slotT = u_time - slot * u_glitchInterval;
   float start = hash11(slot) * (u_glitchInterval - u_glitchDuration);
   float local = slotT - start;
   float burst = 0.0;
+  float seed = 0.0;
   if (local >= 0.0 && local < u_glitchDuration) {
-    float envelope = sin(3.14159265 * local / u_glitchDuration);
-    burst = envelope * (0.35 + 0.65 * hash11(slot * 7.13));
+    float subCount = 2.0 + floor(hash11(slot * 2.17) * 3.0);
+    float sub = floor(local / u_glitchDuration * subCount);
+    seed = slot * 17.0 + sub * 3.7;
+    burst = 0.35 + 0.65 * hash11(seed * 7.13);
   }
 
   // Radial blur: zero in the center, ramping up towards the frame edges.
@@ -240,9 +245,9 @@ void main() {
     // and cyan (green + blue) the other, each band with its own random
     // strength and pull direction. Everything outside a torn band stays put.
     float band = floor(v_uv.y * u_glitchBands);
-    float bandOn = step(0.55, hash21(vec2(band, slot)));
-    float bandAmp = 0.3 + 0.7 * hash21(vec2(band * 3.7, slot + 13.7));
-    float bandSign = sign(hash21(vec2(band * 9.1, slot + 41.3)) - 0.5);
+    float bandOn = step(0.55, hash21(vec2(band, seed)));
+    float bandAmp = 0.3 + 0.7 * hash21(vec2(band * 3.7, seed + 13.7));
+    float bandSign = sign(hash21(vec2(band * 9.1, seed + 41.3)) - 0.5);
     float tear =
       bandOn * bandSign * bandAmp * u_glitchTearPx * texel.x * burst;
     if (tear != 0.0) {
