@@ -50,6 +50,16 @@ export const PLASMA_LANDING_LENS_SCALE = 3;
 export const PLASMA_LANDING_LENS_X_FRAC = 0.5;
 export const PLASMA_LANDING_LENS_Y_FRAC = 0.48;
 
+// Post-process pass: radial blur (none in the center, more towards the
+// edges) plus a short glitch burst every few seconds.
+export const PLASMA_BLUR_MAX_PX = 5.0;
+export const PLASMA_BLUR_INNER_FRAC = 0.35;
+export const PLASMA_BLUR_OUTER_FRAC = 1.15;
+export const PLASMA_GLITCH_INTERVAL = 5.0;
+export const PLASMA_GLITCH_DURATION = 0.3;
+export const PLASMA_GLITCH_BANDS = 12.0;
+export const PLASMA_GLITCH_TEAR_PX = 12.0;
+
 export const PLASMA_RIPPLE_MAX = 6;
 export const PLASMA_RIPPLE_RADIUS_FRAC = 0.4;
 export const PLASMA_RIPPLE_STRENGTH = 4.0;

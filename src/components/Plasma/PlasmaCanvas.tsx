@@ -32,6 +32,7 @@ export type PlasmaCanvasHandle = {
   emitRipple: (cellX: number, cellY: number) => void;
   setLensScale: (value: number) => number;
   getLensScale: () => number;
+  getGlitchIntensity: () => number;
 };
 
 export type PlasmaCanvasProps = {
@@ -44,6 +45,11 @@ export type PlasmaCanvasProps = {
   gridHeight: number;
   className?: string;
   style?: CSSProperties;
+  /**
+   * Runs the edge-blur + glitch post-process pass (WebGL2 path only). Off
+   * by default; the landing hero is the only consumer that enables it.
+   */
+  postProcess?: boolean;
   /**
    * Called from the JS fallback path with the freshly-computed glyph grid,
    * before it is drawn. The callback may mutate the frame in place (e.g. to
@@ -71,6 +77,7 @@ export const PlasmaCanvas = forwardRef<PlasmaCanvasHandle, PlasmaCanvasProps>(
       gridHeight,
       className,
       style,
+      postProcess,
       onTextFrame,
       onCanvasReady,
     } = props;
@@ -143,6 +150,7 @@ export const PlasmaCanvas = forwardRef<PlasmaCanvasHandle, PlasmaCanvasProps>(
         },
         setLensScale: (value) => glRef.current?.setLensScale(value) ?? value,
         getLensScale: () => glRef.current?.getLensScale() ?? 1,
+        getGlitchIntensity: () => glRef.current?.getGlitchIntensity() ?? 0,
       }),
       [supportsGL, renderPlasmaJS, renderLuminanceJS],
     );
@@ -164,6 +172,7 @@ export const PlasmaCanvas = forwardRef<PlasmaCanvasHandle, PlasmaCanvasProps>(
           gridHeight={gridHeight}
           className={className}
           style={style}
+          postProcess={postProcess}
           onCanvasReady={onCanvasReady}
         />
       );

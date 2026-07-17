@@ -156,3 +156,91 @@ void main() {
   fragColor = vec4(mix(u_bgColor, color, alpha), 1.0);
 }
 `;
+
+export const POST_VERTEX_SHADER = `#version 300 es
+precision highp float;
+
+in vec2 a_position;
+out vec2 v_uv;
+
+void main() {
+  v_uv = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}
+`;
+
+export const POST_FRAGMENT_SHADER = `#version 300 es
+precision highp float;
+
+in vec2 v_uv;
+out vec4 fragColor;
+
+uniform sampler2D u_scene;
+uniform vec2 u_resolution;
+uniform float u_blurMaxPx;
+uniform float u_blurInner;
+uniform float u_blurOuter;
+uniform float u_glitchBands;
+uniform float u_glitchTearPx;
+// Burst amplitude (0 = calm) and pattern seed, both driven from JS so the
+// canvas tear and the DOM link animation stay perfectly in sync.
+uniform float u_glitchBurst;
+uniform float u_glitchSeed;
+
+float hash21(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
+
+const vec2 RING_INNER[4] = vec2[4](
+  vec2(1.0, 0.0), vec2(-1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0)
+);
+const vec2 RING_OUTER[8] = vec2[8](
+  vec2(1.0, 0.0), vec2(-1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0),
+  vec2(0.7071, 0.7071), vec2(-0.7071, 0.7071),
+  vec2(0.7071, -0.7071), vec2(-0.7071, -0.7071)
+);
+
+void main() {
+  vec2 uv = v_uv;
+  float edgeDist = length((v_uv - 0.5) * 2.0);
+  float vignette = smoothstep(u_blurInner, u_blurOuter, edgeDist);
+
+  // Burst amplitude and pattern seed are computed on the JS side (see
+  // getGlitchState) and passed straight in, so the letter animation can
+  // read the exact same value.
+  float burst = u_glitchBurst;
+  float seed = u_glitchSeed;
+
+  // Radial blur: zero in the center, ramping up towards the frame edges.
+  vec2 texel = 1.0 / u_resolution;
+  float radius = u_blurMaxPx * vignette;
+  vec3 col = texture(u_scene, uv).rgb * 0.22;
+  for (int i = 0; i < 4; i++) {
+    col += texture(u_scene, uv + RING_INNER[i] * texel * radius * 0.5).rgb * 0.1;
+  }
+  for (int i = 0; i < 8; i++) {
+    col += texture(u_scene, uv + RING_OUTER[i] * texel * radius).rgb * 0.0475;
+  }
+
+  if (burst > 0.0) {
+    // Band tear: only some horizontal bands rip apart, red pulled one way
+    // and cyan (green + blue) the other, each band with its own random
+    // strength and pull direction. Everything outside a torn band stays put.
+    float band = floor(v_uv.y * u_glitchBands);
+    float bandOn = step(0.55, hash21(vec2(band, seed)));
+    float bandAmp = 0.3 + 0.7 * hash21(vec2(band * 3.7, seed + 13.7));
+    float bandSign = sign(hash21(vec2(band * 9.1, seed + 41.3)) - 0.5);
+    float tear =
+      bandOn * bandSign * bandAmp * u_glitchTearPx * texel.x * burst;
+    if (tear != 0.0) {
+      vec3 redSide = texture(u_scene, uv + vec2(tear, 0.0)).rgb;
+      vec3 cyanSide = texture(u_scene, uv - vec2(tear, 0.0)).rgb;
+      col = vec3(redSide.r, cyanSide.g, cyanSide.b);
+    }
+  }
+
+  fragColor = vec4(col, 1.0);
+}
+`;

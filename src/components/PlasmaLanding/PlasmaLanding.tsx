@@ -79,6 +79,11 @@ const Frame = ({ bounds, cellSize, fontPx }: FrameProps) => {
     return getResponsivePlacements(bounds, groups);
   }, [bounds, isPlaying, fontPx]);
 
+  const getGlitchIntensity = useCallback(
+    () => (isPlaying ? (canvasRef.current?.getGlitchIntensity() ?? 0) : 0),
+    [isPlaying],
+  );
+
   const applyStaticLens = useCallback(() => {
     if (!bounds) {
       return;
@@ -127,11 +132,13 @@ const Frame = ({ bounds, cellSize, fontPx }: FrameProps) => {
         fontPx={fontPx}
         gridWidth={bounds.width}
         gridHeight={bounds.height}
+        postProcess
       />
       <LabelOverlay
         placements={placements}
         cellSize={cellSize}
         fontPx={fontPx}
+        getGlitchIntensity={getGlitchIntensity}
       />
     </div>
   );
