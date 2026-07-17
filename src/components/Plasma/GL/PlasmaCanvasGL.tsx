@@ -71,6 +71,12 @@ export type PlasmaCanvasGLProps = {
   className?: string;
   style?: CSSProperties;
   /**
+   * Runs the edge-blur + glitch post-process pass. Off by default, so the
+   * plain glyph field renders straight to the canvas. Only the landing
+   * hero opts in — the site background and playground stay unprocessed.
+   */
+  postProcess?: boolean;
+  /**
    * Fires with the underlying <canvas> on mount and `null` on unmount.
    * Lets consumers (e.g. OrbitControls) bind pointer/wheel events to the
    * actual canvas element, so overlay UI siblings keep their own clicks.
@@ -465,6 +471,7 @@ const bindAndDraw = (
   cellHeight: number,
   atlasScale: number,
   bgColor: [number, number, number],
+  postProcess: boolean,
 ) => {
   const { gl, uniforms, postUniforms } = state;
   gl.uniform2f(uniforms.u_gridSize, gridWidth, gridHeight);
@@ -485,9 +492,19 @@ const bindAndDraw = (
   gl.activeTexture(gl.TEXTURE2);
   gl.bindTexture(gl.TEXTURE_2D, state.luminanceTex);
 
-  // Pass 1: glyph field into the offscreen scene texture.
   const targetW = gl.drawingBufferWidth;
   const targetH = gl.drawingBufferHeight;
+
+  // No post-process: draw the glyph field straight to the canvas.
+  if (!postProcess) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, targetW, targetH);
+    gl.bindVertexArray(state.vao);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    return;
+  }
+
+  // Pass 1: glyph field into the offscreen scene texture.
   ensureSceneTarget(state, targetW, targetH);
   gl.bindFramebuffer(gl.FRAMEBUFFER, state.sceneFbo);
   gl.viewport(0, 0, targetW, targetH);
@@ -531,6 +548,7 @@ export const PlasmaCanvasGL = forwardRef<
     gridHeight,
     className,
     style,
+    postProcess = false,
     onCanvasReady,
   },
   ref,
@@ -667,6 +685,7 @@ export const PlasmaCanvasGL = forwardRef<
           cellSize,
           atlasScale,
           bgColor,
+          postProcess,
         );
       },
       renderLuminance: (luminance, width, height) => {
@@ -684,6 +703,7 @@ export const PlasmaCanvasGL = forwardRef<
           cellSize,
           atlasScale,
           bgColor,
+          postProcess,
         );
       },
       setCursor: (cellX, cellY) => {
@@ -730,6 +750,7 @@ export const PlasmaCanvasGL = forwardRef<
       cellWidth,
       cellSize,
       atlasScale,
+      postProcess,
     ],
   );
 

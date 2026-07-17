@@ -45,6 +45,11 @@ export type PlasmaCanvasProps = {
   className?: string;
   style?: CSSProperties;
   /**
+   * Runs the edge-blur + glitch post-process pass (WebGL2 path only). Off
+   * by default; the landing hero is the only consumer that enables it.
+   */
+  postProcess?: boolean;
+  /**
    * Called from the JS fallback path with the freshly-computed glyph grid,
    * before it is drawn. The callback may mutate the frame in place (e.g. to
    * blank cells under DOM label overlays) and/or capture it for later use.
@@ -71,6 +76,7 @@ export const PlasmaCanvas = forwardRef<PlasmaCanvasHandle, PlasmaCanvasProps>(
       gridHeight,
       className,
       style,
+      postProcess,
       onTextFrame,
       onCanvasReady,
     } = props;
@@ -164,6 +170,7 @@ export const PlasmaCanvas = forwardRef<PlasmaCanvasHandle, PlasmaCanvasProps>(
           gridHeight={gridHeight}
           className={className}
           style={style}
+          postProcess={postProcess}
           onCanvasReady={onCanvasReady}
         />
       );

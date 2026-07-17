@@ -127,6 +127,7 @@ const Frame = ({ bounds, cellSize, fontPx }: FrameProps) => {
         fontPx={fontPx}
         gridWidth={bounds.width}
         gridHeight={bounds.height}
+        postProcess
       />
       <LabelOverlay
         placements={placements}
