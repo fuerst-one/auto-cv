@@ -32,6 +32,7 @@ export type PlasmaCanvasHandle = {
   emitRipple: (cellX: number, cellY: number) => void;
   setLensScale: (value: number) => number;
   getLensScale: () => number;
+  getGlitchIntensity: () => number;
 };
 
 export type PlasmaCanvasProps = {
@@ -149,6 +150,7 @@ export const PlasmaCanvas = forwardRef<PlasmaCanvasHandle, PlasmaCanvasProps>(
         },
         setLensScale: (value) => glRef.current?.setLensScale(value) ?? value,
         getLensScale: () => glRef.current?.getLensScale() ?? 1,
+        getGlitchIntensity: () => glRef.current?.getGlitchIntensity() ?? 0,
       }),
       [supportsGL, renderPlasmaJS, renderLuminanceJS],
     );

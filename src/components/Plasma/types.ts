@@ -13,7 +13,11 @@ export type Glyph = {
   onClick?: () => void;
 };
 
-export type Label = Omit<Glyph, "character"> & { label: string };
+export type Label = Omit<Glyph, "character"> & {
+  label: string;
+  /** Sync a chromatic red/cyan tear on this label with the canvas glitch. */
+  glitch?: boolean;
+};
 
 export type LabelGroup = {
   labels: Label[];

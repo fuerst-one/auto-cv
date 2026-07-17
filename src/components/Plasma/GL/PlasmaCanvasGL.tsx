@@ -18,8 +18,6 @@ import {
   PLASMA_BLUR_OUTER_FRAC,
   PLASMA_GLITCH_BANDS,
   PLASMA_GLITCH_TEAR_PX,
-  PLASMA_GLITCH_DURATION,
-  PLASMA_GLITCH_INTERVAL,
   CENTER_YS,
   PLASMA_COMPLEXITY,
   PLASMA_LENS_BASE_RADIUS_FRAC,
@@ -45,6 +43,7 @@ import {
   POST_VERTEX_SHADER,
   VERTEX_SHADER,
 } from "./shaders";
+import { getGlitchState, GlitchState } from "./getGlitchState";
 
 export type PlasmaCanvasGLHandle = {
   renderPlasma: () => void;
@@ -58,6 +57,8 @@ export type PlasmaCanvasGLHandle = {
   emitRipple: (cellX: number, cellY: number) => void;
   setLensScale: (value: number) => number;
   getLensScale: () => number;
+  /** Current glitch-burst amplitude (0 = calm), gated by reduced motion. */
+  getGlitchIntensity: () => number;
 };
 
 export type PlasmaCanvasGLProps = {
@@ -241,22 +242,18 @@ const setupGL = (canvas: HTMLCanvasElement): GLState | null => {
   const postUniforms = {
     u_scene: gl.getUniformLocation(postProgram, "u_scene"),
     u_resolution: gl.getUniformLocation(postProgram, "u_resolution"),
-    u_time: gl.getUniformLocation(postProgram, "u_time"),
     u_blurMaxPx: gl.getUniformLocation(postProgram, "u_blurMaxPx"),
     u_blurInner: gl.getUniformLocation(postProgram, "u_blurInner"),
     u_blurOuter: gl.getUniformLocation(postProgram, "u_blurOuter"),
-    u_glitchInterval: gl.getUniformLocation(postProgram, "u_glitchInterval"),
-    u_glitchDuration: gl.getUniformLocation(postProgram, "u_glitchDuration"),
     u_glitchBands: gl.getUniformLocation(postProgram, "u_glitchBands"),
     u_glitchTearPx: gl.getUniformLocation(postProgram, "u_glitchTearPx"),
-    u_glitchEnabled: gl.getUniformLocation(postProgram, "u_glitchEnabled"),
+    u_glitchBurst: gl.getUniformLocation(postProgram, "u_glitchBurst"),
+    u_glitchSeed: gl.getUniformLocation(postProgram, "u_glitchSeed"),
   };
   gl.useProgram(postProgram);
   gl.uniform1i(postUniforms.u_scene, 3);
   gl.uniform1f(postUniforms.u_blurInner, PLASMA_BLUR_INNER_FRAC);
   gl.uniform1f(postUniforms.u_blurOuter, PLASMA_BLUR_OUTER_FRAC);
-  gl.uniform1f(postUniforms.u_glitchInterval, PLASMA_GLITCH_INTERVAL);
-  gl.uniform1f(postUniforms.u_glitchDuration, PLASMA_GLITCH_DURATION);
   gl.uniform1f(postUniforms.u_glitchBands, PLASMA_GLITCH_BANDS);
   gl.useProgram(program);
 
@@ -463,6 +460,12 @@ const ensureSceneTarget = (state: GLState, width: number, height: number) => {
   state.sceneSize = { width, height };
 };
 
+// Current glitch amplitude/seed for this canvas, gated by reduced motion.
+const currentGlitch = (state: GLState): GlitchState => {
+  if (state.reducedMotion?.matches) return { burst: 0, seed: 0 };
+  return getGlitchState((performance.now() - state.timeOrigin) / 1000);
+};
+
 const bindAndDraw = (
   state: GLState,
   gridWidth: number,
@@ -514,20 +517,15 @@ const bindAndDraw = (
 
   // Pass 2: edge blur + occasional glitch onto the canvas.
   const dpr = typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
+  const glitch = currentGlitch(state);
   gl.useProgram(state.postProgram);
   gl.activeTexture(gl.TEXTURE3);
   gl.bindTexture(gl.TEXTURE_2D, state.sceneTex);
   gl.uniform2f(postUniforms.u_resolution, targetW, targetH);
-  gl.uniform1f(
-    postUniforms.u_time,
-    (performance.now() - state.timeOrigin) / 1000,
-  );
   gl.uniform1f(postUniforms.u_blurMaxPx, PLASMA_BLUR_MAX_PX * dpr);
   gl.uniform1f(postUniforms.u_glitchTearPx, PLASMA_GLITCH_TEAR_PX * dpr);
-  gl.uniform1f(
-    postUniforms.u_glitchEnabled,
-    state.reducedMotion?.matches ? 0 : 1,
-  );
+  gl.uniform1f(postUniforms.u_glitchBurst, glitch.burst);
+  gl.uniform1f(postUniforms.u_glitchSeed, glitch.seed);
   gl.viewport(0, 0, targetW, targetH);
   gl.bindVertexArray(state.postVao);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -740,6 +738,11 @@ export const PlasmaCanvasGL = forwardRef<
         const state = stateRef.current;
         if (!state) return PLASMA_LENS_SCALE_DEFAULT;
         return state.lensScale;
+      },
+      getGlitchIntensity: () => {
+        const state = stateRef.current;
+        if (!state) return 0;
+        return currentGlitch(state).burst;
       },
     }),
     [

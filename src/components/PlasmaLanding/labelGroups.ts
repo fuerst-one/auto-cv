@@ -63,6 +63,7 @@ const getCenterLabelGroup = (fontPx: number): LabelGroup => ({
         fontSize: fontPx + CENTER_FONT_BOOST_PX,
       },
       href: "/cv",
+      glitch: true,
     },
   ],
   yAlign: "center",

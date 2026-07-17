@@ -177,22 +177,15 @@ out vec4 fragColor;
 
 uniform sampler2D u_scene;
 uniform vec2 u_resolution;
-uniform float u_time;
 uniform float u_blurMaxPx;
 uniform float u_blurInner;
 uniform float u_blurOuter;
-uniform float u_glitchInterval;
-uniform float u_glitchDuration;
 uniform float u_glitchBands;
 uniform float u_glitchTearPx;
-uniform float u_glitchEnabled;
-
-float hash11(float p) {
-  p = fract(p * 0.1031);
-  p *= p + 33.33;
-  p *= p + p;
-  return fract(p);
-}
+// Burst amplitude (0 = calm) and pattern seed, both driven from JS so the
+// canvas tear and the DOM link animation stay perfectly in sync.
+uniform float u_glitchBurst;
+uniform float u_glitchSeed;
 
 float hash21(vec2 p) {
   vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -214,21 +207,11 @@ void main() {
   float edgeDist = length((v_uv - 0.5) * 2.0);
   float vignette = smoothstep(u_blurInner, u_blurOuter, edgeDist);
 
-  // Occasional glitch burst: one short, randomly-placed window per interval.
-  // No easing — the tear appears and vanishes instantly. Each burst is cut
-  // into 2-4 sub-bursts, and every sub-burst re-rolls the tear pattern.
-  float slot = floor(u_time / u_glitchInterval);
-  float slotT = u_time - slot * u_glitchInterval;
-  float start = hash11(slot) * (u_glitchInterval - u_glitchDuration);
-  float local = slotT - start;
-  float burst = 0.0;
-  float seed = 0.0;
-  if (u_glitchEnabled > 0.5 && local >= 0.0 && local < u_glitchDuration) {
-    float subCount = 2.0 + floor(hash11(slot * 2.17) * 3.0);
-    float sub = floor(local / u_glitchDuration * subCount);
-    seed = slot * 17.0 + sub * 3.7;
-    burst = 0.35 + 0.65 * hash11(seed * 7.13);
-  }
+  // Burst amplitude and pattern seed are computed on the JS side (see
+  // getGlitchState) and passed straight in, so the letter animation can
+  // read the exact same value.
+  float burst = u_glitchBurst;
+  float seed = u_glitchSeed;
 
   // Radial blur: zero in the center, ramping up towards the frame edges.
   vec2 texel = 1.0 / u_resolution;
